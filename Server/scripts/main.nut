@@ -1,5 +1,6 @@
 class PlayerStats
 {
+ pass = null;
  Level = 0;
  UID = null;
  IP = null;
@@ -19,6 +20,7 @@ const bas = "[#FFDD33]";
 function onScriptLoad()
 {
  DB <- ConnectSQL("databases/Registration.db");
+ status <- array(GetMaxPlayers(), null);
  QuerySQL(DB, "CREATE TABLE if not exists Accounts ( Name TEXT, LowerName TEXT, Password VARCHAR ( 255 ), Level NUMERIC DEFAULT 1, TimeRegistered VARCHAR ( 255 ) DEFAULT CURRENT_TIMESTAMP, UID VARCHAR ( 255 ), IP VARCHAR ( 255 ), AutoLogin BOOLEAN DEFAULT true, Banned TEXT, clan VARCHAR ( 255 ), Kills VARCHAR ( 255 ), Headshots VARCHAR ( 255 ), Deaths VARCHAR ( 255 ) ) ");
  print("Registeration System Loaded");
 }
@@ -31,6 +33,7 @@ function onScriptUnload()
 function onPlayerJoin( player )
 {
 	status[player.ID] = PlayerStats();
+	AccInfo(player);
 
 }
 
@@ -38,10 +41,9 @@ function onPlayerJoin( player )
 function AccInfo(player)
 {
  local q = QuerySQL(DB, "SELECT * FROM Accounts WHERE Name = '" + escapeSQLString(player.Name) + "'");
- local q2 = QuerySQL(DB, "SELECT * FROM Stats WHERE Name = '" + escapeSQLString(player.Name) + "'");
-
- if (q)
+	if (q)
  {
+ status[player.ID].pass = GetSQLColumnData(q, 2);
   status[player.ID].Level = GetSQLColumnData(q, 3);
   status[player.ID].UID = GetSQLColumnData(q, 5);
   status[player.ID].IP = GetSQLColumnData(q, 6);
@@ -49,9 +51,9 @@ function AccInfo(player)
   status[player.ID].Registered = true;
   status[player.ID].banned = GetSQLColumnData(q, 8);
   status[player.ID].clan = GetSQLColumnData(q, 9);
-  status[player.iD].kills = GetSQLColumnData(q, 10);
-  status[player.iD].headsots = GetSQLColumnData(q, 11);
-  status[player.iD].deaths = GetSQLColumnData(q, 12);
+//  status[player.iD].kills = GetSQLColumnData(q, 10).tointeger();
+//  status[player.iD].headsots = GetSQLColumnData(q, 11).tointeger();
+//  status[player.iD].deaths = GetSQLColumnData(q, 12).tointeger();
  if ((player.UID == status[player.ID].UID) || (player.IP == status[player.ID].IP))
   {
 	if(status[player.ID].banned == "Yes")
@@ -128,6 +130,7 @@ function onPlayerTeamKill( player, killer, reason, bodypart )
 
 function onPlayerChat( player, text )
 {
+return 1;
 }
 
 function GetTok(string, separator, n, ...)
@@ -181,7 +184,7 @@ return tokenized.len();
 
 
 
-function onPlayerCommand( player, cmd, text )
+function onPlayerCommand(player, command, arguments)
 {
 local cmd, text;
 cmd = command.tolower();
@@ -190,17 +193,18 @@ local params;
 
 	if(cmd == "register")
 	{
-		if(status[player.ID].Registered || status[player.ID].LoggedIn) MessagePlayer("[#FF0000]Error:[#FFFFFF] Nick already Registered.", player);
-		else if(!arguments) MessagePlayer("[#FFDD33]Information:[#FFFFFF] Use /"+bas+cmd+" <password>", player);
+		if(status[player.ID].Registered || status[player.ID].LoggedIn || status[player.ID].Level > 0) MessagePlayer("[#FF0000]Error:[#FFFFFF] Nick already Registered.", player);
+		else if(!arguments) MessagePlayer("[#FF0000]Error:[#FFFFFF] Use /"+bas+cmd+" <password>", player);
 		else if(arguments.len() < 4) MessagePlayer("[#FF0000]Error:[#FFFFFF] Password should contain atleast 4 characters.", player);
 		else
 		{
 			status[player.ID].Level = 1;
 			status[player.ID].Registered = true;
+			status[player.ID].LoggedIn = true;
 			local now = date();
 			QuerySQL(DB, "INSERT INTO Accounts ( Name, LowerName, Password, Level, TimeRegistered, UID, IP, AutoLogin, Banned, clan, Kills, Headshots, Deaths ) VALUES ('"+escapeSQLString(player.Name)+"', '"+escapeSQLString(player.Name.tolower())+"', '"+SHA256(arguments)+"', '1', '" + now.day + "/" + now.month + "/" + now.year + " " + now.hour + ":" + now.min + ":" + now.sec + "', '"+player.UID+"', '"+player.IP+"', 'true', 'No', '', '0', '0', '0') ");
 			MessagePlayer("[#FFDD33]Information:[#FFFFFF] You are now registered on the Server.", player);
-			MessagePlayer("[#FFDD33]Information:[#FFFFFF] AutoLogin is set to Yes by default. To turn it off use /"+bas+cmd+white+" (toggles Automatically) to turn it off", player);
+			MessagePlayer("[#FFDD33]Information:[#FFFFFF] AutoLogin is set to Yes by default. To turn it off use /"+bas+"autologin"+white+" (toggles Automatically) to turn it off", player);
 		}
 	}
 
@@ -209,13 +213,13 @@ local params;
 		if(!status[player.ID].Registered) MessagePlayer("[#FF0000]Error:[#FFFFFF] You are not registered.", player);
 		else if(status[player.ID].LoggedIn) MessagePlayer("[#FF0000]Error:[#FFFFFF] Already Logged in.", player);
 		else if(!arguments) MessagePlayer("[#FF0000]Error:[#FFFFFF] Use /"+bas+cmd+" <password>", player);
+		else
 		{
 			local q = QuerySQL(DB, "SELECT * FROM Accounts WHERE LowerName = '"+escapeSQLString(player.Name.tolower())+"'");
 			if(!q) MessagePlayer("[#FF0000]Error:[#FFFFFF] There is a problem with your account. Please Contact a developer of the server.", player)
 			else
 			{
-				local pass = SHA256(GetSQLColumnData(q, 2));
-				if(SHA256(arguments) != pass) MessagePlayer("[#FF0000]Error:[#FFFFFF] Wrong Password.", player);
+				if(SHA256(arguments) != status[player.ID].pass) MessagePlayer("[#FF0000]Error:[#FFFFFF] Wrong Password.", player);
 				else
 				{
 					status[player.ID].LoggedIn = true;
@@ -250,6 +254,17 @@ local params;
 				QuerySQL(DB, "UPDATE Accounts SET AutoLogin = 'true' WHERE LowerName = '"+escapeSQLString(player.Name.tolower())+"'");
 				MessagePlayer("[#FFDD33]Information:[#FFFFFF] You have Enabled AutoLogin.", player);
 			}
+		}
+	}
+	
+	else if(cmd == "changepass" || cmd == "changepassword")
+	{
+		if(!arguments || NumTok(arguments, " ", 2) < 2) MessagePlayer("[#FF0000]Error:[#FFFFFF] Use /"+bas+cmd+" <old password> <new password>", player);
+		else if(SHA256(arguments, " ", 1) != status[player.ID].pass) MessagePlayer("[#FF0000]Error:[#FFFFFF] Wrong Old Password entered.", player);
+		{
+			status[player.ID].pass = SHA256(arguments, " ", 2);
+			QuerySQL(DB, "UPDATE Accounts SET Password = '"+status[player.ID].pass+"' WHERE LowerName = '"+escapeSQLString(player.Name.tolower())+"'");
+			MessagePlayer("[#FFDD33]Information:[#FFFFFF] Your password has been updated.", player);
 		}
 	}
 	else MessagePlayer("[#FF0000]Error:[#FFFFFF] Unknown Command. Use /"+bas+"cmds"+white+" for a list of Commands", player);

@@ -1,0 +1,4 @@
+1522674140967:  INFO - (VcmpPluginInit) VC:MP Java integration plugin loading...
+1522674140967: ERROR - (JavaCore::LoadSettings) javaplugin.properties file not present.
+1522674140967: ERROR - (JavaCore::Initialise) Loading settings failed.
+1522674140967: ERROR - (JavaEventProxy::StartVM) JavaCore initialisation failed.
