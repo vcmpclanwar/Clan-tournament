@@ -259,14 +259,17 @@ local params;
 	
 	else if(cmd == "changepass" || cmd == "changepassword")
 	{
-		if(!arguments || NumTok(arguments, " ", 2) < 2) MessagePlayer("[#FF0000]Error:[#FFFFFF] Use /"+bas+cmd+" <old password> <new password>", player);
-		else if(SHA256(arguments, " ", 1) != status[player.ID].pass) MessagePlayer("[#FF0000]Error:[#FFFFFF] Wrong Old Password entered.", player);
+		if(!arguments || NumTok(arguments, " ") < 2 || GetTok(arguments, " ", 1) == null || GetTok(arguments, " ", 2) == null ) MessagePlayer("[#FF0000]Error:[#FFFFFF] Use /"+bas+cmd+" <old password> <new password>", player);
+		else if(GetTok(arguments, " ", 2).len() < 4) MessagePlayer("[#FF0000]Error:[#FFFFFF] New Password should contain atlest 4 characters.", player);
+		else if(SHA256(GetTok(arguments, " ", 1)) != status[player.ID].pass) MessagePlayer("[#FF0000]Error:[#FFFFFF] Wrong Old Password entered.", player);
+		else
 		{
-			status[player.ID].pass = SHA256(arguments, " ", 2);
+			status[player.ID].pass = SHA256(GetTok(arguments, " ", 2));
 			QuerySQL(DB, "UPDATE Accounts SET Password = '"+status[player.ID].pass+"' WHERE LowerName = '"+escapeSQLString(player.Name.tolower())+"'");
 			MessagePlayer("[#FFDD33]Information:[#FFFFFF] Your password has been updated.", player);
 		}
 	}
+	
 	else MessagePlayer("[#FF0000]Error:[#FFFFFF] Unknown Command. Use /"+bas+"cmds"+white+" for a list of Commands", player);
 }
 
