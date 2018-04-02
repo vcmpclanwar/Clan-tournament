@@ -65,30 +65,30 @@ function AccInfo(player)
  { 
  if (status[player.ID].AutoLogin == "true")
    {
-    MessagePlayer("[#FFDD33] Welcome back to the [#FFFF00]Next Generation's(DM) server[#FFFFFF].", player);
+    MessagePlayer("[#FFDD33] Welcome to the [#FFFF00]VCMP Clan Tournament 2018[#FFFFFF].", player);
 	if(status[player.ID].clan != null)
 	{
 		MessagePlayer("[#FFDD33] Clan : "+status[player.ID].clan+".", player);
 	}
-    MessagePlayer("[#FFDD33] You've been auto logged in, to disable this, type /autologin [ Toggles automatically ]", player);
+    MessagePlayer("[#FFDD33] You've been auto logged in, to disable this, type /"+bas+"autologin"+white+" [ Toggles automatically ]", player);
     status[player.ID].LoggedIn = true;
    }
    else
    {
-    MessagePlayer("[#FFDD33] Welcome back to the [#FFFF00]VCMP Clan Tournament 2018[#FFFFFF].", player);
+    MessagePlayer("[#FFDD33] Welcome to the [#FFFF00]VCMP Clan Tournament 2018[#FFFFFF].", player);
     MessagePlayer("[#FFDD33] Your nick is registered. Please login in order to access services.", player);
    }
   }
   }
   else
   {
-    MessagePlayer("[#FFDD33] Welcome back to the [#FFFF00]VCMP Clan Tournament 2018[#FFFFFF].", player);
+    MessagePlayer("[#FFDD33] Welcome to the [#FFFF00]VCMP Clan Tournament 2018[#FFFFFF].", player);
    MessagePlayer("[#FFDD33] Your nick is registered. Please login in order to access services.", player);
   }
  }
  else
  {
-    MessagePlayer("[#FFDD33] Welcome back to the [#FFFF00]VCMP Clan Tournament 2018[#FFFFFF].", player);
+    MessagePlayer("[#FFDD33] Welcome to the [#FFFF00]VCMP Clan Tournament 2018[#FFFFFF].", player);
   MessagePlayer("[#FFDD33] Your nick is [#FF0000]not [#FFDD33]registered. Please register in order to access services.", player);
  }
 //  FreeSQLQuery(q);
@@ -130,6 +130,57 @@ function onPlayerChat( player, text )
 {
 }
 
+function GetTok(string, separator, n, ...)
+{
+local m = vargv.len() > 0 ? vargv[0] : n,
+tokenized = split(string, separator),
+text = "";
+if (n > tokenized.len() || n < 1) return null;
+for (; n <= m; n++)
+{
+text += text == "" ? tokenized[n-1] : separator + tokenized[n-1];
+}
+return text;
+}
+
+function NumTok(string, separator)
+{
+local tokenized = split(string, separator);
+return tokenized.len();
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 function onPlayerCommand( player, cmd, text )
 {
 local cmd, text;
@@ -139,10 +190,69 @@ local params;
 
 	if(cmd == "register")
 	{
-	
+		if(status[player.ID].Registered || status[player.ID].LoggedIn) MessagePlayer("[#FF0000]Error:[#FFFFFF] Nick already Registered.", player);
+		else if(!arguments) MessagePlayer("[#FFDD33]Information:[#FFFFFF] Use /"+bas+cmd+" <password>", player);
+		else if(arguments.len() < 4) MessagePlayer("[#FF0000]Error:[#FFFFFF] Password should contain atleast 4 characters.", player);
+		else
+		{
+			status[player.ID].Level = 1;
+			status[player.ID].Registered = true;
+			local now = date();
+			QuerySQL(DB, "INSERT INTO Accounts ( Name, LowerName, Password, Level, TimeRegistered, UID, IP, AutoLogin, Banned, clan, Kills, Headshots, Deaths ) VALUES ('"+escapeSQLString(player.Name)+"', '"+escapeSQLString(player.Name.tolower())+"', '"+SHA256(arguments)+"', '1', '" + now.day + "/" + now.month + "/" + now.year + " " + now.hour + ":" + now.min + ":" + now.sec + "', '"+player.UID+"', '"+player.IP+"', 'true', 'No', '', '0', '0', '0') ");
+			MessagePlayer("[#FFDD33]Information:[#FFFFFF] You are now registered on the Server.", player);
+			MessagePlayer("[#FFDD33]Information:[#FFFFFF] AutoLogin is set to Yes by default. To turn it off use /"+bas+cmd+white+" (toggles Automatically) to turn it off", player);
+		}
 	}
 
+	else if(cmd == "login")
+	{
+		if(!status[player.ID].Registered) MessagePlayer("[#FF0000]Error:[#FFFFFF] You are not registered.", player);
+		else if(status[player.ID].LoggedIn) MessagePlayer("[#FF0000]Error:[#FFFFFF] Already Logged in.", player);
+		else if(!arguments) MessagePlayer("[#FF0000]Error:[#FFFFFF] Use /"+bas+cmd+" <password>", player);
+		{
+			local q = QuerySQL(DB, "SELECT * FROM Accounts WHERE LowerName = '"+escapeSQLString(player.Name.tolower())+"'");
+			if(!q) MessagePlayer("[#FF0000]Error:[#FFFFFF] There is a problem with your account. Please Contact a developer of the server.", player)
+			else
+			{
+				local pass = SHA256(GetSQLColumnData(q, 2));
+				if(SHA256(arguments) != pass) MessagePlayer("[#FF0000]Error:[#FFFFFF] Wrong Password.", player);
+				else
+				{
+					status[player.ID].LoggedIn = true;
+					MessagePlayer("[#FFDD33]Information:[#FFFFFF] You are Logged in.", player);
+				}
+			}
+		}
+	}
+	else if(!status[player.ID].Registered)
+	{
+		MessagePlayer("[#FF0000]Error:[#FFFFFF] You need to register first. Use /"+bas+"register", player);
+	}
+	else if(!status[player.ID].LoggedIn)
+	{
+		MessagePlayer("[#FF0000]Error:[#FFFFFF] You need to login first. Use /"+bas+"login", player);
+	}
+	else
+	{
 
+	 if(cmd == "autologin")
+	{
+		local q = QuerySQL(DB, "SELECT * FROM Accounts WHERE LowerName = '"+escapeSQLString(player.Name.tolower())+"'");
+		if(q)
+		{
+			if(GetSQLColumnData(q, 7) == "true")
+			{
+				QuerySQL(DB, "UPDATE Accounts SET AutoLogin = 'false' WHERE LowerName = '"+escapeSQLString(player.Name.tolower())+"'");
+				MessagePlayer("[#FFDD33]Information:[#FFFFFF] You have Disabled AutoLogin.", player);
+			}
+			else
+			{
+				QuerySQL(DB, "UPDATE Accounts SET AutoLogin = 'true' WHERE LowerName = '"+escapeSQLString(player.Name.tolower())+"'");
+				MessagePlayer("[#FFDD33]Information:[#FFFFFF] You have Enabled AutoLogin.", player);
+			}
+		}
+	}
+	else MessagePlayer("[#FF0000]Error:[#FFFFFF] Unknown Command. Use /"+bas+"cmds"+white+" for a list of Commands", player);
+}
 
-	else MessagePlayer("[#FF0000]Error:[#FFFFFF] Unknown Command. Use /"+cmd+bas+" for a list of Commands", player);
 }
