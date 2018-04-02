@@ -72,26 +72,26 @@ function AccInfo(player)
 	{
 		MessagePlayer("[#FFDD33] Clan : "+status[player.ID].clan+".", player);
 	}
-    MessagePlayer("[#FFDD33] You've been auto logged in, to disable this, type /"+bas+"autologin"+white+" [ Toggles automatically ]", player);
+    MessagePlayer("[#FFDD33]Information:[#FFFFFF]  You've been auto logged in, to disable this, type /"+bas+"autologin"+white+" [ Toggles automatically ]", player);
     status[player.ID].LoggedIn = true;
    }
    else
    {
     MessagePlayer("[#FFDD33] Welcome to the [#FFFF00]VCMP Clan Tournament 2018[#FFFFFF].", player);
-    MessagePlayer("[#FFDD33] Your nick is registered. Please login in order to access services.", player);
+    MessagePlayer("[#FFDD33]Information:[#FFFFFF]  Your nick is registered. Please login in order to access services.", player);
    }
   }
   }
   else
   {
     MessagePlayer("[#FFDD33] Welcome to the [#FFFF00]VCMP Clan Tournament 2018[#FFFFFF].", player);
-   MessagePlayer("[#FFDD33] Your nick is registered. Please login in order to access services.", player);
+   MessagePlayer("[#FFDD33]Information:[#FFFFFF]  Your nick is registered. Please login in order to access services.", player);
   }
  }
  else
  {
     MessagePlayer("[#FFDD33] Welcome to the [#FFFF00]VCMP Clan Tournament 2018[#FFFFFF].", player);
-  MessagePlayer("[#FFDD33] Your nick is [#FF0000]not [#FFDD33]registered. Please register in order to access services.", player);
+  MessagePlayer("[#FFDD33]Information:[#FFFFFF]  Your nick is [#FF0000]not [#FFFFFF]registered. Please use /"+bas+"register[#FFFFFF] in order to access services.", player);
  }
 //  FreeSQLQuery(q);
 }
@@ -153,7 +153,14 @@ return tokenized.len();
 }
 
 
-
+function(lvl)
+{
+	if(lvl == 0) return "Unregistered";
+	if(lvl == 1) return "Member";
+	if(lvl == 2) return "Refree";
+	if(lvl == 3) return "Admin";
+	if(lvl == 5) return "Founder";
+}
 
 
 
@@ -202,7 +209,7 @@ local params;
 			status[player.ID].Registered = true;
 			status[player.ID].LoggedIn = true;
 			local now = date();
-			QuerySQL(DB, "INSERT INTO Accounts ( Name, LowerName, Password, Level, TimeRegistered, UID, IP, AutoLogin, Banned, clan, Kills, Headshots, Deaths ) VALUES ('"+escapeSQLString(player.Name)+"', '"+escapeSQLString(player.Name.tolower())+"', '"+SHA256(arguments)+"', '1', '" + now.day + "/" + now.month + "/" + now.year + " " + now.hour + ":" + now.min + ":" + now.sec + "', '"+player.UID+"', '"+player.IP+"', 'true', 'No', '', '0', '0', '0') ");
+			QuerySQL(DB, "INSERT INTO Accounts ( Name, LowerName, Password, Level, TimeRegistered, UID, IP, AutoLogin, Banned, Kills, Headshots, Deaths ) VALUES ('"+escapeSQLString(player.Name)+"', '"+escapeSQLString(player.Name.tolower())+"', '"+SHA256(arguments)+"', '1', '" + now.day + "/" + now.month + "/" + now.year + " " + now.hour + ":" + now.min + ":" + now.sec + "', '"+player.UID+"', '"+player.IP+"', 'true', 'No', '0', '0', '0') ");
 			MessagePlayer("[#FFDD33]Information:[#FFFFFF] You are now registered on the Server.", player);
 			MessagePlayer("[#FFDD33]Information:[#FFFFFF] AutoLogin is set to Yes by default. To turn it off use /"+bas+"autologin"+white+" (toggles Automatically) to turn it off", player);
 		}
@@ -269,7 +276,41 @@ local params;
 			MessagePlayer("[#FFDD33]Information:[#FFFFFF] Your password has been updated.", player);
 		}
 	}
+
 	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	else if(cmd == "cmds" || cmd == "commands")
+	{
+		if(!arguments || !IsNum(arguments) || arguments.tointeger() < 0 || arguments.tointeger() > 3) MessagePlayer("[#FF0000]Error:[#FFFFFF] USe /"+bas+cmd+" <1-3>", player);
+		else
+		{
+			if(arguments.tointeger() == 1) MessagePlayer("[#FFDD33]Information:[#FFFFFF] Account Commands:"+bas+" register, login, changepass",player);
+		}
+	}
 	else MessagePlayer("[#FF0000]Error:[#FFFFFF] Unknown Command. Use /"+bas+"cmds"+white+" for a list of Commands", player);
 }
 
