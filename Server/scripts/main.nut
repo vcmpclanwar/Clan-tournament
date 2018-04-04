@@ -28,11 +28,15 @@ function onScriptLoad()
  DB <- ConnectSQL("databases/Registration.db");
  status <- array(GetMaxPlayers(), null);
  QuerySQL(DB, "CREATE TABLE if not exists Accounts ( Name TEXT, LowerName TEXT, Password VARCHAR ( 255 ), Level NUMERIC DEFAULT 1, TimeRegistered VARCHAR ( 255 ) DEFAULT CURRENT_TIMESTAMP, UID VARCHAR ( 255 ), IP VARCHAR ( 255 ), AutoLogin BOOLEAN DEFAULT true, Banned TEXT, clan VARCHAR ( 255 ), Kills VARCHAR ( 255 ), Headshots VARCHAR ( 255 ), Deaths VARCHAR ( 255 ) ) ");
- print("Registeration System Loaded");
-
  QuerySQL(DB," create table if not exists kicked ( name VARCHAR ( 255 ), admin VARCHAR ( 255 ), date VARCHAR ( 255 ), reason VARCHAR ( 255 ) ) ");
  QuerySQL(DB," create table if not exists warn ( name VARCHAR ( 255 ), admin VARCHAR ( 255 ), date VARCHAR ( 255 ), reason VARCHAR ( 255 ) ) ");
  QuerySQL(DB," create table if not exists slap ( name VARCHAR ( 255 ), admin VARCHAR ( 255 ), date VARCHAR ( 255 ), reason VARCHAR ( 255 ) ) ");
+ QuerySQL(DB, "create table if not exists staff (name VARCHAR ( 255 ), rank VARCHAR ( 255 ), madeby VARCHAR ( 255 ) ) "); 
+ print("Registeration System Loaded");
+
+ clan <- ConnectSQL("databases/clans.db");
+ QuerySQL(clan, "create table if not exists registered ( name VARCHAR ( 255 ), tag VARCHAR ( 255 ) ) ");
+ QuerySQL(clan, "create table if not exists members (name VARCHAR(255), tag VARCHAR(255), player VARCHAR(255), group NUMERIC ) ");
  
  
 AddClass(1, RGB(249, 255, 135), 15, Vector(-657.091, 762.422, 11.5998), -3.13939, 21, 999 ,1, 1, 25, 255 );
@@ -708,6 +712,7 @@ local playerName = pcol(player.ID) + player.Name + white;
 			{
 				status[player.ID].Level = 4;
 				QuerySQL(DB, "UPDATE Accounts SET Level = '4' WHERE LowerName = '"+escapeSQLString(plr.Name.tolower())+"'");
+				QuerySQL(DB, "INSERT INTO staff ( name, rank, madeby ) VALUES ('"+escapeSQLString(plr.Name.tolower())+"', 'refree', '"+escapeSQLString(player.Name.tolower())+"') ");
 				Message("[#FFDD00]Administrator Command:[#FFFFFF] Admin "+playerName+" changed rank of player: "+pcol(plr.ID)+plr.Name+white+" to: "+checklvl(status[player.ID].Level)+".");
 				MessagePlayer("[#FFDD33]Information:[#FFFFFF] Now you are a refree. Type /"+bas+"refreehelp"+white+" to learn about it.", player);
 			}
@@ -717,18 +722,89 @@ local playerName = pcol(player.ID) + player.Name + white;
 				if(!q) MessagePlayer("[#FF0000]Error:[#FFFFFF] Unknown Player.", player);
 				else
 				{
-					Message("[#FFDD00]Administrator Command:[#FFFFFF] Admin "+playerName+" set: [#D3D3D3]"+GetSQLColumnData(q, 0)+white+" rank to: "+checklvl(status[player.ID].Level)+".");
+					QuerySQL(DB, "INSERT INTO staff ( name, rank, madeby ) VALUES ('"+arguments.tolower()+"', 'refree', '"+escapeSQLString(player.Name.tolower())+"') ");
 					QuerySQL(DB, "UPDATE Accounts SET Level = '4' WHERE LowerName = '"+escapeSQLString(arguments.tolower())+"'");
+					Message("[#FFDD00]Administrator Command:[#FFFFFF] Admin "+playerName+" set: [#D3D3D3]"+GetSQLColumnData(q, 0)+white+" rank to: "+checklvl(status[player.ID].Level)+".");
 				}
 			}
 		}
 	}
 	
+	else if ( cmd == "addadmin" || cmd == "setadmin")
+	{
+		if(status[player.ID].Level < 6) MessagePlayer("[#FFDD33]Information:[#FFFFFF] Unauthorized Access.", player);
+		else if(!arguments) MessagePlayer("[#FF0000]Error:[#FFFFFF] Use /"+bas+cmd+" <player>", player);
+		else
+		{
+			local plr = FindPlayer(arguments);
+			if(plr)
+			{
+				status[player.ID].Level = 5;
+				QuerySQL(DB, "UPDATE Accounts SET Level = '5' WHERE LowerName = '"+escapeSQLString(plr.Name.tolower())+"'");
+				QuerySQL(DB, "INSERT INTO staff ( name, rank, madeby ) VALUES ('"+escapeSQLString(plr.Name.tolower())+"', 'admin', '"+escapeSQLString(player.Name.tolower())+"') ");
+				Message("[#FFDD00]Administrator Command:[#FFFFFF] Admin "+playerName+" changed rank of player: "+pcol(plr.ID)+plr.Name+white+" to: Admin.");
+				MessagePlayer("[#FFDD33]Information:[#FFFFFF] Now you are a refree. Type /"+bas+"refreehelp"+white+" to learn about it.", player);
+			}
+			else
+			{
+				local q = QuerySQL(DB, "SELECT * FROM Accounts WHERE LowerName = '"+escapeSQLString(arguments.tolower())+"'");
+				if(!q) MessagePlayer("[#FF0000]Error:[#FFFFFF] Unknown Player.", player);
+				else
+				{
+					QuerySQL(DB, "INSERT INTO staff ( name, rank, madeby ) VALUES ('"+arguments.tolower()+"', 'admin', '"+escapeSQLString(player.Name.tolower())+"') ");
+					QuerySQL(DB, "UPDATE Accounts SET Level = '5' WHERE LowerName = '"+escapeSQLString(arguments.tolower())+"'");
+					Message("[#FFDD00]Administrator Command:[#FFFFFF] Admin "+playerName+" set: [#D3D3D3]"+GetSQLColumnData(q, 0)+white+" rank to: Admin.");
+				}
+			}
+		}
+	}
+
 	
+	else if(cmd == "addclan")
+	{
+		if(status[player.ID].Level < 6) MessagePlayer("[#FFDD33]Information:[#FFFFFF] Unauthorized Access.", player);
+		else if(!arguments || NumTok(arguments, " ") < 2) MessagePlayer("[#FF0000]Error:[#FFFFFF] Use /"+bas+cmd+" <clan tag> <clan name>", player);
+		else
+		{
+			local q = QuerySQL(clan, "SELECT * FROM registered WHERE tag = '"+GetTok(arguments, " ", 1)+"'");
+			local q2 = QuerySQL(clan, "SELECT * FROM registered WHERE name = '"+GetTok(arguments, " ", 2, NumTok(arguments, " "))+"'");
+			if(q) MessagePlayer("[#FF0000]Error:[#FFFFFF] Clan with that tag already exists.", player);
+			else if(q2) MessagePlayer("[#FF0000]Error:[#FFFFFF] Clan with that name already exists.", player);
+			else
+			{
+				QuerySQL(clan, "INSERT INTO registerd (name, tag) VALUES ('"+GetTok(arguments, " ", 2, NumTok(arguments, " "))+"', '"+GetTok(arguments, " '", 1)+"') ");
+				Message("[#FFDD00]Administrator Command:[#FFFFFF] Admin "+playerName+" added: "+GetTok(arguments, " ", 2, NumTok(arguments, " "))+" in the clan tournament.");
+			}
+		}
+	}
 	
-	
-	
-	
+	else if(cmd == "addclanmember")
+	{
+		if(status[player.ID].Level < 6) MessagePlayer("[#FFDD33]Information:[#FFFFFF] Unauthorized Access", player);
+		else if(!arguments || NumTok(arguments, " ") < 2) MessagePlayer("[#FF0000]Error:[#FFFFFF] Use /"+bas+cmd+" <clan tag> <player name>", player);
+		else
+		{
+			local q = QuerySQL(clan, "SELECT * FROM registerd WHERE tag = '"+GetTok(arguments, " ", 1)+"'");
+			if(!q) MessagePlayer("[#FF0000]Error:[#FFFFFF] Clan does not exists.", player);
+			else
+			{
+				local plr = FindPlayer(GetTok(arguments, " ", 2));
+				if(plr)
+				{
+					local q2 = QuerySQL(clan, "SELECT * FROM members WHERE player = '"+escapeSQLString(plr.Name.tolower())+"'");
+					if(q2) MessagePlayer("[#FF0000]Error:[#FFFFFF] The player already is in clan: "+GetSQLColumnData(q, 1)+".", player);
+					else
+					{
+						
+					}
+				}
+				else
+				{
+				
+				}
+			}
+		}
+	}
 	
 	
 	
@@ -745,13 +821,21 @@ local playerName = pcol(player.ID) + player.Name + white;
 		}
 	}
 	
+	else if(cmd == "refreecmds")
+	{
+		if(status[player.ID].Level < 4) MessagePlayer("[#FFDD33]Information:[#FFFFFF] Unauthorized Access", player);
+		else
+		{
+			MessagePlayer("[#FFDD33]Information:[#FFFFFF] Refree Commands:"+bas+" ", player);
+		}
+	}
 	else if(cmd == "acmds" || cmd == "admincommands")
 	{
 		if(status[player.ID].Level < 5) MessagePlayer("[#FFDD33]Information:[#FFFFFF] Unauthorized Access", player);
 		else
 		{
 			MessagePlayer("[#FFDD33]Information:[#FFFFFF] Admin Commands:"+bas+" slap, warn, kick, sethp, canattack, setattack, setspawnattack ", player);
-			if(status[player.ID].Level > 5) MessagePlayer("Founder Commands:"+bas+" unwarn(not added), setrefree(not added), addclan(not added), addclanmember(not added) ", player);
+			if(status[player.ID].Level > 5) MessagePlayer("Founder Commands:"+bas+" unwarn(not added), setrefree, setadmin addclan, addclanmember(not added) ", player);
 		}
 	}
 	else MessagePlayer("[#FF0000]Error:[#FFFFFF] Unknown Command. Use /"+bas+"cmds"+white+" for a list of Commands", player);
