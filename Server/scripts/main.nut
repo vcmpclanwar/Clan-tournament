@@ -36,7 +36,7 @@ function onScriptLoad()
 
  clan <- ConnectSQL("databases/clans.db");
  QuerySQL(clan, "create table if not exists registered ( name VARCHAR ( 255 ), tag VARCHAR ( 255 ) ) ");
- QuerySQL(clan, "create table if not exists members (name VARCHAR(255), tag VARCHAR(255), player VARCHAR(255), group NUMERIC ) ");
+ QuerySQL(clan, "CREATE TABLE if not exists members ( name VARCHAR ( 255 ), tag VARCHAR ( 255 ), player VARCHAR ( 255 ), tgroup INTEGER ) ");
  
  
 AddClass(1, RGB(249, 255, 135), 15, Vector(-657.091, 762.422, 11.5998), -3.13939, 21, 999 ,1, 1, 25, 255 );
@@ -795,7 +795,10 @@ local playerName = pcol(player.ID) + player.Name + white;
 					if(q2) MessagePlayer("[#FF0000]Error:[#FFFFFF] The player already is in clan: "+GetSQLColumnData(q, 1)+".", player);
 					else
 					{
-						
+						QuerySQL(clan, "INSERT INTO members ( name, tag, player) VALUES ('"+GetSQLColumnData(q, 0)+"', '"+GetSQLColumnData(q, 1)+"', '"+escapeSQLString(plr.Name.tolower())+"') ");
+						QuerySQL(DB, "UPDATE Accounts SET clan = '"+GetSQLColumnData(q, 0)+"' WHERE name = '"+escapeSQLString(plr.Name.tolower())+"'");
+						MessagePlayer("[#FFDD33]Information:[#FFFFFF] You have been added in clan: "+GetSQLColumnData(q, 0)+".", player);
+						Message("[#FFDD00]Administrator Command:[#FFFFFF] Admin "+playerName+" added player: "+plr.Name+" in clan: "+GetSQLColumnData(q, 0)+".");
 					}
 				}
 				else
