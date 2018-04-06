@@ -772,19 +772,38 @@ local playerName = pcol(player.ID) + player.Name + white;
 			else if(q2) MessagePlayer("[#FF0000]Error:[#FFFFFF] Clan with that name already exists.", player);
 			else
 			{
-				QuerySQL(clan, "INSERT INTO registerd (name, tag) VALUES ('"+GetTok(arguments, " ", 2, NumTok(arguments, " "))+"', '"+GetTok(arguments, " '", 1)+"') ");
+				QuerySQL(clan, "INSERT INTO registered (name, tag) VALUES ('"+GetTok(arguments, " ", 2, NumTok(arguments, " "))+"', '"+GetTok(arguments, " ", 1)+"') ");
 				Message("[#FFDD00]Administrator Command:[#FFFFFF] Admin "+playerName+" added: "+GetTok(arguments, " ", 2, NumTok(arguments, " "))+" in the clan tournament.");
 			}
 		}
 	}
 	
+	else if(cmd == "removeclan" || cmd == "delclan" || cmd == "deleteclan")
+	{
+		if(status[player.ID].Level < 6) MessagePlayer("[#FFDD33]Information:[#FFFFFF] Unauthorized Access.", player);
+		else if(!arguments) MessagePlayer("[#FF0000]Error:[#FFFFFF] Use /"+bas+cmd+" <clan tag>", player);
+		else
+		{
+			local q = QuerySQL(clan, "SELECT * FROM registered WHERE tag = '"+GetTok(arguments, " ", 1)+"'");
+			if(!q) MessagePlayer("[#FF0000]Error:[#FFFFFF] Clan does not exists.", player);
+			else
+			{
+				QuerySQL(DB, "UPDATE Accounts SET clan = null WHERE 
+				QuerySQL(clan, "DELETE FROM registered WHERE tag = '"+arguments+"'");
+				QuerySQL(clan, "DELETE FROM members WHERE tag = '"+arguments+"'");
+				Message("[#FFDD00]Administrator Command:[#FFFFFF] Admin "+playerName+" removed clan: "+GetSQLColumnData(q, 0)+" from the clan tournament.");
+			}
+		}
+	}
+
+
 	else if(cmd == "addclanmember")
 	{
 		if(status[player.ID].Level < 6) MessagePlayer("[#FFDD33]Information:[#FFFFFF] Unauthorized Access", player);
 		else if(!arguments || NumTok(arguments, " ") < 2) MessagePlayer("[#FF0000]Error:[#FFFFFF] Use /"+bas+cmd+" <clan tag> <player name>", player);
 		else
 		{
-			local q = QuerySQL(clan, "SELECT * FROM registerd WHERE tag = '"+GetTok(arguments, " ", 1)+"'");
+			local q = QuerySQL(clan, "SELECT * FROM registered WHERE tag = '"+GetTok(arguments, " ", 1)+"'");
 			if(!q) MessagePlayer("[#FF0000]Error:[#FFFFFF] Clan does not exists.", player);
 			else
 			{
@@ -796,21 +815,73 @@ local playerName = pcol(player.ID) + player.Name + white;
 					else
 					{
 						QuerySQL(clan, "INSERT INTO members ( name, tag, player) VALUES ('"+GetSQLColumnData(q, 0)+"', '"+GetSQLColumnData(q, 1)+"', '"+escapeSQLString(plr.Name.tolower())+"') ");
-						QuerySQL(DB, "UPDATE Accounts SET clan = '"+GetSQLColumnData(q, 0)+"' WHERE name = '"+escapeSQLString(plr.Name.tolower())+"'");
+						QuerySQL(DB, "UPDATE Accounts SET clan = '"+GetSQLColumnData(q, 0)+"' WHERE LowerName = '"+escapeSQLString(plr.Name.tolower())+"'");
 						MessagePlayer("[#FFDD33]Information:[#FFFFFF] You have been added in clan: "+GetSQLColumnData(q, 0)+".", player);
-						Message("[#FFDD00]Administrator Command:[#FFFFFF] Admin "+playerName+" added player: "+plr.Name+" in clan: "+GetSQLColumnData(q, 0)+".");
+						Message("[#FFDD00]Administrator Command:[#FFFFFF] Admin "+playerName+" added player: "+pcol(plr.Team)+plr.Name+white+" in clan: "+GetSQLColumnData(q, 0)+".");
 					}
 				}
 				else
 				{
-				
+					local q3 = QuerySQL(DB, "SELECT * FROM Accounts WHERE LowerName = '"+escapeSQLString(GetTok(arguments, " ", 2).tolower())+"'");
+					if(!q3) MessagePlayer("[#FF0000]Error:[#FFFFFF] Unknown Player.", player);
+					else
+					{
+						local q4 = QuerySQL(clan, "SELECT * FROM members WHERE player = '"+escapeSQLString(GetTok(arguments, " ", 2).tolower())+"'");
+						if(q4) MessagePlayer("[#FF0000]Error:[#FFFFFF] The player already is in clan: "+GetSQLColumnData(q, 1)+".", player);
+						else
+						{
+							QuerySQL(clan, "INSERT INTO members ( name, tag, player) VALUES ('"+GetSQLColumnData(q, 0)+"', '"+GetSQLColumnData(q, 1)+"', '"+escapeSQLString(GetTok(arguments, " ", 2).tolower())+"') ");
+							QuerySQL(DB, "UPDATE Accounts SET clan = '"+GetSQLColumnData(q, 0)+"' WHERE LowerName = '"+escapeSQLString(GetTok(arguments, " ", 2).tolower())+"'");
+							Message("[#FFDD00]Administrator Command:[#FFFFFF] Admin "+playerName+" added player:[#D3D3D3] "+GetSQLColumnData(q3, 0)+white+" in clan: "+GetSQLColumnData(q, 0)+".");
+						}
+					}
 				}
 			}
 		}
 	}
 	
+	else if(cmd == "clan")
+	{
+		if(!arguments)
+		{
+			if(status[player.ID].clan == null) MessagePlayer("[#FFDD33]Information:[#FFFFFF] Player: "+playerName+" Clan: Null", player);
+			else MessagePlayer("[#FFDD33]Information:[#FFFFFF] Player: "+playerName+" Clan: "+status[player.ID].clan, player);
+		}
+		else
+		{
+			local plr = FindPlayer(arguments);
+			if(!plr)
+			{
+				if(status[player.ID].clan == null) MessagePlayer("[#FFDD33]Information:[#FFFFFF] Player: "+playerName+" Clan: Null", player);
+				else MessagePlayer("[#FFDD33]Information:[#FFFFFF] Player: "+playerName+" Clan: "+status[player.ID].clan, player);
+			}
+			else
+			{
+				if(status[plr.ID].clan == null) MessagePlayer("[#FFDD33]Information:[#FFFFFF] Player: "+pcol(plr.Team)+plr.Name+white+" Clan: Null", player);
+				else MessagePlayer("[#FFDD33]Information:[#FFFFFF] Player: "+pcol(plr.Team)+plr.Name+white+" Clan: "+status[plr.ID].clan, player);
+			}
+		}
+	}
 	
-	
+	else if(cmd == "level")
+	{
+		if(!arguments)
+		{
+			MessagePlayer("[#FFDD33]Information:[#FFFFFF] Player: "+playerName+" Level: "+status[player.ID].Level+" ("+checklvl(status[player.ID].Level)+").", player);
+		}
+		else
+		{
+			local plr = FindPlayer(arguments);
+			if(!plr)
+			{
+				MessagePlayer("[#FFDD33]Information:[#FFFFFF] Player: "+playerName+" Level: "+status[player.ID].Level+" ("+checklvl(status[player.ID].Level)+").", player);
+			}
+			else
+			{
+				MessagePlayer("[#FFDD33]Information:[#FFFFFF] Player: "+pcol(plr.Team)+plr.Name+white+" Level: "+status[plr.ID].Level+" ("+checklvl(status[plr.ID].Level)+").", player);
+			}
+		}
+	}
 	
 	
 	
@@ -819,7 +890,7 @@ local playerName = pcol(player.ID) + player.Name + white;
 		if(!arguments || !IsNum(arguments) || arguments.tointeger() < 0 || arguments.tointeger() > 3) MessagePlayer("[#FF0000]Error:[#FFFFFF] USe /"+bas+cmd+" <1-3>", player);
 		else
 		{
-			if(arguments.tointeger() == 1) MessagePlayer("[#FFDD33]Information:[#FFFFFF] Account Commands:"+bas+" register, login, changepass",player);
+			if(arguments.tointeger() == 1) MessagePlayer("[#FFDD33]Information:[#FFFFFF] Account Commands:"+bas+" register, login, changepass, level, clan",player);
 			else if(arguments.tointeger() == 2) MessagePlayer("[#FFDD33]Information:[#FFFFFF] Fighting Commands:"+bas+" wep, spawnwep", player);
 		}
 	}
@@ -838,7 +909,7 @@ local playerName = pcol(player.ID) + player.Name + white;
 		else
 		{
 			MessagePlayer("[#FFDD33]Information:[#FFFFFF] Admin Commands:"+bas+" slap, warn, kick, sethp, canattack, setattack, setspawnattack ", player);
-			if(status[player.ID].Level > 5) MessagePlayer("Founder Commands:"+bas+" unwarn(not added), setrefree, setadmin addclan, addclanmember(not added) ", player);
+			if(status[player.ID].Level > 5) MessagePlayer("Founder Commands:"+bas+" unwarn(not added), setrefree, setadmin addclan, addclanmember ", player);
 		}
 	}
 	else MessagePlayer("[#FF0000]Error:[#FFFFFF] Unknown Command. Use /"+bas+"cmds"+white+" for a list of Commands", player);
