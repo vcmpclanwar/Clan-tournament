@@ -811,6 +811,7 @@ local playerName = pcol(player.ID) + player.Name + white;
 					if(q2) MessagePlayer("[#FF0000]Error:[#FFFFFF] The player already is in clan: "+GetSQLColumnData(q, 1)+".", player);
 					else
 					{
+						status[player.ID].clan = GetSQLColumnData(q, 0);
 						QuerySQL(clan, "INSERT INTO members ( name, tag, player) VALUES ('"+GetSQLColumnData(q, 0)+"', '"+GetSQLColumnData(q, 1)+"', '"+escapeSQLString(plr.Name.tolower())+"') ");
 						QuerySQL(DB, "UPDATE Accounts SET clan = '"+GetSQLColumnData(q, 0)+"' WHERE LowerName = '"+escapeSQLString(plr.Name.tolower())+"'");
 						MessagePlayer("[#FFDD33]Information:[#FFFFFF] You have been added in clan: "+GetSQLColumnData(q, 0)+".", player);
@@ -855,6 +856,7 @@ local playerName = pcol(player.ID) + player.Name + white;
 					else
 					{
 						status[player.ID].Level = 1;
+						status[player.ID].clan = null;
 						QuerySQL(DB, "UPDATE Accounts SET Level = '1' WHERE LowerName = '"+escapeSQLString(plr.Name.tolower())+"'");
 						QuerySQL(clan, "DELETE FROM members WHERE player = '"+escapeSQLString(plr.Name.tolower())+"'");
 						QuerySQL(DB, "UPDATE Accounts SET clan = null WHERE LowerName = '"+escapeSQLString(plr.Name.tolower())+"'");
@@ -969,7 +971,7 @@ local playerName = pcol(player.ID) + player.Name + white;
 				MessagePlayer(white+"Level: "+GetSQLColumnData(q, 3)+" ("+checklvl(GetSQLColumnData(q, 3).tointeger())+")", player);
 				MessagePlayer(white+"Time Registered: "+GetSQLColumnData(q, 4), player);
 				MessagePlayer(white+"UID: "+GetSQLColumnData(q, 5)+"   IP: "+GetSQLColumnData(q, 6), player);
-				MessagePlayer(white+"Kills: "+GetSQLColumnData(q, 10)+"  Headshots: "+GetSQLColumnData(q, 11)+"  Deaths: "+GetSQLColumnData(q, 13), player);
+				MessagePlayer(white+"Kills: "+GetSQLColumnData(q, 10)+"  Headshots: "+GetSQLColumnData(q, 11)+"  Deaths: "+GetSQLColumnData(q, 12), player);
 				MessagePlayer(white+"Clan: "+GetSQLColumnData(q, 9), player);
 				MessagePlayer(white+"Banned: "+GetSQLColumnData(q, 8)+"  Last Joined: "+GetSQLColumnData(q, 13), player);
 				MessagePlayer(white+"Ping: "+plr.Ping+"  FPS: "+plr.FPS, player);
@@ -980,12 +982,12 @@ local playerName = pcol(player.ID) + player.Name + white;
 				if(!q) MessagePlayer("[#FF0000]Error:[#FFFFFF] Unknown Player", player);
 				else
 				{
-					MessagePlayer("[#FFDD33]Information:[#FFFFFF] Player: "+pcol(plr.ID)+plr.Name+white+" Account Information:", player);
+					MessagePlayer("[#FFDD33]Information:[#FFFFFF] Player: [#D3D3D3]"+GetSQLColumnData(q, 0)+white+" Account Information:", player);
 					MessagePlayer(white+"Name: "+GetSQLColumnData(q, 0)+"  Lower Name: "+GetSQLColumnData(q, 1), player);
 					MessagePlayer(white+"Level: "+GetSQLColumnData(q, 3)+" ("+checklvl(GetSQLColumnData(q, 3).tointeger())+")", player);
 					MessagePlayer(white+"Time Registered: "+GetSQLColumnData(q, 4), player);
 					MessagePlayer(white+"UID: "+GetSQLColumnData(q, 5)+"   IP: "+GetSQLColumnData(q, 6), player);
-					MessagePlayer(white+"Kills: "+GetSQLColumnData(q, 10)+"  Headshots: "+GetSQLColumnData(q, 11)+"  Deaths: "+GetSQLColumnData(q, 13), player);
+					MessagePlayer(white+"Kills: "+GetSQLColumnData(q, 10)+"  Headshots: "+GetSQLColumnData(q, 11)+"  Deaths: "+GetSQLColumnData(q, 12), player);
 					MessagePlayer(white+"Clan: "+GetSQLColumnData(q, 9), player);
 					MessagePlayer(white+"Banned: "+GetSQLColumnData(q, 8)+"  Last Joined: "+GetSQLColumnData(q, 13), player);
 				}
@@ -1018,7 +1020,7 @@ local playerName = pcol(player.ID) + player.Name + white;
 		else
 		{
 			MessagePlayer("[#FFDD33]Information:[#FFFFFF] Admin Commands:"+bas+" slap, warn, kick, sethp, canattack, setattack, setspawnattack ", player);
-			if(status[player.ID].Level > 5) MessagePlayer("Founder Commands:"+bas+" setrefree, setadmin, addclan, removeclan, addclanmember, removeclanmember ", player);
+			if(status[player.ID].Level > 5) MessagePlayer("Founder Commands:"+bas+" setrefree, setadmin, addclan, removeclan, addclanmember, removeclanmember, getaccinfo ", player);
 		}
 	}
 	else MessagePlayer("[#FF0000]Error:[#FFFFFF] Unknown Command. Use /"+bas+"cmds"+white+" for a list of Commands", player);
