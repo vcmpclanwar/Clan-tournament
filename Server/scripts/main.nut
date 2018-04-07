@@ -37,7 +37,15 @@ function onScriptLoad()
  clan <- ConnectSQL("databases/clans.db");
  QuerySQL(clan, "create table if not exists registered ( name VARCHAR ( 255 ), tag VARCHAR ( 255 ) ) ");
  QuerySQL(clan, "CREATE TABLE if not exists members ( name VARCHAR ( 255 ), tag VARCHAR ( 255 ), player VARCHAR ( 255 ), tgroup INTEGER ) ");
+ print("Clan System Loaded");
  
+ ban <- ConnectSQL("databases/ban.db");
+ QuerySQL(ban, "create table if not exists nameban ( name VARCHAR ( 255 ), admin VARCHAR ( 255), date VARCHAR(255), reason VARCHAR(255)) ");
+ QuerySQL(ban, "create table if not exists nameunban ( name VARCHAR ( 255 ), admin VARCHAR (255), date VARCHAR(255)) ");
+ QuerySQL(ban, "create table if not exists tempban ( name VARCHAR ( 255 ), admin VARCHAR ( 255), date VARCHAR(255), reason VARCHAR(255)) ");
+ QuerySQL(ban, "create table if not exists temunbanned ( name VARCHAR ( 255 ), admin VARCHAR ( 255), date VARCHAR(255)) ");
+ QuerySQL(ban, "create table if not exists permaban ( name VARCHAR ( 255 ), admin VARCHAR ( 255), date VARCHAR(255), UID VARCHAR(255), reason VARCHAR(255)) ");
+ QuerySQL(ban, "create table if not exists permaunban ( name VARCHAR ( 255 ), admin VARCHAR ( 255), date VARCHAR(255)) ");
  
 AddClass(1, RGB(249, 255, 135), 15, Vector(-657.091, 762.422, 11.5998), -3.13939, 21, 999 ,1, 1, 25, 255 );
 AddClass(2, RGB(100, 149, 237), 1, Vector(-823.187, 1150.35, 12.4111), 0.00513555, 21, 999 ,1, 1, 25, 255 );
@@ -58,12 +66,31 @@ function onScriptUnload()
 function onPlayerJoin( player )
 {
 	status[player.ID] = PlayerStats();
+	checkban(player)
 	AccInfo(player);
 	MessagePlayer("[#FFDD33]Information:[#FFFFFF] Level: "+status[player.ID].Level+" ("+checklvl(status[player.ID].Level)+")", player);
 
 }
 
-
+function checkban(player)
+{
+	local q = QuerySQL(ban, "SELECT * FROM nameban WHERE name = '"+escapeSQLString(player.Name.tolower())+"'");
+	local q2 = QuerySQL(ban, "SELECT * FROM permaban WHERE UID = '"+player.UID+"'");
+	if(q)
+	{
+		Announce("~y~Banned", 8, player);
+		MessagePlayer("[#FFDD33]Information:[#FFFFFF] Banned from Server by Admin: [#D3D3D3]"+GetSQLColumnData(q, 1)+white+" Reason: ["+GetSQLColumnData(q, 0)+"] "+GetSQLColumnData(q, 3)+".", player);
+		MessagePlayer("[#FFDD33]Information:[#FFFFFF] If you think that you are wrongfully banned, make an admin report on our forum: ", player);
+		KickPlayer(player);
+	}
+	if(q2)
+	{
+		Announce("~y~Banned", 8, player);
+		MessagePlayer("[#FFDD33]Information:[#FFFFFF] Banned from Server by Admin: [#D3D3D3]"+GetSQLColumnData(q2, 1)+"[#FFFFFF] Reason: ["+GetSQLColumnData(q2, 0)+"] "+GetSQLColumnData(q2, 4)+".", player);
+		MessagePlayer("[#FFDD33]Information:[#FFFFFF] If you think that you are wrongfully banned, make an admin report on our forum: ", player);
+		KickPlayer(player);
+	}
+}
 function AccInfo(player)
 {
  local q = QuerySQL(DB, "SELECT * FROM Accounts WHERE Name = '" + escapeSQLString(player.Name) + "'");
@@ -82,15 +109,6 @@ function AccInfo(player)
   status[player.ID].deaths = GetSQLColumnData(q, 12).tointeger();
  if ((player.UID == status[player.ID].UID) || (player.IP == status[player.ID].IP))
   {
-	if(status[player.ID].banned == "Yes")
-	{
-		Announce("~y~Banned", 8, player);
-		MessagePlayer("[#FFDD33]Information:[#FFFFFF] You are banned from the server", player);
-		Message("[#FFDD33]Information:[#FFFFFF] Player : " + player.Name + " Kicked from server Reason : Banned From Server.");
-		KickPlayer(player);
-	} 
- else
- { 
  if (status[player.ID].AutoLogin == "true")
    {
     MessagePlayer("[#FFDD33] Welcome to the [#FFFF00]VCMP Clan Tournament 2018[#FFFFFF].", player);
@@ -106,7 +124,6 @@ function AccInfo(player)
     MessagePlayer("[#FFDD33] Welcome to the [#FFFF00]VCMP Clan Tournament 2018[#FFFFFF].", player);
     MessagePlayer("[#FFDD33]Information:[#FFFFFF]  Your nick is registered. Please login in order to access services.", player);
    }
-  }
   }
   else
   {
@@ -707,11 +724,16 @@ local playerName = pcol(player.ID) + player.Name + white;
 			local plr = FindPlayer(arguments);
 			if(plr)
 			{
-				status[player.ID].Level = 4;
-				QuerySQL(DB, "UPDATE Accounts SET Level = '4' WHERE LowerName = '"+escapeSQLString(plr.Name.tolower())+"'");
-				QuerySQL(DB, "INSERT INTO staff ( name, rank, madeby ) VALUES ('"+escapeSQLString(plr.Name.tolower())+"', 'refree', '"+escapeSQLString(player.Name.tolower())+"') ");
-				Message("[#FFDD00]Administrator Command:[#FFFFFF] Admin "+playerName+" changed rank of player: "+pcol(plr.ID)+plr.Name+white+" to: "+checklvl(status[player.ID].Level)+".");
-				MessagePlayer("[#FFDD33]Information:[#FFFFFF] Now you are a refree. Type /"+bas+"refreehelp"+white+" to learn about it.", player);
+				local q = QuerySQL(DB, "SELECT * FROM Accounts WHERE LowerName = '"+escapeSQLString(plr.Name.tolower())+"'");
+				if(!q) MessagePlayer("[#FF0000]Error:[#FFFFFF] Player is not registered.", player);
+				else
+				{
+					status[player.ID].Level = 4;
+					QuerySQL(DB, "UPDATE Accounts SET Level = '4' WHERE LowerName = '"+escapeSQLString(plr.Name.tolower())+"'");
+					QuerySQL(DB, "INSERT INTO staff ( name, rank, madeby ) VALUES ('"+escapeSQLString(plr.Name.tolower())+"', 'refree', '"+escapeSQLString(player.Name.tolower())+"') ");
+					Message("[#FFDD00]Administrator Command:[#FFFFFF] Admin "+playerName+" changed rank of player: "+pcol(plr.ID)+plr.Name+white+" to: "+checklvl(status[player.ID].Level)+".");
+					MessagePlayer("[#FFDD33]Information:[#FFFFFF] Now you are a refree. Type /"+bas+"refreehelp"+white+" to learn about it.", player);
+				}
 			}
 			else
 			{
@@ -736,11 +758,16 @@ local playerName = pcol(player.ID) + player.Name + white;
 			local plr = FindPlayer(arguments);
 			if(plr)
 			{
-				status[player.ID].Level = 5;
-				QuerySQL(DB, "UPDATE Accounts SET Level = '5' WHERE LowerName = '"+escapeSQLString(plr.Name.tolower())+"'");
-				QuerySQL(DB, "INSERT INTO staff ( name, rank, madeby ) VALUES ('"+escapeSQLString(plr.Name.tolower())+"', 'admin', '"+escapeSQLString(player.Name.tolower())+"') ");
-				Message("[#FFDD00]Administrator Command:[#FFFFFF] Admin "+playerName+" changed rank of player: "+pcol(plr.ID)+plr.Name+white+" to: Admin.");
-				MessagePlayer("[#FFDD33]Information:[#FFFFFF] Now you are a Admin. Type /"+bas+"refreehelp"+white+" to learn about it.", player);
+				local q = QuerySQL(DB, "SELECT * FROM Accounts WHERE LowerName = '"+escapeSQLString(plr.Name.tolower())+"'");
+				if(!q) MessagePlayer("[#FF0000]Error:[#FFFFFF] Player is not registered.", player);
+				else
+				{
+					status[player.ID].Level = 5;
+					QuerySQL(DB, "UPDATE Accounts SET Level = '5' WHERE LowerName = '"+escapeSQLString(plr.Name.tolower())+"'");
+					QuerySQL(DB, "INSERT INTO staff ( name, rank, madeby ) VALUES ('"+escapeSQLString(plr.Name.tolower())+"', 'admin', '"+escapeSQLString(player.Name.tolower())+"') ");
+					Message("[#FFDD00]Administrator Command:[#FFFFFF] Admin "+playerName+" changed rank of player: "+pcol(plr.ID)+plr.Name+white+" to: Admin.");
+					MessagePlayer("[#FFDD33]Information:[#FFFFFF] Now you are a Admin. Type /"+bas+"refreehelp"+white+" to learn about it.", player);
+				}
 			}
 			else
 			{
@@ -807,15 +834,20 @@ local playerName = pcol(player.ID) + player.Name + white;
 				local plr = FindPlayer(GetTok(arguments, " ", 2));
 				if(plr)
 				{
-					local q2 = QuerySQL(clan, "SELECT * FROM members WHERE player = '"+escapeSQLString(plr.Name.tolower())+"'");
-					if(q2) MessagePlayer("[#FF0000]Error:[#FFFFFF] The player already is in clan: "+GetSQLColumnData(q, 1)+".", player);
+					local q = QuerySQL(DB, "SELECT * FROM Accounts WHERE LowerName = '"+escapeSQLString(plr.Name.tolower())+"'");
+					if(!q) MessagePlayer("[#FF0000]Error:[#FFFFFF] Player is not registered.", player);
 					else
 					{
-						status[player.ID].clan = GetSQLColumnData(q, 0);
-						QuerySQL(clan, "INSERT INTO members ( name, tag, player) VALUES ('"+GetSQLColumnData(q, 0)+"', '"+GetSQLColumnData(q, 1)+"', '"+escapeSQLString(plr.Name.tolower())+"') ");
-						QuerySQL(DB, "UPDATE Accounts SET clan = '"+GetSQLColumnData(q, 0)+"' WHERE LowerName = '"+escapeSQLString(plr.Name.tolower())+"'");
-						MessagePlayer("[#FFDD33]Information:[#FFFFFF] You have been added in clan: "+GetSQLColumnData(q, 0)+".", player);
-						Message("[#FFDD00]Administrator Command:[#FFFFFF] Admin "+playerName+" added player: "+pcol(plr.ID)+plr.Name+white+" in clan: "+GetSQLColumnData(q, 0)+".");
+						local q2 = QuerySQL(clan, "SELECT * FROM members WHERE player = '"+escapeSQLString(plr.Name.tolower())+"'");
+						if(q2) MessagePlayer("[#FF0000]Error:[#FFFFFF] The player already is in clan: "+GetSQLColumnData(q, 1)+".", player);
+						else
+						{
+							status[player.ID].clan = GetSQLColumnData(q, 0);
+							QuerySQL(clan, "INSERT INTO members ( name, tag, player) VALUES ('"+GetSQLColumnData(q, 0)+"', '"+GetSQLColumnData(q, 1)+"', '"+escapeSQLString(plr.Name.tolower())+"') ");
+							QuerySQL(DB, "UPDATE Accounts SET clan = '"+GetSQLColumnData(q, 0)+"' WHERE LowerName = '"+escapeSQLString(plr.Name.tolower())+"'");
+							MessagePlayer("[#FFDD33]Information:[#FFFFFF] You have been added in clan: "+GetSQLColumnData(q, 0)+".", player);
+							Message("[#FFDD00]Administrator Command:[#FFFFFF] Admin "+playerName+" added player: "+pcol(plr.ID)+plr.Name+white+" in clan: "+GetSQLColumnData(q, 0)+".");
+						}
 					}
 				}
 				else
@@ -855,13 +887,18 @@ local playerName = pcol(player.ID) + player.Name + white;
 					if(!q2) MessagePlayer("[#FF0000]Error:[#FFFFFF] The player is not clan: "+GetSQLColumnData(q, 1)+".", player);
 					else
 					{
-						status[player.ID].Level = 1;
-						status[player.ID].clan = null;
-						QuerySQL(DB, "UPDATE Accounts SET Level = '1' WHERE LowerName = '"+escapeSQLString(plr.Name.tolower())+"'");
-						QuerySQL(clan, "DELETE FROM members WHERE player = '"+escapeSQLString(plr.Name.tolower())+"'");
-						QuerySQL(DB, "UPDATE Accounts SET clan = null WHERE LowerName = '"+escapeSQLString(plr.Name.tolower())+"'");
-						MessagePlayer("[#FFDD33]Information:[#FFFFFF] You have been removed deom clan: "+GetSQLColumnData(q, 0)+".", player);
-						Message("[#FFDD00]Administrator Command:[#FFFFFF] Admin "+playerName+" removed player: "+pcol(plr.ID)+plr.Name+white+" from clan: "+GetSQLColumnData(q, 0)+".");
+						local q = QuerySQL(DB, "SELECT * FROM Accounts WHERE LowerName = '"+escapeSQLString(plr.Name.tolower())+"'");
+						if(!q) MessagePlayer("[#FF0000]Error:[#FFFFFF] Player is not registered.", player);
+						else
+						{
+							status[player.ID].Level = 1;
+							status[player.ID].clan = null;
+							QuerySQL(DB, "UPDATE Accounts SET Level = '1' WHERE LowerName = '"+escapeSQLString(plr.Name.tolower())+"'");
+							QuerySQL(clan, "DELETE FROM members WHERE player = '"+escapeSQLString(plr.Name.tolower())+"'");
+							QuerySQL(DB, "UPDATE Accounts SET clan = null WHERE LowerName = '"+escapeSQLString(plr.Name.tolower())+"'");
+							MessagePlayer("[#FFDD33]Information:[#FFFFFF] You have been removed deom clan: "+GetSQLColumnData(q, 0)+".", player);
+							Message("[#FFDD00]Administrator Command:[#FFFFFF] Admin "+playerName+" removed player: "+pcol(plr.ID)+plr.Name+white+" from clan: "+GetSQLColumnData(q, 0)+".");
+						}
 					}
 				}
 				else
@@ -966,20 +1003,24 @@ local playerName = pcol(player.ID) + player.Name + white;
 			if(plr)
 			{
 				local q = QuerySQL(DB, "SELECT * FROM Accounts WHERE LowerName = '"+escapeSQLString(plr.Name.tolower())+"'");
-				MessagePlayer("[#FFDD33]Information:[#FFFFFF] Player: "+pcol(plr.ID)+plr.Name+white+" Account Information:", player);
-				MessagePlayer(white+"Name: "+GetSQLColumnData(q, 0)+"  Lower Name: "+GetSQLColumnData(q, 1), player);
-				MessagePlayer(white+"Level: "+GetSQLColumnData(q, 3)+" ("+checklvl(GetSQLColumnData(q, 3).tointeger())+")", player);
-				MessagePlayer(white+"Time Registered: "+GetSQLColumnData(q, 4), player);
-				MessagePlayer(white+"UID: "+GetSQLColumnData(q, 5)+"   IP: "+GetSQLColumnData(q, 6), player);
-				MessagePlayer(white+"Kills: "+GetSQLColumnData(q, 10)+"  Headshots: "+GetSQLColumnData(q, 11)+"  Deaths: "+GetSQLColumnData(q, 12), player);
-				MessagePlayer(white+"Clan: "+GetSQLColumnData(q, 9), player);
-				MessagePlayer(white+"Banned: "+GetSQLColumnData(q, 8)+"  Last Joined: "+GetSQLColumnData(q, 13), player);
-				MessagePlayer(white+"Ping: "+plr.Ping+"  FPS: "+plr.FPS, player);
+				if(!q) MessagePlayer("[#FF0000]Error:[#FFFFFF] Player is not registered.", player)
+				else
+				{
+					MessagePlayer("[#FFDD33]Information:[#FFFFFF] Player: "+pcol(plr.ID)+plr.Name+white+" Account Information:", player);
+					MessagePlayer(white+"Name: "+GetSQLColumnData(q, 0)+"  Lower Name: "+GetSQLColumnData(q, 1), player);
+					MessagePlayer(white+"Level: "+GetSQLColumnData(q, 3)+" ("+checklvl(GetSQLColumnData(q, 3).tointeger())+")", player);
+					MessagePlayer(white+"Time Registered: "+GetSQLColumnData(q, 4), player);
+					MessagePlayer(white+"UID: "+GetSQLColumnData(q, 5)+"   IP: "+GetSQLColumnData(q, 6), player);
+					MessagePlayer(white+"Kills: "+GetSQLColumnData(q, 10)+"  Headshots: "+GetSQLColumnData(q, 11)+"  Deaths: "+GetSQLColumnData(q, 12), player);
+					MessagePlayer(white+"Clan: "+GetSQLColumnData(q, 9), player);
+					MessagePlayer(white+"Banned: "+GetSQLColumnData(q, 8)+"  Last Joined: "+GetSQLColumnData(q, 13), player);
+					MessagePlayer(white+"Ping: "+plr.Ping+"  FPS: "+plr.FPS, player);
+				}
 			}
 			else
 			{
 				local q = QuerySQL(DB, "SELECT * FROM Accounts WHERE LowerName = '"+escapeSQLString(arguments.tolower())+"'");
-				if(!q) MessagePlayer("[#FF0000]Error:[#FFFFFF] Unknown Player", player);
+				if(!q) MessagePlayer("[#FF0000]Error:[#FFFFFF] Unknown Player.", player);
 				else
 				{
 					MessagePlayer("[#FFDD33]Information:[#FFFFFF] Player: [#D3D3D3]"+GetSQLColumnData(q, 0)+white+" Account Information:", player);
@@ -994,8 +1035,140 @@ local playerName = pcol(player.ID) + player.Name + white;
 			}
 		}
 	}
+	else if(cmd == "alias")
+	{
+		if(status[player.ID].Level < 6) MessagePlayer("[#FFDD33]Information:[#FFFFFF] Unauthorized Access", player);
+		else if(!arguments) MessagePlayer("[#FF0000]Error:[#FFFFFF] Use /"+bas+cmd+" <player>", player);
+		else
+		{
+			local plr = FindPlayer(arguments);
+			if(plr)
+			{
+				local a = "", b = "", c = ""; 
+				local q = QuerySQL(DB, "SELECT * FROM Accounts");
+				while(GetSQLColumnData(q, 0))
+				{
+					if(GetSQLColumnData(q, 6) == plr.IP && GetSQLColumnData(q, 5) == plr.UID)
+					{
+						if(a == "") a = GetSQLColumnData(q, 0);
+						else a = a+", "+GetSQLColumnData(q, 0);
+					}
+					if(GetSQLColumnData(q, 6) != plr.IP && GetSQLColumnData(q, 5) == plr.UID)
+					{
+						if(b == "") b = GetSQLColumnData(q, 0);
+						else b = b+", "+GetSQLColumnData(q, 0);
+					}
+					if(GetSQLColumnData(q, 6) == plr.IP && GetSQLColumnData(q, 5) != plr.UID)
+					{
+						if(c == "") c = GetSQLColumnData(q, 0);
+						else c = c+", "+GetSQLColumnData(q, 0);
+					}
+					GetSQLNextRow(q);
+				}
+				MessagePlayer("[#FFDD33]Information:[#FFFFFF] Player: "+pcol(plr.ID)+plr.Name+white+" Alias:", player);
+				MessagePlayer(white+"Same IP from Same Computer: "+a, player);
+				MessagePlayer(white+"Different IP from Same Computer: "+b, player);
+				MessagePlayer(white+"Same IP from Different Computer: "+c, player);
+			}
+			else
+			{
+				local q2 = QuerySQL(DB, "SELECT * FROM Accounts WHERE LowerName = '"+escapeSQLString(arguments.tolower())+"'");
+				if(!q2) MessagePlayer("[#FF0000]Error:[#FFFFFF] Unknown Player.", player);
+				else
+				{
+					local a = "", b = "", c = ""; 
+					local q = QuerySQL(DB, "SELECT * FROM Accounts");
+					while(GetSQLColumnData(q, 0))
+					{
+						if(GetSQLColumnData(q, 6) == GetSQLColumnData(q2, 6) && GetSQLColumnData(q, 5) == GetSQLColumnData(q2, 5))
+						{
+							if(a == "") a = GetSQLColumnData(q, 0);
+							else a = a+", "+GetSQLColumnData(q, 0);
+						}
+						if(GetSQLColumnData(q, 6) != GetSQLColumnData(q2, 6) && GetSQLColumnData(q, 5) == GetSQLColumnData(q2, 5))
+						{
+							if(b == "") b = GetSQLColumnData(q, 0);
+							else b = b+", "+GetSQLColumnData(q, 0);
+						}
+						if(GetSQLColumnData(q, 6) == GetSQLColumnData(q2, 6) && GetSQLColumnData(q, 5) != GetSQLColumnData(q2, 5))
+						{
+							if(c == "") c = GetSQLColumnData(q, 0);
+							else c = c+", "+GetSQLColumnData(q, 0);
+						}
+						GetSQLNextRow(q);
+					}
+					MessagePlayer("[#FFDD33]Information:[#FFFFFF] Player: [#D3D3D3]"+GetSQLColumnData(q2, 0)+white+" Alias:", player);
+					MessagePlayer(white+"Same IP from Same Computer: "+a, player);
+					MessagePlayer(white+"Different IP from Same Computer: "+b, player);
+					MessagePlayer(white+"Same IP from Different Computer: "+c, player);
+				}
+			}
+		}
+	}
 	
+	else if(cmd == "nameban")
+	{
+		if(status[player.ID].Level < 6) MessagePlayer("[#FFDD33]Information:[#FFFFFF] Unauthorized Access", player);
+		else if(!arguments || NumTok(arguments, " ") < 2) MessagePlayer("[#FF0000]Error:[#FFFFFF] Use /"+bas+cmd+" <player> <reason>", player);
+		else
+		{
+			local now = date();
+			local dat = now.day + "/" + now.month + "/" + now.year + " " + now.hour + ":" + now.min + ":" + now.sec;
+			local plr = FindPlayer(GetTok(arguments, " ", 2));
+			if(plr)
+			{
+				QuerySQL(ban, "INSERT INTO nameban (name, admin, date, reason) VALUES ('"+escapeSQLString(plr.Name.tolower())+"', '"+escapeSQLString(player.Name.tolower())+"', '"+dat+"', '"+GetTok(arguments, " ", 2, NumTok(arguments, " "))+"') ");
+			local q = QuerySQL(DB, "SELECT * FROM Accounts WHERE LowerName = '"+escapeSQLString(plr.Name.tolower())+"'");
+				if(q) QuerySQL(DB, "UPDATE Accounts SET banned = 'Yes' WHERE LowerName = '"+escapeSQLString(plr.Name.tolower())+"'");
+				Message("[#FFDD00]Administrator Command:[#FFFFFF] Admin "+playerName+" Name-Banned player: "+pcol(plr.ID)+plr.Name+white+" Reason: "+GetTok(arguments, " ", 2, NumTok(arguments, " "))+".");
+				MessagePlayer("[#FFDD33]Information:[#FFFFFF] If you think that you are wrongfully banned, make an admin report on our forum: ", player);
+				KickPlayer(plr);
+			}
+			else
+			{
+				local q = QuerySQL(DB, "SELECT * FROM Accounts WHERE LowerName = '"+escapeSQLString(GetTok(arguments, " ", 2).tolower())+"'");
+				if(!q) MessagePlayer("[#FF0000]Error:[#FFFFFF] Unknown Player.", player);
+				else
+				{
+					QuerySQL(ban, "INSERT INTO nameban (name, admin, date, reason) VALUES ('"+escapeSQLString(GetSQLColumnData(q, 1).tolower())+"', '"+escapeSQLString(player.Name.tolower())+"', '"+dat+"', '"+GetTok(arguments, " ", 2, NumTok(arguments, " "))+"') ");
+					QuerySQL(DB, "UPDATE Accounts SET banned = 'Yes' WHERE LowerName = '"+escapeSQLString(GetSQLColumnData(q, 1).tolower())+"'");
+					MessagePlayer("[#FFDD00]Administrator Command:[#FFFFFF] Admin "+playerName+" Name-Banned player: [#D3D3D3]"+GetSQLColumnData(q, 0)+" Reason: "+GetTok(arguments, " ", 2, NumTok(arguments, " "))+".", player);
+				}
+			}
+		}
+	}
 	
+	else if(cmd == "permaban")
+	{
+		if(status[player.ID].Level < 6) MessagePlayer("[#FFDD33]Information:[#FFFFFF] Unauthorized Access", player);
+		else if(!arguments || NumTok(arguments, " ") < 2) MessagePlayer("[#FF0000]Error:[#FFFFFF] Use /"+bas+cmd+" <player> <reason>", player);
+		else
+		{
+			local now = date();
+			local dat = now.day + "/" + now.month + "/" + now.year + " " + now.hour + ":" + now.min + ":" + now.sec;
+			local plr = FindPlayer(GetTok(arguments, " ", 2));
+			if(plr)
+			{
+				QuerySQL(ban, "INSERT INTO permaban (name, admin, date, UID, reason) VALUES ('"+escapeSQLString(plr.Name.tolower())+"', '"+escapeSQLString(player.Name.tolower())+"', '"+dat+"', '"+plr.UID+"', '"+GetTok(arguments, " ", 2, NumTok(arguments, " "))+"') ");
+				local q = QuerySQL(DB, "SELECT * FROM Accounts WHERE LowerName = '"+escapeSQLString(plr.Name.tolower())+"'");
+				if(q) QuerySQL(DB, "UPDATE Accounts SET banned = 'Yes' WHERE LowerName = '"+escapeSQLString(plr.Name.tolower())+"'");
+				Message("[#FFDD00]Administrator Command:[#FFFFFF] Admin "+playerName+" Permanently Banned player: "+pcol(plr.ID)+plr.Name+white+" Reason: "+GetTok(arguments, " ", 2, NumTok(arguments, " "))+".");
+				MessagePlayer("[#FFDD33]Information:[#FFFFFF] If you think that you are wrongfully banned, make an admin report on our forum: ", player);
+				KickPlayer(plr);
+			}
+			else
+			{
+				local q = QuerySQL(DB, "SELECT * FROM Accounts WHERE LowerName = '"+escapeSQLString(GetTok(arguments, " ", 2).tolower())+"'");
+				if(!q) MessagePlayer("[#FF0000]Error:[#FFFFFF] Unknown Player.", player);
+				else
+				{
+					QuerySQL(ban, "INSERT INTO permaban (name, admin, date, UID, reason) VALUES ('"+escapeSQLString(GetSQLColumnData(q, 1).tolower())+"', '"+escapeSQLString(player.Name.tolower())+"', '"+dat+"', '"+GetSQLColumnData(q, 5)+"', '"+GetTok(arguments, " ", 2, NumTok(arguments, " "))+"') ");
+					QuerySQL(DB, "UPDATE Accounts SET banned = 'Yes' WHERE LowerName = '"+escapeSQLString(GetSQLColumnData(q, 1).tolower())+"'");
+					MessagePlayer("[#FFDD00]Administrator Command:[#FFFFFF] Admin "+playerName+" Permanently Banned player: [#D3D3D3]"+GetSQLColumnData(q, 0)+" Reason: "+GetTok(arguments, " ", 2, NumTok(arguments, " "))+".", player);
+				}
+			}
+		}
+	}
 	else if(cmd == "cmds" || cmd == "commands")
 	{
 		if(!arguments || !IsNum(arguments) || arguments.tointeger() < 0 || arguments.tointeger() > 3) MessagePlayer("[#FF0000]Error:[#FFFFFF] USe /"+bas+cmd+" <1-3>", player);
@@ -1020,7 +1193,8 @@ local playerName = pcol(player.ID) + player.Name + white;
 		else
 		{
 			MessagePlayer("[#FFDD33]Information:[#FFFFFF] Admin Commands:"+bas+" slap, warn, kick, sethp, canattack, setattack, setspawnattack ", player);
-			if(status[player.ID].Level > 5) MessagePlayer("Founder Commands:"+bas+" setrefree, setadmin, addclan, removeclan, addclanmember, removeclanmember, getaccinfo ", player);
+			if(status[player.ID].Level > 5) MessagePlayer(white"Founder Commands:"+bas+" setrefree, setadmin, addclan, removeclan, addclanmember, removeclanmember, getaccinfo, alias ", player);
+			if(status[player.ID].Level > 5) MessagePlayer(white"Ban Commands:"+bas+" nameban ", player);
 		}
 	}
 	else MessagePlayer("[#FF0000]Error:[#FFFFFF] Unknown Command. Use /"+bas+"cmds"+white+" for a list of Commands", player);
