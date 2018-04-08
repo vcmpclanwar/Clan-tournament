@@ -297,7 +297,8 @@ function onPlayerTeamKill( player, killer, reason, bodypart )
 
 function onPlayerChat( player, text )
 {
-	local playerName = pcol(plr.ID) + player.Name + white;
+local message = text;
+	local playerName = pcol(player.ID) + player.Name + white;
 	if(message.slice(0,1) == "!" && status[player.ID].clan != null)
 	{
 		local arguments = GetTok(message, "!", NumTok(message, "!"));
@@ -931,7 +932,7 @@ local playerName = pcol(player.ID) + player.Name + white;
 				if(!q) MessagePlayer("[#FF0000]Error:[#FFFFFF] Player is not registered.", player);
 				else
 				{
-					status[player.ID].Level = 5;
+					status[plr.ID].Level = 5;
 					QuerySQL(DB, "UPDATE Accounts SET Level = '5' WHERE LowerName = '"+escapeSQLString(plr.Name.tolower())+"'");
 					QuerySQL(DB, "INSERT INTO staff ( name, rank, madeby ) VALUES ('"+escapeSQLString(plr.Name.tolower())+"', 'admin', '"+escapeSQLString(player.Name.tolower())+"') ");
 					Message("[#FFDD00]Administrator Command:[#FFFFFF] Admin "+playerName+" changed rank of player: "+pcol(plr.ID)+plr.Name+white+" to: Admin.");
