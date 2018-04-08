@@ -41,12 +41,11 @@ function onScriptLoad()
  
  ban <- ConnectSQL("databases/ban.db");
  QuerySQL(ban, "create table if not exists nameban ( name VARCHAR ( 255 ), admin VARCHAR ( 255), date VARCHAR(255), reason VARCHAR(255)) ");
- QuerySQL(ban, "create table if not exists nameunban ( name VARCHAR ( 255 ), admin VARCHAR (255), date VARCHAR(255)) ");
- QuerySQL(ban, "create table if not exists tempban ( name VARCHAR ( 255 ), admin VARCHAR ( 255), date VARCHAR(255), UID VARCHAR ( 255 ), duration VARCHAR(255), reason VARCHAR(255)) ");
- QuerySQL(ban, "create table if not exists temunbanned ( name VARCHAR ( 255 ), admin VARCHAR ( 255), date VARCHAR(255)) ");
+ QuerySQL(ban, "create table if not exists nameunban ( name VARCHAR ( 255 ), badmin VARCHAR(255), admin VARCHAR (255), date VARCHAR(255), breason VARCHAR(255)) ");
+ QuerySQL(ban, "create table if not exists tempban ( name VARCHAR ( 255 ), admin VARCHAR ( 255), date VARCHAR(255), UID VARCHAR ( 255 ), duration VARCHAR(255), expire VARCHAR(255), reason VARCHAR(255)) ");
+ QuerySQL(ban, "create table if not exists temunbanned ( name VARCHAR ( 255 ), badmin VARCHAR(255), admin VARCHAR ( 255), duration VARCHAR(255), date VARCHAR(255), breason VARCHAR(255)) ");
  QuerySQL(ban, "create table if not exists permaban ( name VARCHAR ( 255 ), admin VARCHAR ( 255), date VARCHAR(255), UID VARCHAR(255), reason VARCHAR(255)) ");
- QuerySQL(ban, "create table if not exists permaunban ( name VARCHAR ( 255 ), admin VARCHAR ( 255), date VARCHAR(255)) ");
- 
+ QuerySQL(ban, "create table if not exists permaunban ( name VARCHAR ( 255 ), badmin VARCHAR(255), admin VARCHAR ( 255), date VARCHAR(255), breason VARCHAR(255)) ");
 AddClass(1, RGB(249, 255, 135), 15, Vector(-657.091, 762.422, 11.5998), -3.13939, 21, 999 ,1, 1, 25, 255 );
 AddClass(2, RGB(100, 149, 237), 1, Vector(-823.187, 1150.35, 12.4111), 0.00513555, 21, 999 ,1, 1, 25, 255 );
 AddClass(3, RGB(200, 0, 0), 5, Vector(482.096, -92.4237, 10.2305), -3.1172, 21, 999 ,1, 1, 25, 255 );
@@ -76,6 +75,7 @@ function checkban(player)
 {
 	local q = QuerySQL(ban, "SELECT * FROM nameban WHERE name = '"+escapeSQLString(player.Name.tolower())+"'");
 	local q2 = QuerySQL(ban, "SELECT * FROM permaban WHERE UID = '"+player.UID+"'");
+	local q3 = QuerySQL(ban, "SELECT * FROM tempban WHERE UID = '"+player.UID+"'");
 	if(q)
 	{
 		Announce("~y~Banned", 8, player);
@@ -89,6 +89,21 @@ function checkban(player)
 		MessagePlayer("[#FFDD33]Information:[#FFFFFF] Banned from Server by Admin: [#D3D3D3]"+GetSQLColumnData(q2, 1)+"[#FFFFFF] Reason: ["+GetSQLColumnData(q2, 0)+"] "+GetSQLColumnData(q2, 4)+".", player);
 		MessagePlayer("[#FFDD33]Information:[#FFFFFF] If you think that you are wrongfully banned, make an admin report on our forum: ", player);
 		KickPlayer(player);
+	}
+	if(q3)
+	{
+		if(!checktempban(GetSQLColumnData(q3, 4)))
+		{
+			Announce("~y~Banned", 8, player);
+			MessagePlayer("[#FFDD33]Information:[#FFFFFF] Banned from Server by Admin: [#D3D3D3]"+GetSQLColumnData(q3, 1)+"[#FFFFFF] Reason: ["+GetSQLColumnData(q3, 0)+"] "+GetSQLColumnData(q3, 5)+".", player);
+			MessagePlayer("[#FFDD33]Information:[#FFFFFF] If you think that you are wrongfully banned, make an admin report on our forum: ", player);
+			KickPlayer(player);
+		
+		}
+		else
+		{
+			removetempban(player.UID);
+		}
 	}
 }
 function AccInfo(player)
@@ -282,6 +297,43 @@ function onPlayerTeamKill( player, killer, reason, bodypart )
 
 function onPlayerChat( player, text )
 {
+	local playerName = pcol(plr.ID) + player.Name + white;
+	if(message.slice(0,1) == "!" && status[player.ID].clan != null)
+	{
+		local arguments = GetTok(message, "!", NumTok(message, "!"));
+		if(message.len() < 2)
+		{
+			MessagePlayer("[#FF0000]Error:[#FFFFFF] Use ![text]", player);
+			return;
+		}
+		else
+		{
+			for(local i = 0; i <= GetMaxPlayers(); i++)
+			{
+				local plr = FindPlayer(i);
+				if(plr && status[plr.ID].clan == status[player.ID].clan)
+				{
+					MessagePlayer("[#33DD33][CLAN CHAT] [#FFFFFF]"+playerName+": "+arguments, plr);
+				}
+			}
+			return;
+		}
+	}
+
+	if(message.slice(0,1) == '\\')	
+	{
+		local text = message.slice(1);
+		for ( local i = 0; i < GetMaxPlayers(); i++ )
+		{
+			local plr = FindPlayer( i );
+			if ( plr && plr.Team == player.Team )
+			{
+				MessagePlayer("[#CC33CC][TEAM CHAT] [#FFFFFF]"+playerName+": "+arguments, plr);
+			}
+		}
+		return;
+	}
+
 return 1;
 }
 
@@ -328,11 +380,128 @@ function pcol(p)
 		if(player.Team == 5) return "[#D3D3D3]";
 	}
 }
+function checkmaxdays(month)
+{
+	switch(month)
+	{
+		case 1:
+			return 31;
+			break;
+		case 2:
+			return 28;
+			break;
+		case 3:
+			return 31;
+			break;
+		case 4:
+			return 30;
+			break;
+		case 5:
+			return 31;
+			break;
+		case 6:
+			return 30;
+			break;
+		case 7:
+			return 31;
+			break;
+		case 8:
+			return 31;
+			break;
+		case 9:
+			return 30;
+			break;
+		case 10:
+			return 31;
+			break;
+		case 11:
+			return 30;
+			break;
+		case 12:
+			return 31;
+			break;
+	
+		default: break;
+	}
+}
+function addbantime(days)
+{
+	local now = date();
+	local month = now.month,
+	day = now.day,
+	year = now.year,
+	nmonth = checkmaxdays(month.tointeger()),
+	ndays = day + days.tointeger();
+
+	if(nmonth < ndays)
+	{
+		month++;
+		ndays = ndays - 31;
+		if(nmonth < ndays)
+		{
+			month++;
+			ndays = ndays - 31;
+		}
+		if(nmonth < ndays)
+		{
+			month++;
+			ndays = ndays - 31;
+		}
+		if(nmonth < ndays)
+		{
+			month++;
+			ndays = ndays - 31;
+		}
+		if(month > 12)
+		{
+			year++;
+			month = month - 12;
+		}
+		else
+		{
+			local dat = ndays + "/" + month + "/" + year + " " + now.hour + ":" + now.min + ":" + now.sec;
+			return dat;
+		}
+	}
+	else
+	{
+		local dat = ndays + "/" + month + "/" + year + " " + now.hour + ":" + now.min + ":" + now.sec;
+		return dat;
+	}
+}
 
 
+function checktempban(datetime)
+{
+	local now = date();
+	local date = GetTok(datetime, " ", 1);
+	local month = now.month,
+	day = now.day,
+	year = now.year,
+	bday = GetTok(date, "/", 1).tointeger(),
+	bmonth = GetTok(date, "/", 2).tointeger(),
+	byear = GetTok(date, "/", 3).tointeger(),
+	fday = bday - day,
+	fmonth = bmonth - month,
+	fyear = byear - year;
 
+	if(fyear < 0) return 1;
+	else if(fyear < 1 && fmonth < 0) return 1;
+	else if(fmonth < 1 && fday < 0) return 1;
+	else return 0;
 
-
+	
+	
+}
+function removetempban(uid)
+{
+	local q = QuerySQL(ban, "SELECT * FROM tempban WHERE UID = '"+uid+"'");
+	if(q)
+	{
+		QuerySQL(ban, "INSERT INTO temunbanned (name, badmin, admin, duration, date, breason) VALUES ('"+GetSQLColumnData(q, 0)+"', '"+GetSQLColumnData(q, 1)+"', 'Server', '"+GetSQLColumnData(q, 4)+"', '"+GetSQLColumnData(q, 2)+"', '"+GetSQLColumnData(q, 6)+"') ");
+		QuerySQL(ban, "DELETE FROM tempban WHERE UID = '"+uid+"'");
+	}
+}
 
 
 
@@ -1105,6 +1274,51 @@ local playerName = pcol(player.ID) + player.Name + white;
 			}
 		}
 	}
+	else if(cmd == "clanchat" || cmd == "cc")
+	{
+		if(!arguments) MessagePlayer("[#FF0000]Error:[#FFFFFF] Use /"+bas+cmd+" <text>", player);
+		else if(status[player.ID].clan == null) MessagePlayer("[#FF0000]Error:[#FFFFFF] You are not in a clan.", player);
+		else
+		{
+			for(local i = 0; i<= GetMaxPlayers(); i++)
+			{
+				local plr = FindPlayer(i);
+				if(plr && status[plr.ID].clan == status[player.ID].clan) MessagePlayer("[#33DD33][CLAN CHAT] [#FFFFFF]"+playerName+": "+arguments, plr);
+			}
+		}
+	}
+	else if(cmd == "teamchat")
+	{
+		if(!arguments) MessagePlayer("[#FF0000]Error:[#FFFFFF] Use /"+bas+cmd+" <text>", player);
+		else
+		{
+			for(local i = 0; i<= GetMaxPlayers(); i++)
+			{
+				local plr = FindPlayer(i);
+				if(plr && plr.Team == player.Team) MessagePlayer("[#CC33CC][TEAM CHAT] [#FFFFFF]"+playerName+": "+arguments, plr);
+			}
+		}
+	}
+
+	else if (cmd == "adminchat" || cmd == "adminschat" || cmd == "ac" )
+	{
+		if(status[player.ID].Level < 5) MessagePlayer("[#FFDD33]Information:[#FFFFFF] Unauthorized Access", player);
+		else if(!arguments) MessagePlayer("[#FF0000]Error:[#FFFFFF] Use /" + bas+cmd + " <text>", player);
+		else
+		{
+			local plr;
+			for( local i = 0; i <= GetMaxPlayers(); i++ )
+			{
+				plr = FindPlayer( i );
+				if ( ( plr ) && ( status[ plr.ID ].Level >= 5 ) )
+				{
+					MessagePlayer("[#7B09C6][Admin Chat]: " + playerName + ": " + arguments + ".", plr);
+				}
+			}
+		}
+	}
+
+
 	
 	else if(cmd == "nameban")
 	{
@@ -1118,7 +1332,7 @@ local playerName = pcol(player.ID) + player.Name + white;
 			if(plr)
 			{
 				QuerySQL(ban, "INSERT INTO nameban (name, admin, date, reason) VALUES ('"+escapeSQLString(plr.Name.tolower())+"', '"+escapeSQLString(player.Name.tolower())+"', '"+dat+"', '"+GetTok(arguments, " ", 2, NumTok(arguments, " "))+"') ");
-			local q = QuerySQL(DB, "SELECT * FROM Accounts WHERE LowerName = '"+escapeSQLString(plr.Name.tolower())+"'");
+				local q = QuerySQL(DB, "SELECT * FROM Accounts WHERE LowerName = '"+escapeSQLString(plr.Name.tolower())+"'");
 				if(q) QuerySQL(DB, "UPDATE Accounts SET banned = 'Yes' WHERE LowerName = '"+escapeSQLString(plr.Name.tolower())+"'");
 				Message("[#FFDD00]Administrator Command:[#FFFFFF] Admin "+playerName+" Name-Banned player: "+pcol(plr.ID)+plr.Name+white+" Reason: "+GetTok(arguments, " ", 2, NumTok(arguments, " "))+".");
 				MessagePlayer("[#FFDD33]Information:[#FFFFFF] If you think that you are wrongfully banned, make an admin report on our forum: ", player);
@@ -1126,14 +1340,15 @@ local playerName = pcol(player.ID) + player.Name + white;
 			}
 			else
 			{
-				local q = QuerySQL(DB, "SELECT * FROM Accounts WHERE LowerName = '"+escapeSQLString(GetTok(arguments, " ", 2).tolower())+"'");
-				if(!q) MessagePlayer("[#FF0000]Error:[#FFFFFF] Unknown Player.", player);
-				else
+				QuerySQL(ban, "INSERT INTO nameban (name, admin, date, reason) VALUES ('"+escapeSQLString(GetTok(arguments, " ", 1).tolower())+"', '"+escapeSQLString(player.Name.tolower())+"', '"+dat+"', '"+GetTok(arguments, " ", 2, NumTok(arguments, " "))+"') ");
+				local q = QuerySQL(DB, "SELECT * FROM Accounts WHERE LowerName = '"+escapeSQLString(GetTok(arguments, " ", 1).tolower())+"'");
+				if(q)
 				{
-					QuerySQL(ban, "INSERT INTO nameban (name, admin, date, reason) VALUES ('"+escapeSQLString(GetSQLColumnData(q, 1).tolower())+"', '"+escapeSQLString(player.Name.tolower())+"', '"+dat+"', '"+GetTok(arguments, " ", 2, NumTok(arguments, " "))+"') ");
-					QuerySQL(DB, "UPDATE Accounts SET banned = 'Yes' WHERE LowerName = '"+escapeSQLString(GetSQLColumnData(q, 1).tolower())+"'");
-					MessagePlayer("[#FFDD00]Administrator Command:[#FFFFFF] Admin "+playerName+" Name-Banned player: [#D3D3D3]"+GetSQLColumnData(q, 0)+" Reason: "+GetTok(arguments, " ", 2, NumTok(arguments, " "))+".", player);
+					QuerySQL(DB, "UPDATE Accounts SET banned = 'Yes' WHERE LowerName = '"+escapeSQLString(GetTok(arguments, " ", 1).tolower())+"'");
+					Message("[#FFDD00]Administrator Command:[#FFFFFF] Admin "+playerName+" Name-Banned player: [#D3D3D3]"+GetSQLColumnData(q, 0)+white+" Reason: "+GetTok(arguments, " ", 2, NumTok(arguments, " "))+".");
 				}
+				else Message("[#FFDD00]Administrator Command:[#FFFFFF] Admin "+playerName+" Name-Banned player: [#D3D3D3]"+GetTok(arguments, " ", 1)+white+" Reason: "+GetTok(arguments, " ", 2, NumTok(arguments, " "))+".");
+
 			}
 		}
 	}
@@ -1158,13 +1373,14 @@ local playerName = pcol(player.ID) + player.Name + white;
 			}
 			else
 			{
-				local q = QuerySQL(DB, "SELECT * FROM Accounts WHERE LowerName = '"+escapeSQLString(GetTok(arguments, " ", 2).tolower())+"'");
+				local q = QuerySQL(DB, "SELECT * FROM Accounts WHERE LowerName = '"+escapeSQLString(plr.Name.tolower())+"'");
 				if(!q) MessagePlayer("[#FF0000]Error:[#FFFFFF] Unknown Player.", player);
 				else
 				{
 					QuerySQL(ban, "INSERT INTO permaban (name, admin, date, UID, reason) VALUES ('"+escapeSQLString(GetSQLColumnData(q, 1).tolower())+"', '"+escapeSQLString(player.Name.tolower())+"', '"+dat+"', '"+GetSQLColumnData(q, 5)+"', '"+GetTok(arguments, " ", 2, NumTok(arguments, " "))+"') ");
 					QuerySQL(DB, "UPDATE Accounts SET banned = 'Yes' WHERE LowerName = '"+escapeSQLString(GetSQLColumnData(q, 1).tolower())+"'");
 					MessagePlayer("[#FFDD00]Administrator Command:[#FFFFFF] Admin "+playerName+" Permanently Banned player: [#D3D3D3]"+GetSQLColumnData(q, 0)+" Reason: "+GetTok(arguments, " ", 2, NumTok(arguments, " "))+".", player);
+					QuerySQL(DB, "UPDATE Accounts SET banned = 'Yes' WHERE LowerName = '"+escapeSQLString(GetTok(arguments, " ", 1).tolower())+"'");
 				}
 			}
 		}
@@ -1172,31 +1388,102 @@ local playerName = pcol(player.ID) + player.Name + white;
 	else if(cmd == "tempban")
 	{
 		if(status[player.ID].Level < 6) MessagePlayer("[#FFDD33]Information:[#FFFFFF] Unauthorized Access", player);
-		else if(!arguments || NumTok(arguments, " ") < 2) MessagePlayer("[#FF0000]Error:[#FFFFFF] Use /"+bas+cmd+" <player> <number of days>", player);
+		else if(!arguments || NumTok(arguments, " ") < 3) MessagePlayer("[#FF0000]Error:[#FFFFFF] Use /"+bas+cmd+" <player> <days 1 - 100> <reason>", player);
+		else if(!IsNum(GetTok(arguments, " ", 2)) || GetTok(arguments, " ", 2).tointeger() < 0 || GetTok(arguments, " ", 2).tointeger() > 100) MessagePlayer("[#FF0000]Error:[#FFFFFF] Days should be in numbers and between 1 to 100.", player);
 		else
 		{
+			local now = date();
+			local dat = now.day + "/" + now.month + "/" + now.year + " " + now.hour + ":" + now.min + ":" + now.sec;
 			local plr = FindPlayer(GetTok(arguments, " ", 1));
 			if(plr)
 			{
-				QuerySQL(ban, "INSERT INTO tempban (name, admin, date, UID, duration, reason) VALUES ('"+escapeSQLString(plr.Name.tolower())+"', '"+escapeSQLString(player.Name.tolower())+"', '"+dat+"', '"+plr.UID+"', '"+GetTok(arguments, " ", 2, NumTok(arguments, " "))+"') ");
+				QuerySQL(ban, "INSERT INTO tempban (name, admin, date, UID, duration, expire, reason) VALUES ('"+escapeSQLString(plr.Name.tolower())+"', '"+escapeSQLString(player.Name.tolower())+"', '"+dat+"', '"+plr.UID+"', '"+GetTok(arguments, " ", 2)+"', '"+addbantime(GetTok(arguments, " ", 2).tointeger())+"', '"+GetTok(arguments, " ", 3, NumTok(arguments, " "))+"') ");
 				local q = QuerySQL(DB, "SELECT * FROM Accounts WHERE LowerName = '"+escapeSQLString(plr.Name.tolower())+"'");
-				if(q) QuerySQL(DB, "UPDATE Accounts SET banned = 'Yes' WHERE LowerName = '"+escapeSQLString(plr.Name.tolower())+"'");
-				Message("[#FFDD00]Administrator Command:[#FFFFFF] Admin "+playerName+" Permanently Banned player: "+pcol(plr.ID)+plr.Name+white+" Reason: "+GetTok(arguments, " ", 2, NumTok(arguments, " "))+".");
+				if(q) 
+				QuerySQL(DB, "UPDATE Accounts SET banned = 'Yes' WHERE LowerName = '"+escapeSQLString(plr.Name.tolower())+"'");
+				Message("[#FFDD00]Administrator Command:[#FFFFFF] Admin "+playerName+" Banned player: "+pcol(plr.ID)+plr.Name+white+" for: "+GetTok(arguments, " ", 2)+" days Reason: "+GetTok(arguments, " ", 3, NumTok(arguments, " "))+".");
 				MessagePlayer("[#FFDD33]Information:[#FFFFFF] If you think that you are wrongfully banned, make an admin report on our forum: ", player);
 				KickPlayer(plr);
 			}
 			else
 			{
-			
+				local q = QuerySQL(DB, "SELECT * FROM Accounts WHERE LowerName = '"+escapeSQLString(plr.Name.tolower())+"'");
+				if(!q) MessagePlayer("[#FF0000]Error:[#FFFFFF] Unknown Player.", player);
+				else
+				{
+					QuerySQL(ban, "INSERT INTO tempban (name, admin, date, UID, duration, expire, reason) VALUES ('"+escapeSQLString(GetTok(arguments, " ", 2).tolower())+"', '"+escapeSQLString(player.Name.tolower())+"', '"+dat+"', '"+plr.UID+"', '"+GetTok(arguments, " ", 2)+"', '"+addbantime(GetTok(arguments, " ", 2).tointeger())+"', '"+GetTok(arguments, " ", 3, NumTok(arguments, " "))+"') ");
+					QuerySQL(DB, "UPDATE Accounts SET banned = 'Yes' WHERE LowerName = '"+escapeSQLString(GetTok(arguments, " ", 1).tolower())+"'");
+					Message("[#FFDD00]Administrator Command:[#FFFFFF] Admin "+playerName+" Banned player: [#D3D3D3]"+GetSQLColumnData(q, 0)+white+" for: "+GetTok(arguments, " ", 2)+" days Reason: "+GetTok(arguments, " ", 2, NumTok(arguments, " "))+".");
+				}
 			}
 		}
 	}
+	
+	else if(cmd == "permaunban")
+	{
+		if(status[player.ID].Level < 6) MessagePlayer("[#FFDD33]Information:[#FFFFFF] Unauthorized Access", player);
+		else if(!arguments) MessagePlayer("[#FF0000]Error:[#FFFFFF] Use /"+bas+cmd+" <player>", player);
+		else
+		{
+			local q = QuerySQL(ban, "SELECT * FROM permaban WHERE name = '"+escapeSQLString(arguments.tolower())+"'");
+			if(!q) MessagePlayer("[#FF0000]Error:[#FFFFFF] Unknown Player.", player);
+			else
+			{
+				Message("[#FFDD00]Administrator Command:[#FFFFFF] Admin "+playerName+" unbanned player: "+GetSQLColumnData(q, 0)+"'");
+				QuerySQL(ban, "INSERT INTO permaunban (name, badmin, admin, date, breason) VALUES ('"+GetSQLColumnData(q, 0)+"', '"+GetSQLColumnData(q, 1)+"', '"+player.Name+"', '"+GetSQLColumnData(q, 2)+"', '"+GetSQLColumnData(q, 4)+"') ");
+				QuerySQL(ban, "DELETE FROM permaban WHERE name = '"+escapeSQLString(arguments.tolower())+"'");
+				if(q) QuerySQL(DB, "UPDATE Accounts SET Banned = 'No' WHERE LowerName = '"+escapeSQLString(arguments.tolower())+"'");
+			}
+		}
+	}
+	else if(cmd == "tempunban")
+	{
+		if(status[player.ID].Level < 6) MessagePlayer("[#FFDD33]Information:[#FFFFFF] Unauthorized Access", player);
+		else if(!arguments) MessagePlayer("[#FF0000]Error:[#FFFFFF] Use /"+bas+cmd+" <player>", player);
+		else
+		{
+			local q = QuerySQL(ban, "SELECT * FROM permaban WHERE name = '"+escapeSQLString(arguments.tolower())+"'");
+			if(!q) MessagePlayer("[#FF0000]Error:[#FFFFFF] Unknown Player.", player);
+			else
+			{
+				Message("[#FFDD00]Administrator Command:[#FFFFFF] Admin "+playerName+" unbanned player: "+GetSQLColumnData(q, 0)+"'");
+				QuerySQL(ban, "INSERT INTO temunbanned (name, badmin, admin, duration, date, breason) VALUES ('"+GetSQLColumnData(q, 0)+"', '"+GetSQLColumnData(q, 1)+"', '"+escapeSQLString(player.Name)+"', '"+GetSQLColumnData(q, 4)+"', '"+GetSQLColumnData(q, 2)+"', '"+GetSQLColumnData(q, 6)+"') ");
+				QuerySQL(ban, "DELETE FROM tempban WHERE name = '"+escapeSQLString(arguments.tolower())+"'");
+				if(q) QuerySQL(DB, "UPDATE Accounts SET Banned = 'No' WHERE LowerName = '"+escapeSQLString(arguments.tolower())+"'");
+			}
+		}
+	}
+	else if(cmd == "nameunban")
+	{
+		if(status[player.ID].Level < 6) MessagePlayer("[#FFDD33]Information:[#FFFFFF] Unauthorized Access", player);
+		else if(!arguments) MessagePlayer("[#FF0000]Error:[#FFFFFF] Use /"+bas+cmd+" <player>", player);
+		else
+		{
+			local q = QuerySQL(ban, "SELECT * FROM nameban WHERE name = '"+escapeSQLString(arguments.tolower())+"'");
+			if(!q) MessagePlayer("[#FF0000]Error:[#FFFFFF] Unknown Player.", player);
+			else
+			{
+				Message("[#FFDD00]Administrator Command:[#FFFFFF] Admin "+playerName+" unbanned player: "+GetSQLColumnData(q, 0)+"'");
+				QuerySQL(ban, "INSERT INTO nameunban (name, badmin, admin, date, breason) VALUES ('"+GetSQLColumnData(q, 0)+"', '"+GetSQLColumnData(q, 1)+"', '"+player.Name+"', '"+GetSQLColumnData(q, 3)+"', '"+GetSQLColumnData(q, 4)+"') ");
+				QuerySQL(ban, "DELETE FROM nameban WHERE name = '"+escapeSQLString(arguments.tolower())+"'");
+				if(q) QuerySQL(DB, "UPDATE Accounts SET Banned = 'No' WHERE LowerName = '"+escapeSQLString(arguments.tolower())+"'");
+			}
+		}
+	}
+	else if(cmd == "time")
+	{
+		local now = date();
+		local dat = now.day + "/" + now.month + "/" + now.year + " " + now.hour + ":" + now.min + ":" + now.sec;
+		MessagePlayer("[#FFDD33]Information:[#FFFFFF] The Time is: "+dat, player);
+	}
+	
+
 	else if(cmd == "cmds" || cmd == "commands")
 	{
 		if(!arguments || !IsNum(arguments) || arguments.tointeger() < 0 || arguments.tointeger() > 3) MessagePlayer("[#FF0000]Error:[#FFFFFF] USe /"+bas+cmd+" <1-3>", player);
 		else
 		{
-			if(arguments.tointeger() == 1) MessagePlayer("[#FFDD33]Information:[#FFFFFF] Account Commands:"+bas+" register, login, changepass, level, clan, lastjoined",player);
+			if(arguments.tointeger() == 1) MessagePlayer("[#FFDD33]Information:[#FFFFFF] Account Commands:"+bas+" register, login, changepass, level, clan, lastjoined, clanchat, teamchat",player);
 			else if(arguments.tointeger() == 2) MessagePlayer("[#FFDD33]Information:[#FFFFFF] Fighting Commands:"+bas+" wep, spawnwep", player);
 		}
 	}
@@ -1215,8 +1502,8 @@ local playerName = pcol(player.ID) + player.Name + white;
 		else
 		{
 			MessagePlayer("[#FFDD33]Information:[#FFFFFF] Admin Commands:"+bas+" slap, warn, kick, sethp, canattack, setattack, setspawnattack ", player);
-			if(status[player.ID].Level > 5) MessagePlayer(white"Founder Commands:"+bas+" setrefree, setadmin, addclan, removeclan, addclanmember, removeclanmember, getaccinfo, alias ", player);
-			if(status[player.ID].Level > 5) MessagePlayer(white"Ban Commands:"+bas+" nameban ", player);
+			if(status[player.ID].Level > 5) MessagePlayer(white+"Founder Commands:"+bas+" setrefree, setadmin, addclan, removeclan, addclanmember, removeclanmember, getaccinfo, alias ", player);
+			if(status[player.ID].Level > 5) MessagePlayer(white+"Ban Commands:"+bas+" nameban, nameunban, permaban, permaunban, tempban, tempunban ", player);
 		}
 	}
 	else MessagePlayer("[#FF0000]Error:[#FFFFFF] Unknown Command. Use /"+bas+"cmds"+white+" for a list of Commands", player);
