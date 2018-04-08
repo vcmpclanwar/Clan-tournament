@@ -285,16 +285,53 @@ function onPlayerSpawn( player )
 
 function onPlayerDeath( player, reason )
 {
+	if(status[player.ID].spree > 4) Message("[#FFDD33]Information:[#FFFFFF] "+pcol(player.ID)+player.Name+white+" has ended their own killing spree of "+status[player.ID].spree+" kills in a row.");
+	status[player.ID].spree = 0;
+
 }
 
 function onPlayerKill( player, killer, reason, bodypart )
 {
+	status[killer.ID].spree++;
+	checkspree(killer.ID);
+	if(killer.Health < 80) killer.Health += 20;
+	else killer.Health = 100;
+
+	
+	if(status[player.ID].spree > 4) Message("[#FFDD33]Information:[#FFFFFF] "+pcol(killer.ID)+killer.Name+ white+" has ended "+pcol(player.ID)+player.Name+white+" killing spree of "+status[player.ID].spree+" kills in a row.");
+	status[player.ID].spree = 0;
 }
 
 function onPlayerTeamKill( player, killer, reason, bodypart )
 {
 }
-
+function checkspree(p)
+{
+	local player = FindPlayer(p);
+	if(p)
+	{
+		if(status[player.ID].spree == 5) Message("[#FFDD33]Information:[#FFFFFF] "+pcol(player.ID)+player.Name+white+" is on a killing spree of "+status[player.ID].spree+" kills in a row.");
+		if(status[player.ID].spree == 10) Message("[#FFDD33]Information:[#FFFFFF] "+pcol(player.ID)+player.Name+white+" is on a killing spree of "+status[player.ID].spree+" kills in a row.");
+		if(status[player.ID].spree == 15) Message("[#FFDD33]Information:[#FFFFFF] "+pcol(player.ID)+player.Name+white+" is on a killing spree of "+status[player.ID].spree+" kills in a row.");
+		if(status[player.ID].spree == 20) Message("[#FFDD33]Information:[#FFFFFF] "+pcol(player.ID)+player.Name+white+" is on a killing spree of "+status[player.ID].spree+" kills in a row.");
+		if(status[player.ID].spree == 25) Message("[#FFDD33]Information:[#FFFFFF] "+pcol(player.ID)+player.Name+white+" is on a killing spree of "+status[player.ID].spree+" kills in a row.");
+		if(status[player.ID].spree == 30) Message("[#FFDD33]Information:[#FFFFFF] "+pcol(player.ID)+player.Name+white+" is on a killing spree of "+status[player.ID].spree+" kills in a row.");
+		if(status[player.ID].spree == 35) Message("[#FFDD33]Information:[#FFFFFF] "+pcol(player.ID)+player.Name+white+" is on a killing spree of "+status[player.ID].spree+" kills in a row.");
+		if(status[player.ID].spree == 40) Message("[#FFDD33]Information:[#FFFFFF] "+pcol(player.ID)+player.Name+white+" is on a killing spree of "+status[player.ID].spree+" kills in a row.");
+		if(status[player.ID].spree == 45) Message("[#FFDD33]Information:[#FFFFFF] "+pcol(player.ID)+player.Name+white+" is on a killing spree of "+status[player.ID].spree+" kills in a row.");
+		if(status[player.ID].spree == 50) Message("[#FFDD33]Information:[#FFFFFF] "+pcol(player.ID)+player.Name+white+" is on a killing spree of "+status[player.ID].spree+" kills in a row.");
+		if(status[player.ID].spree == 55) Message("[#FFDD33]Information:[#FFFFFF] "+pcol(player.ID)+player.Name+white+" is on a killing spree of "+status[player.ID].spree+" kills in a row.");
+		if(status[player.ID].spree == 60) Message("[#FFDD33]Information:[#FFFFFF] "+pcol(player.ID)+player.Name+white+" is on a killing spree of "+status[player.ID].spree+" kills in a row.");
+		if(status[player.ID].spree == 65) Message("[#FFDD33]Information:[#FFFFFF] "+pcol(player.ID)+player.Name+white+" is on a killing spree of "+status[player.ID].spree+" kills in a row.");
+		if(status[player.ID].spree == 70) Message("[#FFDD33]Information:[#FFFFFF] "+pcol(player.ID)+player.Name+white+" is on a killing spree of "+status[player.ID].spree+" kills in a row.");
+		if(status[player.ID].spree == 75) Message("[#FFDD33]Information:[#FFFFFF] "+pcol(player.ID)+player.Name+white+" is on a killing spree of "+status[player.ID].spree+" kills in a row.");
+		if(status[player.ID].spree == 80) Message("[#FFDD33]Information:[#FFFFFF] "+pcol(player.ID)+player.Name+white+" is on a killing spree of "+status[player.ID].spree+" kills in a row.");
+		if(status[player.ID].spree == 85) Message("[#FFDD33]Information:[#FFFFFF] "+pcol(player.ID)+player.Name+white+" is on a killing spree of "+status[player.ID].spree+" kills in a row.");
+		if(status[player.ID].spree == 90) Message("[#FFDD33]Information:[#FFFFFF] "+pcol(player.ID)+player.Name+white+" is on a killing spree of "+status[player.ID].spree+" kills in a row.");
+		if(status[player.ID].spree == 95) Message("[#FFDD33]Information:[#FFFFFF] "+pcol(player.ID)+player.Name+white+" is on a killing spree of "+status[player.ID].spree+" kills in a row.");
+		if(status[player.ID].spree == 100) Message("[#FFDD33]Information:[#FFFFFF] "+pcol(player.ID)+player.Name+white+" is on a killing spree of "+status[player.ID].spree+" kills in a row.");
+	}
+}
 function onPlayerChat( player, text )
 {
 local message = text;
@@ -1477,15 +1514,54 @@ local playerName = pcol(player.ID) + player.Name + white;
 		local dat = now.day + "/" + now.month + "/" + now.year + " " + now.hour + ":" + now.min + ":" + now.sec;
 		MessagePlayer("[#FFDD33]Information:[#FFFFFF] The Time is: "+dat, player);
 	}
-	
-
+	else if(cmd == "spree")
+	{
+		if(!arguments) MessagePlayer("[#FFDD33]Information:[#FFFFFF] Current Spree: "+status[player.ID].spree+".", player);
+		else
+		{
+			local plr = FindPlayer(arguments);
+			if(!plr) MessagePlayer("[#FF0000]Error:[#FFFFFF] Unknown Player.", player);
+			else MessagePlayer("[#FFDD33]Information:[#FFFFFF] Player: "+pcol(plr.ID)+plr.Name+white+" Spree: "+status[plr.ID].spree+".", player);
+		}
+	}
+	else if(cmd == "playeronspree" || cmd == "playersonspree" || cmd == "onspree")
+	{
+		local b=0;
+		for(local i=0; i<=GetMaxPlayers();i++)
+		{
+			local plr = FindPlayer(i);
+			if(plr && status[plr.ID].spree > 4)
+			{
+				if(b == 0) b = pcol(plr.ID)+plr.Name+white+"("+status[plr.ID].spree+")";
+				else b = b+", "+pcol(plr.ID)+plr.Name+white+"("+status[plr.ID].spree+")";
+			}
+		}
+		if(b == 0) Message("[#FFDD33]Information:[#FFFFFF] No player's currently on spree.");
+		else Message("[#FFDD33]Information:[#FFFFFF] Player's on spree: "+b);
+	}
+	else if(cmd == "setspree")
+	{
+		if(status[player.ID].Level < 5) MessagePlayer("[#FFDD33]Information:[#FFFFFF] Unauthorized Access", player);
+		else if(!arguments || NumTok(arguments, " ") < 2) MessagePlayer("[#FF0000]Error:[#FFFFFF] Use /"+bas+cmd+" <player> <number>", player);
+		else if(!IsNum(GetTok(arguments, " ", 2)) || GetTok(arguments, " ", 2).tointeger() < 0) MessagePlayer("[#FF0000]Error:[#FFFFFF] Wrong Number entered.", player);
+		else
+		{
+			local plr = FindPlayer(GetTok(arguments, " ", 1));
+			if(!plr) MessagePlayer("[#FF0000]Error:[#FFFFFF] Unknown Player.", player);
+			else
+			{
+				status[plr.ID].spree = GetTok(arguments, " ", 2).tointeger();
+				Message("[#FFDD00]Administrator Command:[#FFFFFF] Admin "+playerName+" set spree of player: "+pcol(plr.ID)+plr.Name+white+" to: "+GetTok(arguments, " ", 2)+".");
+			}
+		}
+	}
 	else if(cmd == "cmds" || cmd == "commands")
 	{
 		if(!arguments || !IsNum(arguments) || arguments.tointeger() < 0 || arguments.tointeger() > 3) MessagePlayer("[#FF0000]Error:[#FFFFFF] USe /"+bas+cmd+" <1-3>", player);
 		else
 		{
 			if(arguments.tointeger() == 1) MessagePlayer("[#FFDD33]Information:[#FFFFFF] Account Commands:"+bas+" register, login, changepass, level, clan, lastjoined, clanchat, teamchat",player);
-			else if(arguments.tointeger() == 2) MessagePlayer("[#FFDD33]Information:[#FFFFFF] Fighting Commands:"+bas+" wep, spawnwep", player);
+			else if(arguments.tointeger() == 2) MessagePlayer("[#FFDD33]Information:[#FFFFFF] Fighting Commands:"+bas+" wep, spawnwep, spree, playersonspree", player);
 		}
 	}
 	
