@@ -15,6 +15,7 @@ class PlayerStats
  deaths = 0;
  spree = 0;
  attack = false;
+ vehaccess = false;
 }
 
 const white = "[#FFFFFF]";
@@ -53,7 +54,7 @@ AddClass(3, RGB(200, 0, 0), 5, Vector(482.096, -92.4237, 10.2305), -3.1172, 21, 
 AddClass(4, RGB(23, 135, 34), 48, Vector(-657.091, 762.422, 11.5998), -3.13939, 21, 999 ,1, 1, 25, 255 );
 AddClass(5, RGB(211, 211, 211), 84, Vector(-657.091, 762.422, 11.5998), -3.13939, 21, 999 ,1, 1, 25, 255 );
 
- 
+
  
  
 }
@@ -110,9 +111,11 @@ function checkban(player)
 }
 function AccInfo(player)
 {
- local q = QuerySQL(DB, "SELECT * FROM Accounts WHERE LowerName = '" + escapeSQLString(player.Name.tolower()) + "'");
+	local q = QuerySQL(DB, "SELECT * FROM Accounts WHERE LowerName = '" + escapeSQLString(player.Name.tolower()) + "'");
 	if (!q)
 	{
+		MessagePlayer("[#FFDD33] Welcome to the [#FFFF00]VCMP Clan Tournament 2018[#FFFFFF].", player);
+		MessagePlayer("[#FFDD33]Information:[#FFFFFF]  Your nick is [#FF0000]not [#FFFFFF]registered. Please use /"+bas+"register[#FFFFFF] in order to access services.", player);
 		local q2 = QuerySQL(DB, "SELECT * FROM Unregistered WHERE LowerName = '"+escapeSQLString(player.Name.tolower())+"'");
 		if(!q2)
 		{
@@ -121,48 +124,42 @@ function AccInfo(player)
 	}
 	else
 	{
-	if(GetSQLColumnData(q, 0) != escapeSQLString(player.Name)) MessagePlayer("[#FF0000]Warning"+white+": Any Capital/small letter of your name doesn't match the database. Please transfer your stats in order to avoid bugs.", player); 
-	status[player.ID].pass = GetSQLColumnData(q, 2);
-  status[player.ID].Level = GetSQLColumnData(q, 3);
-  status[player.ID].UID = GetSQLColumnData(q, 5);
-  status[player.ID].IP = GetSQLColumnData(q, 6);
-  status[player.ID].AutoLogin = GetSQLColumnData(q, 7);
-  status[player.ID].Registered = true;
-  status[player.ID].banned = GetSQLColumnData(q, 8);
-  status[player.ID].clan = GetSQLColumnData(q, 9);
-  status[player.ID].kills = GetSQLColumnData(q, 10).tointeger();
-  status[player.ID].headshots = GetSQLColumnData(q, 11).tointeger();
-  status[player.ID].deaths = GetSQLColumnData(q, 12).tointeger();
- if ((player.UID == status[player.ID].UID) || (player.IP == status[player.ID].IP))
-  {
- if (status[player.ID].AutoLogin == "true")
-   {
-    MessagePlayer("[#FFDD33] Welcome to the [#FFFF00]VCMP Clan Tournament 2018[#FFFFFF].", player);
-	if(status[player.ID].clan != null)
-	{
-		MessagePlayer("[#FFDD33] Clan : "+status[player.ID].clan+".", player);
+		if(GetSQLColumnData(q, 0) != escapeSQLString(player.Name)) MessagePlayer("[#FF0000]Warning"+white+": Any Capital/small letter of your name doesn't match the database. Please transfer your stats in order to avoid bugs.", player); 
+		status[player.ID].pass = GetSQLColumnData(q, 2);
+		status[player.ID].Level = GetSQLColumnData(q, 3);
+		status[player.ID].UID = GetSQLColumnData(q, 5);
+		status[player.ID].IP = GetSQLColumnData(q, 6);
+		status[player.ID].AutoLogin = GetSQLColumnData(q, 7);
+		status[player.ID].Registered = true;
+		status[player.ID].banned = GetSQLColumnData(q, 8);
+		status[player.ID].clan = GetSQLColumnData(q, 9);
+		status[player.ID].kills = GetSQLColumnData(q, 10).tointeger();
+		status[player.ID].headshots = GetSQLColumnData(q, 11).tointeger();
+		status[player.ID].deaths = GetSQLColumnData(q, 12).tointeger();
+		if ((player.UID == status[player.ID].UID) || (player.IP == status[player.ID].IP))
+		{
+			if (status[player.ID].AutoLogin == "true")
+			{
+				MessagePlayer("[#FFDD33] Welcome to the [#FFFF00]VCMP Clan Tournament 2018[#FFFFFF].", player);
+				if(status[player.ID].clan != null)
+				{
+					MessagePlayer("[#FFDD33] Clan : "+status[player.ID].clan+".", player);
+				}
+				MessagePlayer("[#FFDD33]Information:[#FFFFFF]  You've been auto logged in, to disable this, type /"+bas+"autologin"+white+" [ Toggles automatically ]", player);
+				status[player.ID].LoggedIn = true;
+			}
+			else
+			{
+				MessagePlayer("[#FFDD33] Welcome to the [#FFFF00]VCMP Clan Tournament 2018[#FFFFFF].", player);
+				MessagePlayer("[#FFDD33]Information:[#FFFFFF]  Your nick is registered. Please login in order to access services.", player);
+			}
+		}
+		else
+		{
+			MessagePlayer("[#FFDD33] Welcome to the [#FFFF00]VCMP Clan Tournament 2018[#FFFFFF].", player);
+			MessagePlayer("[#FFDD33]Information:[#FFFFFF]  Your nick is registered. Please login in order to access services.", player);
+		}
 	}
-    MessagePlayer("[#FFDD33]Information:[#FFFFFF]  You've been auto logged in, to disable this, type /"+bas+"autologin"+white+" [ Toggles automatically ]", player);
-    status[player.ID].LoggedIn = true;
-   }
-   else
-   {
-    MessagePlayer("[#FFDD33] Welcome to the [#FFFF00]VCMP Clan Tournament 2018[#FFFFFF].", player);
-    MessagePlayer("[#FFDD33]Information:[#FFFFFF]  Your nick is registered. Please login in order to access services.", player);
-   }
-  }
-  else
-  {
-    MessagePlayer("[#FFDD33] Welcome to the [#FFFF00]VCMP Clan Tournament 2018[#FFFFFF].", player);
-   MessagePlayer("[#FFDD33]Information:[#FFFFFF]  Your nick is registered. Please login in order to access services.", player);
-  }
- }
- else
- {
-    MessagePlayer("[#FFDD33] Welcome to the [#FFFF00]VCMP Clan Tournament 2018[#FFFFFF].", player);
-  MessagePlayer("[#FFDD33]Information:[#FFFFFF]  Your nick is [#FF0000]not [#FFFFFF]registered. Please use /"+bas+"register[#FFFFFF] in order to access services.", player);
- }
-//  FreeSQLQuery(q);
 }
 
 
@@ -229,23 +226,26 @@ function onPlayerSpawn( player )
 {
 	if(status[player.ID].attack == true) player.CanAttack = true;
 	else player.CanAttack = false;
-	if(player.Team == 1)
+	if(status[player.ID].spawnwep != null) setspawnwep(player.ID, status[player.ID].spawnwep);
+	else
 	{
-		 player.GiveWeapon(9, 9999);
-		 player.GiveWeapon(15, 9999);
-		 player.GiveWeapon(18, 9999);
-		 player.GiveWeapon(19, 9999);
-		 player.GiveWeapon(102, 9999);
-		 player.GiveWeapon(32, 9999);
-		 player.GiveWeapon(103, 9999);
-		 player.GiveWeapon(24, 9999);
-	}
+		if(player.Team == 1)
+		{
+			player.GiveWeapon(9, 9999);
+			player.GiveWeapon(15, 9999);
+			player.GiveWeapon(18, 9999);
+			player.GiveWeapon(19, 9999);
+			player.GiveWeapon(102, 9999);
+			player.GiveWeapon(32, 9999);
+			player.GiveWeapon(103, 9999);
+			player.GiveWeapon(24, 9999);
+		}
 	
 	
 	
-	if(player.Team == 2)
-	{
-		 player.GiveWeapon(4, 9999);
+		if(player.Team == 2)
+		{
+			player.GiveWeapon(4, 9999);
 		 player.GiveWeapon(12, 9999);
 		 player.GiveWeapon(17, 9999);
 		 player.GiveWeapon(21, 9999);
@@ -293,9 +293,57 @@ function onPlayerSpawn( player )
 		 player.GiveWeapon(29, 9999);
 		 player.GiveWeapon(25, 9999);
 	}
+	}
 }
 
+function setspawnwep(p, text)
+{
+	local player = FindPlayer(p);
+	if(!player) return;
+	else
+	{
+			local params = split( text, " " ); 
+			player.SetWeapon(0,0);
+			local weapons; // Create a new null variable which will be holding the list of weapons player took.
+			local b;
+			b = 0;
+			for( local i = 0; i <= params.len() - 1; i++ ) // since the 'len' returns value from 1 and array's starting value point is 0, we will use len() - 1 otherwise we'll receive an error.
+			{
+				if( !IsNum( params[i] ) && GetWeaponID( params[i]) && GetWeaponID( params[i]) > 0 && GetWeaponID( params[i]) <= 32 ) // if Name was specified. 
+				{
+					player.SetWeapon( GetWeaponID( params[i] ), 99999 ); // Get the weapon ID from its Name
+					if(b == 0)
+					{
+						weapons = GetWeaponName(GetWeaponID(params[i])); // Add the weapon name to given weapon list
+						b=b+1;
+					}
+					else
+					{
+						weapons = weapons + ", " + GetWeaponName(GetWeaponID(params[i]));
+					}
 
+				}
+	
+				else if( IsNum( params[i] ) && params[i].tointeger() < 33 && params[i].tointeger() > 0  ) // if ID was specified
+				{
+					player.SetWeapon( params[i].tointeger(), 99999 ); // Then just give player that weapon
+					weapons = GetWeaponName( params[i].tointeger() ); // Get the weapon name from the ID and add it.
+					if(b == 0)
+					{
+						weapons = GetWeaponName( params[i].tointeger() ); // Add the weapon name to given weapon list
+						b=b+1;
+					}
+					else
+					{
+						weapons = weapons + ", " + GetWeaponName( params[i].tointeger() );
+					}
+					
+				}
+			}
+			if(weapons != null) MessagePlayer("[#FFDD33]Information:[#FFFFFF] You received the following weps : "+weapons+".", player);
+	
+	}
+}
 function onPlayerDeath( player, reason )
 {
 	if(status[player.ID].spree > 4) Message("[#FFDD33]Information:[#FFFFFF] "+pcol(player.ID)+player.Name+white+" has ended their own killing spree of "+status[player.ID].spree+" kills in a row.");
@@ -550,17 +598,42 @@ function checktempban(datetime)
 	
 	
 }
+function onPlayerHealthChange( player, lastHP, newHP )
+{
+	if(newHP > 100)
+	{
+		Message("[#FFDD33]Information:[#FFFFFF] Player:"+pcol(player.ID)+player.Name+white+" Kicked. Reason: Health Hack.");
+		KickPlayer(player);
+	}
+}
+
 function removetempban(uid)
 {
 	local q = QuerySQL(ban, "SELECT * FROM tempban WHERE UID = '"+uid+"'");
 	if(q)
 	{
+		QuerySQL(DB, "UPDATE Accounts SET banned = 'No' WHERE LowerName = '"+GetSQLColumnData(q, 1)+"'");
 		QuerySQL(ban, "INSERT INTO temunbanned (name, badmin, admin, duration, date, breason) VALUES ('"+GetSQLColumnData(q, 0)+"', '"+GetSQLColumnData(q, 1)+"', 'Server', '"+GetSQLColumnData(q, 4)+"', '"+GetSQLColumnData(q, 2)+"', '"+GetSQLColumnData(q, 6)+"') ");
 		QuerySQL(ban, "DELETE FROM tempban WHERE UID = '"+uid+"'");
 	}
 }
 
-
+function onPlayerEnterVehicle( player, veh, isPassenger )
+{
+	veh.Immunity = 255;
+	if(status[player.ID].Level < 6)
+	{
+		if(status[player.ID].vehaccess != true) player.Eject();
+		else
+		{
+			MessagePlayer("[#FFDD33]Information:[#FFFFFF] Vehicle ID:"+veh.ID+".", player);
+		}
+	}
+	else
+	{
+		MessagePlayer("[#FFDD33]Information:[#FFFFFF] Vehicle ID:"+veh.ID+".", player);
+	}
+}
 
 
 
@@ -1291,6 +1364,26 @@ local playerName = pcol(player.ID) + player.Name + white;
 					}
 					GetSQLNextRow(q);
 				}
+				local q2 = QuerySQL(DB, "SELECT * FROM Unregistered");
+				while(GetSQLColumnData(q2, 0))
+				{
+					if(GetSQLColumnData(q2, 3) == plr.IP && GetSQLColumnData(q2, 2) == plr.UID)
+					{
+						if(a == "") a = GetSQLColumnData(q2, 0);
+						else a = a+", "+GetSQLColumnData(q2, 0);
+					}
+					if(GetSQLColumnData(q2, 3) != plr.IP && GetSQLColumnData(q2, 2) == plr.UID)
+					{
+						if(b == "") b = GetSQLColumnData(q2, 0);
+						else b = b+", "+GetSQLColumnData(q2, 0);
+					}
+					if(GetSQLColumnData(q2, 6) == plr.IP && GetSQLColumnData(q2, 2) != plr.UID)
+					{
+						if(c == "") c = GetSQLColumnData(q2, 0);
+						else c = c+", "+GetSQLColumnData(q2, 0);
+					}
+					GetSQLNextRow(q);
+				}
 				MessagePlayer("[#FFDD33]Information:[#FFFFFF] Player: "+pcol(plr.ID)+plr.Name+white+" Alias:", player);
 				MessagePlayer(white+"Same IP from Same Computer: "+a, player);
 				MessagePlayer(white+"Different IP from Same Computer: "+b, player);
@@ -1298,8 +1391,9 @@ local playerName = pcol(player.ID) + player.Name + white;
 			}
 			else
 			{
-				local q2 = QuerySQL(DB, "SELECT * FROM Accounts WHERE LowerName = '"+escapeSQLString(arguments.tolower())+"'");
-				if(!q2) MessagePlayer("[#FF0000]Error:[#FFFFFF] Unknown Player.", player);
+				local q3 = QuerySQL(DB, "SELECT * FROM Accounts WHERE LowerName = '"+escapeSQLString(arguments.tolower())+"'");
+				local q4 = QuerySQL(DB, "SELECT * FROM Accounts WHERE LowerName = '"+escapeSQLString(arguments.tolower())+"'");
+				if(!q3 && !q4) MessagePlayer("[#FF0000]Error:[#FFFFFF] Unknown Player.", player);
 				else
 				{
 					local a = "", b = "", c = ""; 
@@ -1320,6 +1414,26 @@ local playerName = pcol(player.ID) + player.Name + white;
 						{
 							if(c == "") c = GetSQLColumnData(q, 0);
 							else c = c+", "+GetSQLColumnData(q, 0);
+						}
+						GetSQLNextRow(q);
+					}
+					local q5 = QuerySQL(DB, "SELECT * FROM Unregistered");
+					while(GetSQLColumnData(q2, 0))
+					{
+						if(GetSQLColumnData(q5, 3) == GetSQLColumnData(q5, 3) && GetSQLColumnData(q5, 2) == GetSQLColumnData(q5, 2))
+						{
+							if(a == "") a = GetSQLColumnData(q2, 0);
+							else a = a+", "+GetSQLColumnData(q2, 0);
+						}
+						if(GetSQLColumnData(q5, 3) != GetSQLColumnData(q5, 3) && GetSQLColumnData(q5, 2) == GetSQLColumnData(q5, 2))
+						{
+							if(b == "") b = GetSQLColumnData(q2, 0);
+							else b = b+", "+GetSQLColumnData(q2, 0);
+						}
+						if(GetSQLColumnData(q2, 6) == GetSQLColumnData(q5, 3) && GetSQLColumnData(q5, 2) != GetSQLColumnData(q5, 2))
+						{
+							if(c == "") c = GetSQLColumnData(q2, 0);
+							else c = c+", "+GetSQLColumnData(q2, 0);
 						}
 						GetSQLNextRow(q);
 					}
@@ -1377,7 +1491,7 @@ local playerName = pcol(player.ID) + player.Name + white;
 
 
 	
-	else if(cmd == "nameban")
+	else if(cmd == "namebannameban")
 	{
 		if(status[player.ID].Level < 6) MessagePlayer("[#FFDD33]Information:[#FFFFFF] Unauthorized Access", player);
 		else if(!arguments || NumTok(arguments, " ") < 2) MessagePlayer("[#FF0000]Error:[#FFFFFF] Use /"+bas+cmd+" <player> <reason>", player);
@@ -1498,9 +1612,8 @@ local playerName = pcol(player.ID) + player.Name + white;
 			}
 			else
 			{
-				local q = QuerySQL(DB, "SELECT * FROM Accounts WHERE LowerName = '"+escapeSQLString(GetTok(arguments, " ", 1).tolower())+"'");
-				if(!q) MessagePlayer("[#FF0000]Error:[#FFFFFF] Unknown Player.", player);
-				else
+				local q = QuerySQL(DB, "SELECT * FROM Accounts WHERE LowerName = '"+escapeSQLString(GetTok(arguments, " ", 2).tolower())+"'");
+				if(q)
 				{
 					QuerySQL(ban, "INSERT INTO tempban (name, admin, date, UID, duration, expire, reason) VALUES ('"+escapeSQLString(GetTok(arguments, " ", 2).tolower())+"', '"+escapeSQLString(player.Name.tolower())+"', '"+dat+"', '"+GetSQLColumnData(q, 6)+"', '"+GetTok(arguments, " ", 2)+"', '"+addbantime(GetTok(arguments, " ", 2).tointeger())+"', '"+GetTok(arguments, " ", 3, NumTok(arguments, " "))+"') ");
 					QuerySQL(DB, "UPDATE Accounts SET banned = 'Yes' WHERE LowerName = '"+escapeSQLString(GetTok(arguments, " ", 1).tolower())+"'");
@@ -1510,6 +1623,22 @@ local playerName = pcol(player.ID) + player.Name + white;
 					{
 						local plar = FindPlayer(i);
 						if(plar && plar.UID == uid) KickPlayer(plar);
+					}
+				}
+				else
+				{
+					local q2 = QuerySQL(DB, "SELECT * FROM Unregistered WHERE LowerName = '"+escapeSQLString(GetTok(arguments, " ", 2).tolower())+"'");
+					if(!q2) MessagePlayer("[#FF0000]Error:[#FFFFFF] Unknown Player.", player);
+					else
+					{
+						QuerySQL(ban, "INSERT INTO tempban (name, admin, date, UID, duration, expire, reason) VALUES ('"+escapeSQLString(GetTok(arguments, " ", 2).tolower())+"', '"+escapeSQLString(player.Name.tolower())+"', '"+dat+"', '"+GetSQLColumnData(q, 5)+"', '"+GetTok(arguments, " ", 2)+"', '"+addbantime(GetTok(arguments, " ", 2).tointeger())+"', '"+GetTok(arguments, " ", 3, NumTok(arguments, " "))+"') ");
+						Message("[#FFDD00]Administrator Command:[#FFFFFF] Admin "+playerName+" Banned player: [#D3D3D3]"+GetSQLColumnData(q, 0)+white+" for: "+GetTok(arguments, " ", 2)+" days Reason: "+GetTok(arguments, " ", 2, NumTok(arguments, " "))+".");
+						local uid = GetSQLColumnData(q, 6);
+						for(local i=0; i<=GetMaxPlayers(); i++)
+						{
+							local plar = FindPlayer(i);
+							if(plar && plar.UID == uid) KickPlayer(plar);
+						}
 					}
 				}
 			}
@@ -1640,16 +1769,109 @@ local playerName = pcol(player.ID) + player.Name + white;
 			}
 		}
 	}
+	else if(cmd == "gotoloc")
+	{
+		if(status[player.ID].Level) MessagePlayer("[#FFDD33]Information:[#FFFFFF] Unauthorized Access.", player);
+		else if(!arguments)
+		{
+			MessagePlayer("[#FF0000]Error:[#FFFFFF] Use /"+bas+cmd+" <loc>", player);
+			MessagePlayer("[#FFDD33]Information:[#FFFFFF] Locs: arena, spectate, spawn", player);
+		}
+		else
+		{
+			if(arguments == "arena")
+			{
+				Message("[#FFDD00]Administrator Command:[#FFFFFF] Admin "+playerName+" teleported to Round Arena.");
+				player.Pos = Vector();
+			}
+			else if(arguments == "spectate")
+			{
+				Message("[#FFDD00]Administrator Command:[#FFFFFF] Admin "+playerName+" teleported to spectate Arena.");
+				player.Pos = Vector();
+			}
+			else if(arguments == "spawn")
+			{
+				Message("[#FFDD00]Administrator Command:[#FFFFFF] Admin "+playerName+" teleported to spawn area.");
+				player.Pos = Vector(-657.091, 762.422, 11.5998);
+			}
+			else MessagePlayer("[#FF0000]Error:[#FFFFFF] Wrong Loc Entered.", player);
+		}
+	}
+	else if(cmd == "disarm")
+	{
+		for (local i = 0 ; i <200 ; i++)
+		{
+			player.RemoveWeapon(i);
+			MessagePlayer("[#FFDD33]Information:[#FFFFFF] You are disarmed.", player);
+		}
+
+	}
+
 	else if(cmd == "cmds" || cmd == "commands")
 	{
 		if(!arguments || !IsNum(arguments) || arguments.tointeger() < 0 || arguments.tointeger() > 3) MessagePlayer("[#FF0000]Error:[#FFFFFF] USe /"+bas+cmd+" <1-3>", player);
 		else
 		{
 			if(arguments.tointeger() == 1) MessagePlayer("[#FFDD33]Information:[#FFFFFF] Account Commands:"+bas+" register, login, changepass, level, clan, lastjoined, clanchat, teamchat",player);
-			else if(arguments.tointeger() == 2) MessagePlayer("[#FFDD33]Information:[#FFFFFF] Fighting Commands:"+bas+" wep, spawnwep, spree, playersonspree", player);
+			else if(arguments.tointeger() == 2) MessagePlayer("[#FFDD33]Information:[#FFFFFF] Fighting Commands:"+bas+" wep, spawnwep, removespawnwep, disarm, spree, playersonspree", player);
 		}
 	}
-	
+	else if(cmd == "removespawnwep")
+	{
+		MessagePlayer("[#FFDD33]Information:[#FFFFFF] You removed your spawnweps.", player);
+		status[player.ID].spawnwep = null;
+		for (local i = 0 ; i <200 ; i++)
+		{
+			player.RemoveWeapon(i);
+		}
+	}
+	else if(cmd == "addvehicle" || cmd == "addcar" || cmd == "addbike" || cmd == "addveh")
+	{
+		if(status[player.ID].Level < 6) MessagePlayer("[#FFDD33]Information:[#FFFFFF] Unauthorized Access", player);
+		else if(!arguments || !IsNum(arguments)) MessagePlayer("[#FF0000]Error:[#FFFFFF] Use /"+bas+cmd+" <model>", player);
+		else
+		{
+			CreateVehicle( arguments.tointeger(), 1, Vector(player.Pos.x+3, player.Pos.y+5, player.Pos.z), player.Angle, 1, 1 );
+			Message("[#FFDD00]Administrator Command:[#FFFFFF] Admin "+playerName+" added a "+GetVehicleNameFromModel(arguments.tointeger())+".");
+		}
+	}
+	else if(cmd == "removeveh" || cmd == "delveh" || cmd == "removevehicle" || cmd == "delvehicle" || cmd == "delcar" || cmd == "removecar" || cmd == "delbike" || cmd == "removebike")
+	{
+		if(status[player.ID].Level < 6) MessagePlayer("[#FFDD33]Information:[#FFFFFF] Unauthorized Access", player);
+		else if(!arguments) MessagePlayer("[#FF0000]Error:[#FFFFFF] Use /"+bas+cmd+" <id>", player);
+		else
+		{
+			local veh = FindVehicle(arguments.tointeger());
+			if(!veh) MessagePlayer("[#FF0000]Error:[#FFFFFF] Unknown Vehicle.", player);
+			else
+			{
+				Message("[#FFDD00]Administrator Command:[#FFFFFF] Admin "+playerName+" removed: "+GetVehicleNameFromModel(veh.Model)+".");
+				veh.Delete();
+			}
+		}
+	}
+	else if(cmd == "vehaccess")
+	{
+		if(status[player.ID].Level < 6) MessagePlayer("[#FFDD33]Information:[#FFFFFF] Unauthorized Access", player);
+		else if(!arguments) MessagePlayer("[#FF0000]Error:[#FFFFFF] Use /"+bas+cmd+" <player> <yes/no>", player);
+		else
+		{
+			local plr = FindPlayer(GetTok(arguments, " ", 1));
+			if(!plr) MessagePlayer("[#FF0000]Error:[#FFFFFF] Unknown Player.", player);
+			else
+			{
+				if(GetTok(arguments, " ", 2) == "yes")
+				{
+					status[plr.ID].vehaccess == true;
+					Message("[#FFDD00]Administrator Command:[#FFFFFF] Admin "+playerName+" allowed vehicle access to player: "+pcol(plr.ID) + plr.Name+white+".");
+				}
+				else if(GetTok(arguments, " ", 2) == "no")
+				{
+					status[plr.ID].vehaccess == false;
+					Message("[#FFDD00]Administrator Command:[#FFFFFF] Admin "+playerName+" disallowed vehicle access to player: "+pcol(plr.ID) + plr.Name+white+".");
+				}
+				else MessagePlayer("[#FF0000]Error:[#FFFFFF] The Bool must be Yes or no.", player);		}
+	}
 	else if(cmd == "refreecmds")
 	{
 		if(status[player.ID].Level < 4) MessagePlayer("[#FFDD33]Information:[#FFFFFF] Unauthorized Access", player);
@@ -1664,7 +1886,7 @@ local playerName = pcol(player.ID) + player.Name + white;
 		else
 		{
 			MessagePlayer("[#FFDD33]Information:[#FFFFFF] Admin Commands:"+bas+" slap, warn, kick, sethp, canattack, setattack, setspawnattack ", player);
-			if(status[player.ID].Level > 5) MessagePlayer(white+"Founder Commands:"+bas+" setrefree, setadmin, addclan, removeclan, addclanmember, removeclanmember, getaccinfo, alias, setpass ", player);
+			if(status[player.ID].Level > 5) MessagePlayer(white+"Founder Commands:"+bas+" setrefree, setadmin, addclan, removeclan, addclanmember, removeclanmember, getaccinfo, alias, setpass, gotoloc, addveh, delveh, vehaccess ", player);
 			if(status[player.ID].Level > 5) MessagePlayer(white+"Ban Commands:"+bas+" nameban, nameunban, permaban, permaunban, tempban, tempunban ", player);
 		}
 	}
