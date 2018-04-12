@@ -1872,6 +1872,10 @@ local playerName = pcol(player.ID) + player.Name + white;
 				}
 				else MessagePlayer("[#FF0000]Error:[#FFFFFF] The Bool must be Yes or no.", player);		}
 	}
+
+
+
+
 	else if(cmd == "refreecmds")
 	{
 		if(status[player.ID].Level < 4) MessagePlayer("[#FFDD33]Information:[#FFFFFF] Unauthorized Access", player);
