@@ -1,0 +1,1135 @@
+[MODULE]  Loaded SqVCMP 0.4 frontend by Stormeus. (v1.0)
+[SCRIPT]  [SERVER] Connection to mySQL database successful.
+[SCRIPT]  Registeration System Loaded
+[SCRIPT]  Clan System Loaded
+
+AN ERROR HAS OCCURED [parameter 1 has an invalid type 'null' ; expected: 'string']
+
+CALLSTACK
+*FUNCTION [loaddiscordmsg()] scripts/main.nut line [75]
+
+LOCALS
+[sql] USERPOINTER
+[this] TABLE
+
+AN ERROR HAS OCCURED [parameter 1 has an invalid type 'null' ; expected: 'string']
+
+CALLSTACK
+*FUNCTION [loaddiscordmsg()] scripts/main.nut line [75]
+
+LOCALS
+[sql] USERPOINTER
+[this] TABLE
+
+AN ERROR HAS OCCURED [parameter 1 has an invalid type 'null' ; expected: 'string']
+
+CALLSTACK
+*FUNCTION [loaddiscordmsg()] scripts/main.nut line [75]
+
+LOCALS
+[sql] USERPOINTER
+[this] TABLE
+
+AN ERROR HAS OCCURED [parameter 1 has an invalid type 'null' ; expected: 'string']
+
+CALLSTACK
+*FUNCTION [loaddiscordmsg()] scripts/main.nut line [75]
+
+LOCALS
+[sql] USERPOINTER
+[this] TABLE
+
+AN ERROR HAS OCCURED [parameter 1 has an invalid type 'null' ; expected: 'string']
+
+CALLSTACK
+*FUNCTION [loaddiscordmsg()] scripts/main.nut line [75]
+
+LOCALS
+[sql] USERPOINTER
+[this] TABLE
+
+AN ERROR HAS OCCURED [parameter 1 has an invalid type 'null' ; expected: 'string']
+
+CALLSTACK
+*FUNCTION [loaddiscordmsg()] scripts/main.nut line [75]
+
+LOCALS
+[sql] USERPOINTER
+[this] TABLE
+
+AN ERROR HAS OCCURED [parameter 1 has an invalid type 'null' ; expected: 'string']
+
+CALLSTACK
+*FUNCTION [loaddiscordmsg()] scripts/main.nut line [75]
+
+LOCALS
+[sql] USERPOINTER
+[this] TABLE
+
+AN ERROR HAS OCCURED [parameter 1 has an invalid type 'null' ; expected: 'string']
+
+CALLSTACK
+*FUNCTION [loaddiscordmsg()] scripts/main.nut line [75]
+
+LOCALS
+[sql] USERPOINTER
+[this] TABLE
+
+AN ERROR HAS OCCURED [parameter 1 has an invalid type 'null' ; expected: 'string']
+
+CALLSTACK
+*FUNCTION [loaddiscordmsg()] scripts/main.nut line [75]
+
+LOCALS
+[sql] USERPOINTER
+[this] TABLE
+
+AN ERROR HAS OCCURED [parameter 1 has an invalid type 'null' ; expected: 'string']
+
+CALLSTACK
+*FUNCTION [loaddiscordmsg()] scripts/main.nut line [75]
+
+LOCALS
+[sql] USERPOINTER
+[this] TABLE
+
+AN ERROR HAS OCCURED [parameter 1 has an invalid type 'null' ; expected: 'string']
+
+CALLSTACK
+*FUNCTION [loaddiscordmsg()] scripts/main.nut line [75]
+
+LOCALS
+[sql] USERPOINTER
+[this] TABLE
+
+AN ERROR HAS OCCURED [parameter 1 has an invalid type 'null' ; expected: 'string']
+
+CALLSTACK
+*FUNCTION [loaddiscordmsg()] scripts/main.nut line [75]
+
+LOCALS
+[sql] USERPOINTER
+[this] TABLE
+
+AN ERROR HAS OCCURED [parameter 1 has an invalid type 'null' ; expected: 'string']
+
+CALLSTACK
+*FUNCTION [loaddiscordmsg()] scripts/main.nut line [75]
+
+LOCALS
+[sql] USERPOINTER
+[this] TABLE
+
+AN ERROR HAS OCCURED [parameter 1 has an invalid type 'null' ; expected: 'string']
+
+CALLSTACK
+*FUNCTION [loaddiscordmsg()] scripts/main.nut line [75]
+
+LOCALS
+[sql] USERPOINTER
+[this] TABLE
+
+AN ERROR HAS OCCURED [parameter 1 has an invalid type 'null' ; expected: 'string']
+
+CALLSTACK
+*FUNCTION [loaddiscordmsg()] scripts/main.nut line [75]
+
+LOCALS
+[sql] USERPOINTER
+[this] TABLE
+
+AN ERROR HAS OCCURED [parameter 1 has an invalid type 'null' ; expected: 'string']
+
+CALLSTACK
+*FUNCTION [loaddiscordmsg()] scripts/main.nut line [75]
+
+LOCALS
+[sql] USERPOINTER
+[this] TABLE
+
+AN ERROR HAS OCCURED [parameter 1 has an invalid type 'null' ; expected: 'string']
+
+CALLSTACK
+*FUNCTION [loaddiscordmsg()] scripts/main.nut line [75]
+
+LOCALS
+[sql] USERPOINTER
+[this] TABLE
+
+AN ERROR HAS OCCURED [parameter 1 has an invalid type 'null' ; expected: 'string']
+
+CALLSTACK
+*FUNCTION [loaddiscordmsg()] scripts/main.nut line [75]
+
+LOCALS
+[sql] USERPOINTER
+[this] TABLE
+
+AN ERROR HAS OCCURED [parameter 1 has an invalid type 'null' ; expected: 'string']
+
+CALLSTACK
+*FUNCTION [loaddiscordmsg()] scripts/main.nut line [75]
+
+LOCALS
+[sql] USERPOINTER
+[this] TABLE
+
+AN ERROR HAS OCCURED [parameter 1 has an invalid type 'null' ; expected: 'string']
+
+CALLSTACK
+*FUNCTION [loaddiscordmsg()] scripts/main.nut line [75]
+
+LOCALS
+[sql] USERPOINTER
+[this] TABLE
+
+AN ERROR HAS OCCURED [parameter 1 has an invalid type 'null' ; expected: 'string']
+
+CALLSTACK
+*FUNCTION [loaddi[MODULE]  Loaded SqVCMP 0.4 frontend by Stormeus. (v1.0)
+[SCRIPT]  [SERVER] Connection to mySQL database successful.
+[SCRIPT]  Registeration System Loaded
+[SCRIPT]  Clan System Loaded
+
+AN ERROR HAS OCCURED [the index 'text' does not exist]
+
+CALLSTACK
+*FUNCTION [loaddiscordmsg()] scripts/main.nut line [78]
+
+LOCALS
+[data] TABLE
+[sql] USERPOINTER
+[this] TABLE
+
+AN ERROR HAS OCCURED [the index 'text' does not exist]
+
+CALLSTACK
+*FUNCTION [loaddiscordmsg()] scripts/main.nut line [78]
+
+LOCALS
+[data] TABLE
+[sql] USERPOINTER
+[this] TABLE
+
+AN ERROR HAS OCCURED [the index 'text' does not exist]
+
+CALLSTACK
+*FUNCTION [loaddiscordmsg()] scripts/main.nut line [78]
+
+LOCALS
+[data] TABLE
+[sql] USERPOINTER
+[this] TABLE
+
+AN ERROR HAS OCCURED [the index 'text' does not exist]
+
+CALLSTACK
+*FUNCTION [loaddiscordmsg()] scripts/main.nut line [78]
+
+LOCALS
+[data] TABLE
+[sql] USERPOINTER
+[this] TABLE
+
+AN ERROR HAS OCCURED [the index 'text' does not exist]
+
+CALLSTACK
+*FUNCTION [loaddiscordmsg()] scripts/main.nut line [78]
+
+LOCALS
+[data] TABLE
+[sql] USERPOINTER
+[this] TABLE
+
+AN ERROR HAS OCCURED [the index 'text' does not exist]
+
+CALLSTACK
+*FUNCTION [loaddiscordmsg()] scripts/main.nut line [78]
+
+LOCALS
+[data] TABLE
+[sql] USERPOINTER
+[this] TABLE
+
+AN ERROR HAS OCCURED [the index 'text' does not exist]
+
+CALLSTACK
+*FUNCTION [loaddiscordmsg()] scripts/main.nut line [78]
+
+LOCALS
+[data] TABLE
+[sql] USERPOINTER
+[this] TABLE
+
+AN ERROR HAS OCCURED [the index 'text' does not exist]
+
+CALLSTACK
+*FUNCTION [loaddiscordmsg()] scripts/main.nut line [78]
+
+LOCALS
+[data] TABLE
+[sql] USERPOINTER
+[this] TABLE
+
+AN ERROR HAS OCCURED [the index 'text' does not exist]
+
+CALLSTACK
+*FUNCTION [loaddiscordmsg()] scripts/main.nut line [78]
+
+LOCALS
+[data] TABLE
+[sql] USERPOINTER
+[this] TABLE
+
+AN ERROR HAS OCCURED [the index 'text' does not exist]
+
+CALLSTACK
+*FUNCTION [loaddiscordmsg()] scripts/main.nut line [78]
+
+LOCALS
+[data] TABLE
+[sql] USERPOINTER
+[this] TABLE
+
+AN ERROR HAS OCCURED [the index 'text' does not exist]
+
+CALLSTACK
+*FUNCTION [loaddiscordmsg()] scripts/main.nut line [78]
+
+LOCALS
+[data] TABLE
+[sql] USERPOINTER
+[this] TABLE
+
+AN ERROR HAS OCCURED [the index 'text' does not exist]
+
+CALLSTACK
+*FUNCTION [loaddiscordmsg()] scripts/main.nut line [78]
+
+LOCALS
+[data] TABLE
+[sql] USERPOINTER
+[this] TABLE
+
+AN ERROR HAS OCCURED [the index 'text' does not exist]
+
+CALLSTACK
+*FUNCTION [loaddiscordmsg()] scripts/main.nut line [78]
+
+LOCALS
+[data] TABLE
+[sql] USERPOINTER
+[this] TABLE
+
+AN ERROR HAS OCCURED [the index 'text' does not exist]
+
+CALLSTACK
+*FUNCTION [loaddiscordmsg()] scripts/main.nut line [78]
+
+LOCALS
+[data] TABLE
+[sql] USERPOINTER
+[this] TABLE
+
+AN ERROR HAS OCCURED [the index 'text' does not exist]
+
+CALLSTACK
+*FUNCTION [loaddiscordmsg()] scripts/main.nut line [78]
+
+LOCALS
+[data] TABLE
+[sql] USERPOINTER
+[this] TABLE
+
+AN ERROR HAS OCCURED [the index 'text' does not exist]
+
+CALLSTACK
+*FUNCTION [loaddiscordmsg()] scripts/main.nut line [78]
+
+LOCALS
+[data] TABLE
+[sql] USERPOINTER
+[this] TABLE
+
+AN ERROR HAS OCCURED [the index 'text' does not exist]
+
+CALLSTACK
+*FUNCTION [loaddiscordmsg()] scripts/main.nut line [78]
+
+LOCALS
+[data] TABLE
+[sql] USERPOINTER
+[this] TABLE
+
+AN ERROR HAS OCCURED [the index 'text' does not exist]
+
+CALLSTACK
+*FUNCTION [loaddiscordmsg()] scripts/main.nut line [78]
+
+LOCALS
+[data] TABLE
+[sql] USERPOINTER
+[this] TABLE
+
+AN ERROR HAS OCCURED [the index 'text' does not exist]
+
+CALLSTACK
+*FUNCTION [loaddiscordmsg()] scripts/main.nut line [78]
+
+LOCALS
+[data] TABLE
+[sql] USERPOINTER
+[this] TABLE
+
+AN ERROR HAS OCCURED [the index 'text' does not exist]
+
+CALLSTACK
+*FUNCTION [loaddiscordmsg()] scripts/main.nut line [78]
+
+LOCALS
+[data] TABLE
+[sql] USERPOINTER
+[this] TABLE
+
+AN ERROR HAS OCCURED [the index 'text' does not exist]
+
+CALLSTACK
+*FUNCTION [loaddiscordmsg()] scripts/main.nut line [78]
+
+LOCALS
+[data] TABLE
+[sql] USERPOINTER
+[this] TABLE
+
+AN ERROR HAS OCCURED [the index 'text' does not exist]
+
+CALLSTACK
+*FUNCTION [loaddiscordmsg()] scripts/main.nut line [78]
+
+LOCALS
+[data] TABLE
+[sql] USERPOINTER
+[this] TABLE
+
+AN ERROR HAS OCCURED [the index 'text' does not exist]
+
+CALLSTACK
+*FUNCTION [loaddiscordmsg()] scripts/main.nut line [78]
+
+LOCALS
+[data] TABLE
+[sql] USERPOINTER
+[this] TABLE
+
+AN ERROR HAS OCCURED [the index 'text' does not exist]
+
+CALLSTACK
+*FUNCTION [loaddiscordmsg()] scripts/main.nut line [78]
+
+LOCALS
+[data] TABLE
+[sql] USERPOINTER
+[this] TABLE
+
+AN ERROR HAS OCCURED [the index 'text' does not exist]
+
+CALLSTACK
+*FUNCTION [loaddiscordmsg()] scripts/main.nut line [78]
+
+LOCALS
+[data] TABLE
+[sql] USERPOINTER
+[this] TABLE
+
+AN ERROR HAS OCCURED [the index 'text' does not exist]
+
+CALLSTACK
+*FUNCTION [loaddiscordmsg()] scripts/main.nut line [78]
+
+LOCALS
+[data] TABLE
+[sql] USERPOINTER
+[this] TABLE
+
+AN ERROR HAS OCCURED [the index 'text' does not exist]
+
+CALLSTACK
+*FUNCTION [loaddiscordmsg()] scripts/main.nut line [78]
+
+LOCALS
+[data] TABLE
+[sql] USERPOINTER
+[this] TABLE
+
+AN ERROR HAS OCCURED [the index 'text' does not exist]
+
+CALLSTACK
+*FUNCTION [loaddiscordmsg()] scripts/main.nut line [78]
+
+LOCALS
+[data] TABLE
+[sql] USERPOINTER
+[this] TABLE
+
+AN ERROR HAS OCCURED [the index 'text' does not exist]
+
+CALLSTACK
+*FUNCTION [loaddiscordmsg()] scripts/main.nut line [78]
+
+LOCALS
+[data] TABLE
+[sql] USERPOINTER
+[this] TABLE
+
+AN ERROR HAS OCCURED [the index 'text' does not exist]
+
+CALLSTACK
+*FUNCTION [loaddiscordmsg()] scripts/main.nut line [78]
+
+LOCALS
+[data] TABLE
+[sql] USERPOINTER
+[this] TABLE
+
+AN ERROR HAS OCCURED [the index 'text' does not exist]
+
+CALLSTACK
+*FUNCTION [loaddiscordmsg()] scripts/main.nut line [78]
+
+LOCALS
+[data] TABLE
+[sql] USERPOINTER
+[this] TABLE
+
+AN ERROR HAS OCCURED [the index 'text' does not exist]
+
+CALLSTACK
+*FUNCTION [loaddiscordmsg()] scripts/main.nut line [78]
+
+LOCALS
+[data] TABLE
+[sql] USERPOINTER
+[this] TABLE
+
+AN ERROR HAS OCCURED [the index 'text' does not exist]
+
+CALLSTACK
+*FUNCTION [loaddiscordmsg()] scripts/main.nut line [78]
+
+LOCALS
+[data] TABLE
+[sql] USERPOINTER
+[this] TABLE
+
+AN ERROR HAS OCCURED [the index 'text' does not exist]
+
+CALLSTACK
+*FUNCTION [loaddiscordmsg()] scripts/main.nut line [78]
+
+LOCALS
+[data] TABLE
+[sql] USERPOINTER
+[this] TABLE
+
+AN ERROR HAS OCCURED [the index 'text' does not exist]
+
+CALLSTACK
+*FUNCTION [loaddiscordmsg()] scripts/main.nut line [78]
+
+LOCALS
+[data] TABLE
+[sql] USERPOINTER
+[this] TABLE
+
+AN ERROR HAS OCCURED [the index 'text' does not exist]
+
+CALLSTACK
+*FUNCTION [loaddiscordmsg()] scripts/main.nut line [78]
+
+LOCALS
+[data] TABLE
+[sql] USERPOINTER
+[this] TABLE
+
+AN ERROR HAS OCCURED [the index 'text' does not exist]
+
+CALLSTACK
+*FUNCTION [loaddiscordmsg()] scripts/main.nut line [78]
+
+LOCALS
+[data] TABLE
+[sql] USERPOINTER
+[this] TABLE
+
+AN ERROR HAS OCCURED [the index 'text' does not exist]
+
+CALLSTACK
+*FUNCTION [loaddiscordmsg()] scripts/main.nut line [78]
+
+LOCALS
+[data] TABLE
+[sql] USERPOINTER
+[this] TABLE
+
+AN ERROR HAS OCCURED [the index 'text' does not exist]
+
+CALLSTACK
+*FUNCTION [loaddiscordmsg()] scripts/main.nut line [78]
+
+LOCALS
+[data] TABLE
+[sql] USERPOINTER
+[this] TABLE
+
+AN ERROR HAS OCCURED [the index 'text' does not exist]
+
+CALLSTACK
+*FUNCTION [loaddiscordmsg()] scripts/main.nut line [78]
+
+LOCALS
+[data] TABLE
+[sql] USERPOINTER
+[this] TABLE
+
+AN ERROR HAS OCCURED [the index 'text' does not exist]
+
+CALLSTACK
+*FUNCTION [loaddiscordmsg()] scripts/main.nut line [78]
+
+LOCALS
+[data] TABLE
+[sql] USERPOINTER
+[this] TABLE
+
+AN ERROR HAS OCCURED [the index 'text' does not exist]
+
+CALLSTACK
+*FUNCTION [loaddiscordmsg()] scripts/main.nut line [78]
+
+LOCALS
+[data] TABLE
+[sql] USERPOINTER
+[this] TABLE
+
+AN ERROR HAS OCCURED [the index 'text' does not exist]
+
+CALLSTACK
+*FUNCTION [loaddiscordmsg()] scripts/main.nut line [78]
+
+LOCALS
+[data] TABLE
+[sql] USERPOINTER
+[this] TABLE
+
+AN ERROR HAS OCCURED [the index 'text' does not exist]
+
+CALLSTACK
+*FUNCTION [loaddiscordmsg()] scripts/main.nut line [78]
+
+LOCALS
+[data] TABLE
+[sql] USERPOINTER
+[this] TABLE
+
+AN ERROR HAS OCCURED [the index 'text' does not exist]
+
+CALLSTACK
+*FUNCTION [loaddiscordmsg()] scripts/main.nut line [78]
+
+LOCALS
+[data] TABLE
+[sql] USERPOINTER
+[this] TABLE
+
+AN ERROR HAS OCCURED [the index 'text' does not exist]
+
+CALLSTACK
+*FUNCTION [loaddiscordmsg()] scripts/main.nut line [78]
+
+LOCALS
+[data] TABLE
+[sql] USERPOINTER
+[this] TABLE
+
+AN ERROR HAS OCCURED [the index 'text' does not exist]
+
+CALLSTACK
+*FUNCTION [loaddiscordmsg()] scripts/main.nut line [78]
+
+LOCALS
+[data] TABLE
+[sql] USERPOINTER
+[this] TABLE
+
+AN ERROR HAS OCCURED [the index 'text' does not exist]
+
+CALLSTACK
+*FUNCTION [loaddiscordmsg()] scripts/main.nut line [78]
+
+LOCALS
+[data] TABLE
+[sql] USERPOINTER
+[this] TABLE
+
+AN ERROR HAS OCCURED [the index 'text' does not exist]
+
+CALLSTACK
+*FUNCTION [loaddiscordmsg()] scripts/main.nut line [78]
+
+LOCALS
+[data] TABLE
+[sql] USERPOINTER
+[this] TABLE
+
+AN ERROR HAS OCCURED [the index 'text' does not exist]
+
+CALLSTACK
+*FUNCTION [loaddiscordmsg()] scripts/main.nut line [78]
+
+LOCALS
+[data] TABLE
+[sql] USERPOINTER
+[this] TABLE
+
+AN ERROR HAS OCCURED [the index 'text' does not exist]
+
+CALLSTACK
+*FUNCTION [loaddiscordmsg()] scripts/main.nut line [78]
+
+LOCALS
+[data] TABLE
+[sql] USERPOINTER
+[this] TABLE
+
+AN ERROR HAS OCCURED [the index 'text' does not exist]
+
+CALLSTACK
+*FUNCTION [loaddiscordmsg()] scripts/main.nut line [78]
+
+LOCALS
+[data] TABLE
+[sql] USERPOINTER
+[this] TABLE
+
+AN ERROR HAS OCCURED [the index 'text' does not exist]
+
+CALLSTACK
+*FUNCTION [loaddiscordmsg()] scripts/main.nut line [78]
+
+LOCALS
+[data] TABLE
+[sql] USERPOINTER
+[this] TABLE
+
+AN ERROR HAS OCCURED [the index 'text' does not exist]
+
+CALLSTACK
+*FUNCTION [loaddiscordmsg()] scripts/main.nut line [78]
+
+LOCALS
+[data] TABLE
+[sql] USERPOINTER
+[this] TABLE
+
+AN ERROR HAS OCCURED [the index 'text' does not exist]
+
+CALLSTACK
+*FUNCTION [loaddiscordmsg()] scripts/main.nut line [78]
+
+LOCALS
+[data] TABLE
+[sql] USERPOINTER
+[this] TABLE
+
+AN ERROR HAS OCCURED [the index 'text' does not exist]
+
+CALLSTACK
+*FUNCTION [loaddiscordmsg()] scripts/main.nut line [78]
+
+LOCALS
+[data] TABLE
+[sql] USERPOINTER
+[this] TABLE
+
+AN ERROR HAS OCCURED [the index 'text' does not exist]
+
+CALLSTACK
+*FUNCTION [loaddiscordmsg()] scripts/main.nut line [78]
+
+LOCALS
+[data] TABLE
+[sql] USERPOINTER
+[this] TABLE
+
+AN ERROR HAS OCCURED [the index 'text' does not exist]
+
+CALLSTACK
+*FUNCTION [loaddiscordmsg()] scripts/main.nut line [78]
+
+LOCALS
+[data] TABLE
+[sql] USERPOINTER
+[this] TABLE
+
+AN ERROR HAS OCCURED [the index 'text' does not exist]
+
+CALLSTACK
+*FUNCTION [loaddiscordmsg()] scripts/main.nut line [78]
+
+LOCALS
+[data] TABLE
+[sql] USERPOINTER
+[this] TABLE
+
+AN ERROR HAS OCCURED [the index 'text' does not exist]
+
+CALLSTACK
+*FUNCTION [loaddiscordmsg()] scripts/main.nut line [78]
+
+LOCALS
+[data] TABLE
+[sql] USERPOINTER
+[this] TABLE
+
+AN ERROR HAS OCCURED [the index 'text' does not exist]
+
+CALLSTACK
+*FUNCTION [loaddiscordmsg()] scripts/main.nut line [78]
+
+LOCALS
+[data] TABLE
+[sql] USERPOINTER
+[this] TABLE
+
+AN ERROR HAS OCCURED [the index 'text' does not exist]
+
+CALLSTACK
+*FUNCTION [loaddiscordmsg()] scripts/main.nut line [78]
+
+LOCALS
+[data] TABLE
+[sql] USERPOINTER
+[this] TABLE
+
+AN ERROR HAS OCCURED [the index 'text' does not exist]
+
+CALLSTACK
+*FUNCTION [loaddiscordmsg()] scripts/main.nut line [78]
+
+LOCALS
+[data] TABLE
+[sql] USERPOINTER
+[this] TABLE
+
+AN ERROR HAS OCCURED [the index 'text' does not exist]
+
+CALLSTACK
+*FUNCTION [loaddiscordmsg()] scripts/main.nut line [78]
+
+LOCALS
+[data] TABLE
+[sql] USERPOINTER
+[this] TABLE
+
+AN ERROR HAS OCCURED [the index 'text' does not exist]
+
+CALLSTACK
+*FUNCTION [loaddiscordmsg()] scripts/main.nut line [78]
+
+LOCALS
+[data] TABLE
+[sql] USERPOINTER
+[this] TABLE
+
+AN ERROR HAS OCCURED [the index 'text' does not exist]
+
+CALLSTACK
+*FUNCTION [loaddiscordmsg()] scripts/main.nut line [78]
+
+LOCALS
+[data] TABLE
+[sql] USERPOINTER
+[this] TABLE
+
+AN ERROR HAS OCCURED [the index 'text' does not exist]
+
+CALLSTACK
+*FUNCTION [loaddiscordmsg()] scripts/main.nut line [78]
+
+LOCALS
+[data] TABLE
+[sql] USERPOINTER
+[this] TABLE
+
+AN ERROR HAS OCCURED [the index 'text' does not exist]
+
+CALLSTACK
+*FUNCTION [loaddiscordmsg()] scripts/main.nut line [78]
+
+LOCALS
+[data] TABLE
+[sql] USERPOINTER
+[this] TABLE
+
+AN ERROR HAS OCCURED [the index 'text' does not exist]
+
+CALLSTACK
+*FUNCTION [loaddiscordmsg()] scripts/main.nut line [78]
+
+LOCALS
+[data] TABLE
+[sql] USERPOINTER
+[this] TABLE
+
+AN ERROR HAS OCCURED [the in[MODULE]  Loaded SqVCMP 0.4 frontend by Stormeus. (v1.0)
+[SCRIPT]  [SERVER] Connection to mySQL database successful.
+[SCRIPT]  Registeration System Loaded
+[SCRIPT]  Clan System Loaded
+
+AN ERROR HAS OCCURED [the index 'name' does not exist]
+
+CALLSTACK
+*FUNCTION [loaddiscordmsg()] scripts/main.nut line [77]
+
+LOCALS
+[data] NULL
+[sql] USERPOINTER
+[this] TABLE
+
+AN ERROR HAS OCCURED [the index 'name' does not exist]
+
+CALLSTACK
+*FUNCTION [loaddiscordmsg()] scripts/main.nut line [77]
+
+LOCALS
+[data] NULL
+[sql] USERPOINTER
+[this] TABLE
+
+AN ERROR HAS OCCURED [the index 'name' does not exist]
+
+CALLSTACK
+*FUNCTION [loaddiscordmsg()] scripts/main.nut line [77]
+
+LOCALS
+[data] NULL
+[sql] USERPOINTER
+[this] TABLE
+
+AN ERROR HAS OCCURED [the index 'name' does not exist]
+
+CALLSTACK
+*FUNCTION [loaddiscordmsg()] scripts/main.nut line [77]
+
+LOCALS
+[data] NULL
+[sql] USERPOINTER
+[this] TABLE
+
+AN ERROR HAS OCCURED [the index 'name' does not exist]
+
+CALLSTACK
+*FUNCTION [loaddiscordmsg()] scripts/main.nut line [77]
+
+LOCALS
+[data] NULL
+[sql] USERPOINTER
+[this] TABLE
+
+AN ERROR HAS OCCURED [the index 'name' does not exist]
+
+CALLSTACK
+*FUNCTION [loaddiscordmsg()] scripts/main.nut line [77]
+
+LOCALS
+[data] NULL
+[sql] USERPOINTER
+[this] TABLE
+
+AN ERROR HAS OCCURED [the index 'name' does not exist]
+
+CALLSTACK
+*FUNCTION [loaddiscordmsg()] scripts/main.nut line [77]
+
+LOCALS
+[data] NULL
+[sql] USERPOINTER
+[this] TABLE
+
+AN ERROR HAS OCCURED [the index 'name' does not exist]
+
+CALLSTACK
+*FUNCTION [loaddiscordmsg()] scripts/main.nut line [77]
+
+LOCALS
+[data] NULL
+[sql] USERPOINTER
+[this] TABLE
+
+AN ERROR HAS OCCURED [the index 'name' does not exist]
+
+CALLSTACK
+*FUNCTION [loaddiscordmsg()] scripts/main.nut line [77]
+
+LOCALS
+[data] NULL
+[sql] USERPOINTER
+[this] TABLE
+
+AN ERROR HAS OCCURED [the index 'name' does not exist]
+
+CALLSTACK
+*FUNCTION [loaddiscordmsg()] scripts/main.nut line [77]
+
+LOCALS
+[data] NULL
+[sql] USERPOINTER
+[this] TABLE
+
+AN ERROR HAS OCCURED [the index 'name' does not exist]
+
+CALLSTACK
+*FUNCTION [loaddiscordmsg()] scripts/main.nut line [77]
+
+LOCALS
+[data] NULL
+[sql] USERPOINTER
+[this] TABLE
+
+AN ERROR HAS OCCURED [the index 'name' does not exist]
+
+CALLSTACK
+*FUNCTION [loaddiscordmsg()] scripts/main.nut line [77]
+
+LOCALS
+[data] NULL
+[sql] USERPOINTER
+[this] TABLE
+
+AN ERROR HAS OCCURED [the index 'name' does not exist]
+
+CALLSTACK
+*FUNCTION [loaddiscordmsg()] scripts/main.nut line [77]
+
+LOCALS
+[data] NULL
+[sql] USERPOINTER
+[this] TABLE
+
+AN ERROR HAS OCCURED [the index 'name' does not exist]
+
+CALLSTACK
+*FUNCTION [loaddiscordmsg()] scripts/main.nut line [77]
+
+LOCALS
+[data] NULL
+[sql] USERPOINTER
+[this] TABLE
+
+AN ERROR HAS OCCURED [the index 'name' does not exist]
+
+CALLSTACK
+*FUNCTION [loaddiscordmsg()] scripts/main.nut line [77]
+
+LOCALS
+[data] NULL
+[sql] USERPOINTER
+[this] TABLE
+
+AN ERROR HAS OCCURED [the index 'name' does not exist]
+
+CALLSTACK
+*FUNCTION [loaddiscordmsg()] scripts/main.nut line [77]
+
+LOCALS
+[data] NULL
+[sql] USERPOINTER
+[this] TABLE
+
+AN ERROR HAS OCCURED [the index 'name' does not exist]
+
+CALLSTACK
+*FUNCTION [loaddiscordmsg()] scripts/main.nut line [77]
+
+LOCALS
+[data] NULL
+[sql] USERPOINTER
+[this] TABLE
+
+AN ERROR HAS OCCURED [the index 'name' does not exist]
+
+CALLSTACK
+*FUNCTION [loaddiscordmsg()] scripts/main.nut line [77]
+
+LOCALS
+[data] NULL
+[sql] USERPOINTER
+[this] TABLE
+
+AN ERROR HAS OCCURED [the index 'name' does not exist]
+
+CALLSTACK
+*FUNCTION [loaddiscordmsg()] scripts/main.nut line [77]
+
+LOCALS
+[data] NULL
+[sql] USERPOINTER
+[this] TABLE
+
+AN ERROR HAS OCCURED [the index 'name' does not exist]
+
+CALLSTACK
+*FUNCTION [loaddiscordmsg()] scripts/main.nut line [77]
+
+LOCALS
+[data] NULL
+[sql] USERPOINTER
+[this] TABLE
+
+AN ERROR HAS OCCURED [the index 'name' does not exist]
+
+CALLSTACK
+*FUNCTION [loaddiscordmsg()] scripts/main.nut line [77]
+
+LOCALS
+[data] NULL
+[sql] USERPOINTER
+[this] TABLE
+
+AN ERROR HAS OCCURED [the index 'name' does not exist]
+
+CALLSTACK
+*FUNCTION [loaddiscordmsg()] scripts/main.nut line [77]
+
+LOCALS
+[data] NULL
+[sql] USERPOINTER
+[this] TABLE
+
+AN ERROR HAS OCCURED [the index 'name' does not exist]
+
+CALLSTACK
+*FUNCTION [loaddi
+ Vice City Multiplayer Server
+ -------------------------------
+ v0.4, (c) 2007-2014 VC:MP Team
+
+Loaded plugin: squirrel04rel32
+
+Loaded plugin: xmlconf04rel32
+
+Loaded plugin: announce04rel32
+
+Loaded plugin: hashing04rel32
+
+Loaded plugin: ini04rel32
+
+Loaded plugin: mysql04rel32
+
+Loaded plugin: sockets04rel32
+
+Loaded plugin: sqlite-win32
+
+[WEAPONS] No custom weapons to load.
+[VEHICLEMODELS] No custom vehicle models to load.
+Unable to start server on host:  port: 8192. Port in use?
