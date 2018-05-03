@@ -64,6 +64,7 @@ function onScriptLoad()
 	NewTimer("loadid", 100, 1);
 	NewTimer("loaddid", 100, 1);
 	NewTimer("loadserverbot", 500, 0);
+
 	}
 
 function onScriptUnload()
@@ -98,12 +99,12 @@ function loadserverbot()
 		local data;
 		while( data = mysql_fetch_assoc( sql ) )
 		{
+			if(data["name"] == "bot")
 			if(data["id"].tointeger() > id.tointeger())
 			{
 				Message(bas+"[DISCORD] [#D3D3D3]"+data["name"]+white+": "+data["text"]);
 				id++;
 			}
-				else id++;
 		}
 	}
 }
@@ -809,8 +810,6 @@ function onPlayerEnterVehicle( player, veh, isPassenger )
 		MessagePlayer("[#FFDD33]Information:[#FFFFFF] Vehicle ID:"+veh.ID+".", player);
 	}
 }
-
-
 
 
 
