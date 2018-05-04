@@ -78,6 +78,7 @@ function loadid()
 	{
 		local data = mysql_num_rows(sql).tointeger();
 		id = data.tointeger();
+		print(id);
 	}
 }
 
@@ -88,6 +89,7 @@ function loaddid()
 	{
 		local data = mysql_num_rows(sql).tointeger();
 		did = data.tointeger();
+		print(did);
 	}
 }
 
@@ -100,15 +102,45 @@ function loadserverbot()
 		while( data = mysql_fetch_assoc( sql ) )
 		{
 			if(data["name"] == "bot")
-			if(data["id"].tointeger() > id.tointeger())
 			{
-				Message(bas+"[DISCORD] [#D3D3D3]"+data["name"]+white+": "+data["text"]);
 				id++;
+			}
+			else
+			{
+				if( id.tointeger() < data["id"].tointeger() )
+				{
+					Message(bas+"[DISCORD] [#D3D3D3]"+data["name"]+white+": "+data["text"]);
+					botcommand(data["text"]);
+					id++;
+					print(id);
+				}
 			}
 		}
 	}
 }
 
+function botcommand(cmd)
+{
+	if(cmd.slice(0,1) == "/")
+	{
+		if(cmd == "/players")
+		{
+			local a = 0;
+			for(local i = 0; i<= GetMaxPlayers();i++)
+			{
+				local plr = FindPlayer(i);
+				if(plr) a++;
+			}
+			local p = a+"/"+GetMaxPlayers()+" are online.";
+			discordsendmsg("Server", p);
+		}
+	}
+}
+function discordsendmsg(player, text)
+{
+	mysql_query(con, "INSERT INTO discordmsg (id, name, text) VALUES ('"+did+"', '"+player+"', '"+text+"') ");
+	did++;
+}
 function onPlayerJoin( player )
 {
     local FN = funmessages[ rand() % funmessages.len() ];
@@ -2220,6 +2252,7 @@ local playerName = pcol(player.ID) + player.Name + white;
 			}
 		}
 	}
+	
 	else if(cmd == "cmds" || cmd == "commands")
 	{
 		if(!arguments || !IsNum(arguments) || arguments.tointeger() < 0 || arguments.tointeger() > 3) MessagePlayer("[#FF0000]Error:[#FFFFFF] USe /"+bas+cmd+" <1-3>", player);
