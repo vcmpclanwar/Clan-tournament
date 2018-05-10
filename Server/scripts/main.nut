@@ -524,7 +524,7 @@ function onPlayerKill( player, killer, reason, bodypart )
 	checkspree(killer.ID);
 	if(killer.Health < 80) killer.Health += 20;
 	else killer.Health = 100;
-
+	
 	
 	if(status[player.ID].spree > 4) Message("[#FFDD33]Information:[#FFFFFF] "+pcol(killer.ID)+killer.Name+ white+" has ended "+pcol(player.ID)+player.Name+white+" killing spree of "+status[player.ID].spree+" kills in a row.");
 	status[player.ID].spree = 0;
@@ -2252,6 +2252,8 @@ local playerName = pcol(player.ID) + player.Name + white;
 			}
 		}
 	}
+	
+
 	
 	else if(cmd == "cmds" || cmd == "commands")
 	{
