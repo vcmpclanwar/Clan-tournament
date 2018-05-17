@@ -542,7 +542,7 @@ function onPlayerTeamKill( player, killer, reason, bodypart )
 function checkspree(p)
 {
 	local player = FindPlayer(p);
-	if(p)
+	if(player)
 	{
 		if(status[player.ID].spree == 5) Message("[#FFDD33]Information:[#FFFFFF] "+pcol(player.ID)+player.Name+white+" is on a killing spree of "+status[player.ID].spree+" kills in a row.");
 		if(status[player.ID].spree == 10) Message("[#FFDD33]Information:[#FFFFFF] "+pcol(player.ID)+player.Name+white+" is on a killing spree of "+status[player.ID].spree+" kills in a row.");
@@ -2059,8 +2059,9 @@ local playerName = pcol(player.ID) + player.Name + white;
 		if(status[player.ID].Level < 6) MessagePlayer("[#FFDD33]Information:[#FFFFFF] Unauthorized Access", player);
 		else if(!arguments || NumTok(arguments, " ") < 2) MessagePlayer("[#FF0000]Error:[#FFFFFF] Use /"+bas+cmd+" <player name> <passoword>", player);
 		else if(GetTok(arguments, " ", 2).len() < 4) MessagePlayer("[#FF0000]Error:[#FFFFFF] Password should be longer than 4 characters.", player);
+		else
 		{
-			local plr = FindPlayer(GetTok(arguments, " ", 2));
+			local plr = FindPlayer(GetTok(arguments, " ", 1));
 			if(plr)
 			{
 				status[plr.ID].pass = SHA256(GetTok(arguments, " ", 2));
@@ -2119,7 +2120,7 @@ local playerName = pcol(player.ID) + player.Name + white;
 			else
 			{
 				Message("[#FFDD00]Administrator Command:[#FFFFFF] Admin "+playerName+" teleported to player: "+pcol(plr.ID)+plr.Name+white+".");
-				player.Pos = Vector(plr.Pos.x+1, plr.Pos.y, plr.pos.z);
+				player.Pos = Vector(plr.Pos.x + 1, plr.Pos.y +1, plr.Pos.z);
 			}
 		}
 	}
