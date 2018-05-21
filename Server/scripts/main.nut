@@ -18,6 +18,9 @@ class PlayerStats
  vehaccess = false;
  Warns = 0;
  crank = 0;
+ team = 0;
+ minigame = null;
+ miniscore = 0;
 }
 
 const white = "[#FFFFFF]";
@@ -61,6 +64,7 @@ function onScriptLoad()
     AddClass( 4, RGB( 23, 135, 34 ), 48, Vector( -657.091, 762.422, 11.5998 ), -3.13939, 21, 999 ,1, 1, 25, 255 );
     AddClass( 5, RGB( 211, 211, 211 ), 84, Vector( -657.091, 762.422, 11.5998 ), -3.13939, 21, 999 ,1, 1, 25, 255 );
     funmessages <- [ "Hey hey, hands up because it's ", "Yo, it's ", "Say what? It's ", "All hail ", "Give it up for ", "Hooray! We've ", "Well, well, well. Isn't it ", "Welcome to the party, ", "Greetings ", "Hellow " ];
+	GGlocs <- ["-128.821 488.705 13.4961", "-166.972 608.88 13.5054", "-240.9 552.673 13.9821", "-241.094 466.62 14.9759", "-187.274 447.715 13.9719", "-73.6621 512.677 11.8284", "-195.861 507.561 16.4494"];
 	NewTimer("loadid", 100, 1);
 	NewTimer("loaddid", 100, 1);
 	NewTimer("loadserverbot", 500, 0);
@@ -180,7 +184,7 @@ function checkban(player)
 			Announce("~y~Banned", 8, player);
 			MessagePlayer("[#FFDD33]Information:[#FFFFFF] Banned from Server by Admin: [#D3D3D3]"+GetSQLColumnData(q3, 1)+"[#FFFFFF] Reason: ["+GetSQLColumnData(q3, 0)+"] "+GetSQLColumnData(q3, 6)+".", player);
 			MessagePlayer("[#FFDD33]Information:[#FFFFFF] If you think that you are wrongfully banned, make an admin report on our forum: ", player);
-			MessagePlayer("[#FFDD33]Information:[#FFFFFF] You are banned till: "+GetSQLColumnData(q, 5)+".", player);
+			MessagePlayer("[#FFDD33]Information:[#FFFFFF] You are banned till: "+GetSQLColumnData(q3, 5)+".", player);
 			KickPlayer(player);
 		
 		}
@@ -255,6 +259,10 @@ function onPlayerPart( player, reason )
 	QuerySQL(DB, "UPDATE Accounts SET lastjoined = '"+dat+"' WHERE LowerName = '"+escapeSQLString(player.Name.tolower())+"'");
 	QuerySQL(DB, "UPDATE Unregistered SET lastjoined = '"+dat+"' WHERE LowerName = '"+escapeSQLString(player.Name.tolower())+"'");
     local playerName = pcol( player.ID ) + player.Name + white;
+	if( _GG.Players.find( player.ID ) != null )
+	{
+		_GG.PartGG( player );
+	}
     switch ( reason )
     {
       case 1:
@@ -346,6 +354,7 @@ function onPlayerRequestSpawn( player )
 
 function onPlayerSpawn( player )
 {
+status[player.ID].team = player.Team.tointeger();
 	if(status[player.ID].attack == true) player.CanAttack = true;
 	else player.CanAttack = false;
 	if(status[player.ID].spawnwep != null) setspawnwep(player.ID, status[player.ID].spawnwep);
@@ -497,10 +506,21 @@ function onPlayerDeath( player, reason )
             break;
         }
     }
-	if(status[player.ID].spree > 4) Message("[#FFDD33]Information:[#FFFFFF] "+pcol(player.ID)+player.Name+white+" has ended their own killing spree of "+status[player.ID].spree+" kills in a row.");
-	status[player.ID].spree = 0;
+		if(status[player.ID].minigame != null)
+		{
+			NewTimer("miniroundspawn", 6500, 1, player.ID, "death")
+		}
+		if(status[player.ID].spree > 4) Message("[#FFDD33]Information:[#FFFFFF] "+pcol(player.ID)+player.Name+white+" has ended their own killing spree of "+status[player.ID].spree+" kills in a row.");
+		status[player.ID].spree = 0;
 
 }
+
+function spawnplr(p)
+{
+	local player = FindPlayer(p);
+	if(player && !player.IsSpawned) player.Spawn();
+}
+
 function BodyPartText( bodypart )
 {
     switch( bodypart )
@@ -525,7 +545,14 @@ function onPlayerKill( player, killer, reason, bodypart )
 	if(killer.Health < 80) killer.Health += 20;
 	else killer.Health = 100;
 	
-	
+	if(status[killer.ID].minigame != null)
+	{
+		NewTimer("miniroundspawn", 6500, 1, killer.ID, "kill")
+	}
+	if(status[player.ID].minigame != null)
+	{
+		NewTimer("miniroundspawn", 6500, 1, player.ID, "death")
+	}
 	if(status[player.ID].spree > 4) Message("[#FFDD33]Information:[#FFFFFF] "+pcol(killer.ID)+killer.Name+ white+" has ended "+pcol(player.ID)+player.Name+white+" killing spree of "+status[player.ID].spree+" kills in a row.");
 	status[player.ID].spree = 0;
 }
@@ -621,6 +648,261 @@ local message = text;
 return 1;
 }
 
+
+
+// ------------------ MINIGAMES
+
+
+_GG <-{
+ Alive = 0,
+ Players = [],
+ iData = array( GetMaxPlayers() ),
+ state = "OFF",
+ teamid = 5
+ 
+ 
+ function JoinGG(player)
+ {
+	if( state == "OFF")
+	{
+		state = "ON"
+	}
+	Players.push( player.ID );
+	Alive++;
+	player.Team = teamid;
+	teamid = teamid+1;
+	player.IsFrozen = true;
+	player.World = 9001;
+	iData[ player.ID ] = player.Pos;
+	local GL = GGlocs[ rand() % GGlocs.len() ];
+	player.Pos = Vector( GetTok(GL, " ", 1).tofloat(), GetTok(GL, " ", 2).tofloat(), GetTok(GL, " ", 3).tofloat());
+	for (local i = 0 ; i <200 ; i++)
+	{
+		player.RemoveWeapon(i);
+	}
+	player.GiveWeapon(20, 9999);
+	MessagePlayer( "[#FFDD33]Information:[#FFFFFF] You joined Minigame: Gun Game. Player Count: "+Alive+".", player );
+	Message( "[#FFDD33]Minigame:[#FFFFFF] Player: "+pcol(player.ID)+player.Name+white+" has joined the Minigame Gungame. Use /"+bas+"gungame "+white+"to join." );
+ }
+ 
+ function StartGG(player)
+ {
+  
+	if( Alive >= 2 )
+	{
+		State = "STARTED";
+		local iPlayer;
+		foreach( ID in Players )
+		{
+			iPlayer = FindPlayer( ID );
+			if( iPlayer )
+			{
+				iPlayer.IsFrozen = false;
+				iPlayer.CanAttack = true;
+				MessagePlayer("[#FFDD33]Minigame:[#FFFFFF] Gun Game is started.", iPlayer);
+			}
+		}
+	}
+	else
+	{
+		MessagePlayer( "[#FF0000]Error:[#FFFFFF] There must be atleast 2 player to start the minigame.", player );
+	}
+}
+ 
+function PartGG( player )
+ {
+  Alive--;
+  Players.remove( player.ID );
+  player.World = 1;
+  Message( "[#FFDD33]Minigame:[#FFFFFF] Player:"+pcol(player.ID) + player.Name +white+ " has left the minigame: Gun Game." );
+  if(status[player.ID].spawnwep != null) setspawnwep(player.ID, status[player.ID].spawnwep);
+	player.IsFrozen = false;
+	player.CanAttack = false;
+  if( Alive <= 1 ) 
+  { 
+   foreach( ID in Players ) { 
+   local iPlayer = FindPlayer( ID ); 
+   if( iPlayer ) _GG.Winner( iPlayer ); 
+   } 
+  }
+ }
+ 
+ 
+ function Winner( player )
+ {
+	State = "OFF";
+	Alive = 0;
+	local iPlayer;
+	foreach( ID in Players )
+	{
+		iPlayer = FindPlayer( ID );
+		if( iPlayer )
+		{
+			iPlayer.IsFrozen = false;
+			iPlayer.CanAttack = false;
+		}
+	}
+	Players.clear();
+	player.Pos = iData[ player.ID ];
+	Message( "[#FFDD33]Minigame:[#FFFFFF] "+pcol(player.ID)+player.Name+white + " has won the minigame: Gun Game" );
+}
+
+}
+
+
+
+
+
+
+function miniroundspawn(p, state)
+{
+	local player = FindPlayer(p);
+	if(player)
+	{
+		if(!player.IsSpawned) player.Spawn();
+		if(status[player.ID].minigame == "GG")
+		{
+			local GL = GGlocs[ rand() % GGlocs.len() ];
+			player.Pos = Vector( GetTok(GL, " ", 1).tofloat(), GetTok(GL, " ", 2).tofloat(), GetTok(GL, " ", 3).tofloat());
+			miniround(player.ID, state);
+		}
+	}
+}
+
+function miniround(p, state)
+{
+	local player = FindPlayer(p);
+	if(player)
+	{
+		if(status[player.ID].minigame == "GG")
+		{
+			iPlayer.CanAttack = true;
+			for (local i = 0 ; i <200 ; i++)
+			{
+				player.RemoveWeapon(i);
+			}
+			if(state == "kill") 
+			{
+				status[player.ID].miniscore = status[player.ID].miniscore +1;
+			}
+			local score = status[player.ID].miniscore;
+			switch (score)
+			{
+				case 1: 
+				{
+					player.SetWeapon(19, 9999);
+					break;
+				}
+				case 2: 
+				{
+					player.SetWeapon(21, 9999);
+					break;
+				}
+				case 3: 
+				{
+					player.SetWeapon(32, 9999);
+					break;
+				}
+				case 4: 
+				{
+					player.SetWeapon(27, 9999);
+					break;
+				}
+				case 5: 
+				{
+					player.SetWeapon(30, 9999);
+					break;
+				}
+				case 6: 
+				{
+					player.SetWeapon(24, 9999);
+					break;
+				}
+				case 7: 
+				{
+					player.SetWeapon(11, 9999);
+					break;
+				}
+				case 8: 
+				{
+					player.SetWeapon(24, 9999);
+					break;
+				}
+				case 9: 
+				{
+					player.SetWeapon(18, 9999);
+					break;
+				}
+				case 10: 
+				{
+					player.SetWeapon(29, 9999);
+					break;
+				}
+				case 11: 
+				{
+					player.SetWeapon(25, 9999);
+					break;
+				}
+				case 12: 
+				{
+					player.SetWeapon(23, 9999);
+					break;
+				}
+				case 13: 
+				{
+					player.SetWeapon(12, 9999);
+					break;
+				}
+				case 14: 
+				{
+					player.SetWeapon(17, 9999);
+					break;
+				}
+				case 15: 
+				{
+					player.SetWeapon(10, 9999);
+					break;
+				}
+				case 16:
+				{
+					_GG.Winner(player);
+				}
+			}
+		}
+	}
+}
+
+// ------------------ END MINIGAMES
+
+
+
+
+function SendDataToClient(player, integer, string)
+{
+ Stream.StartWrite();
+ Stream.WriteInt(integer);
+ if (string != null) Stream.WriteString(string);
+ Stream.SendStream(player);
+}
+function onClientScriptData(player)
+{
+ local int = Stream.ReadInt(),
+  string = Stream.ReadString();
+
+ switch (int.tointeger())
+ {
+  case 1: 
+  Message("BYE");
+  break;
+  }
+ }
+
+
+
+
+
+
+
 function GetTok(string, separator, n, ...)
 {
 local m = vargv.len() > 0 ? vargv[0] : n,
@@ -670,14 +952,18 @@ function pcol(p)
 	if(!player) return;
 	else
 	{
-        switch( player.Team )
-        {
-          case 1: return "[#F9FF87]";
-          case 2: return "[#6495ED]";
-          case 3: return "[#C80000]";
-          case 4: return "[#178722]";
-          case 5: return "[#D3D3D3]";
-        }
+		if(player.Team > 5) return "[#F9FF87]";
+		else
+		{
+			switch( player.Team )
+			{
+				case 1: return "[#F9FF87]";
+				case 2: return "[#6495ED]";
+				case 3: return "[#C80000]";
+				case 4: return "[#178722]";
+				case 5: return "[#D3D3D3]";
+			}
+		}
 	}
 }
 function GetTeamRGB( teamid )
@@ -2254,15 +2540,108 @@ local playerName = pcol(player.ID) + player.Name + white;
 		}
 	}
 	
+	else if(cmd == "ping")
+	{
+		if(!arguments)
+		MessagePlayer("[#FFDD33]Information:[#FFFFFF] Your ping : " + player.Ping + ".", player);
+		else
+		{
+			local plr = FindPlayer(arguments);
+			if(!plr) MessagePlayer("[#FF0000]Error:[#FFFFFF] Unknown Player", player);
+			else MessagePlayer("[#FFDD33]Information:[#FFFFFF] player : " + pcol(plr.ID) + plr.Name + white + "'s Ping : " + plr.Ping + ".", player);
+		}
+	}
 
-	
+	else if(cmd == "fps")
+	{
+		if(!arguments)
+		MessagePlayer("[#FFDD33]Information:[#FFFFFF] Your FPS : " + player.FPS + ".", player);
+		else
+		{
+			local plr = FindPlayer(arguments);
+			if(!plr) MessagePlayer("[#FF0000]Error:[#FFFFFF] Unknown Player", player);
+			else MessagePlayer("[#FFDD33]Information:[#FFFFFF] player : " + pcol(plr.ID) + plr.Name + white + "'s FPS : " + plr.FPS + ".", player);
+		}
+	}
+
+	else if( cmd == "gungame" )
+	{
+		if( !player.IsSpawned ) MessagePlayer("[#FF0000]Error:[#FFFFFF] You need to be spawned to use this command.", player);
+		else if( _GG.state == "STARTED" ) MessagePlayer( "[#FF0000]Error:[#FFFFFF] The Minigame is already running.", player );
+		else
+		{
+			status[player.ID].minigame = "GG";
+			status[player.ID].miniscore = 0;
+			_GG.JoinGG( player );
+		}
+	}
+	else if(cmd == "start")
+	{
+		if(status[player.ID].minigame == null) MessagePlayer("[#FF0000]Error:[#FFFFFF] Unknown Command1", player);
+		else
+		{
+			if(status[player.ID].minigame == "GG")
+			{
+				if(_GG.state == "STARTED") MessagePlayer("[#FF0000]Error:[#FFFFFF] Gun Game is already started. Please wait until it ends.", player);
+				else
+				{
+					_GG.StartGG(player);
+				}
+			}
+		}
+	}
+	else if(cmd == "leave")
+	{
+		if(status[player.ID].minigame == null) MessagePlayer("[#FF0000]Error:[#FFFFFF] Unknown Command2", player);
+		else
+		{
+			if(status[player.ID].minigame == "GG")
+			{
+				status[player.ID].minigame = null;
+				status[player.ID].miniscore = 0;
+				_GG.PartGG(player);
+				player.CanAttack = false;
+				player.Team = status[player.ID].team;
+			}
+		}
+	}
+	else if(cmd == "players" || cmd == "playercount")
+	{
+		if(status[player.ID].minigame == null) MessagePlayer("[#FF0000]Error:[#FFFFFF] Unknown Command.", player);
+		else
+		{
+			if(status[player.ID].minigame == "GG")
+			{
+				local plr = _GG.Alive;
+				MessagePlayer("[#FFDD33]Minigame:[#FFFFFF] Players in Gun Game: "+plr+".", player);
+			}
+		}
+	}
+	else if(cmd == "rest")
+	{
+		if(status[player.ID].Level < 6) MessagePlayer("[#FFDD33]Information:[#FFFFFF] Unauthorized Access", player);
+		else AnnounceAll("~y~Server Restarting within Few Seconds", 8);
+	}
+	else if(cmd == "s")
+	{
+		SendDataToClient(player, 1, "Gun Game");
+	}
+	else if(cmd == "st")
+	{
+		SendDataToClient(player, 2, "Umar 1");
+	}
+
 	else if(cmd == "cmds" || cmd == "commands")
 	{
-		if(!arguments || !IsNum(arguments) || arguments.tointeger() < 0 || arguments.tointeger() > 3) MessagePlayer("[#FF0000]Error:[#FFFFFF] USe /"+bas+cmd+" <1-3>", player);
+		if(status[player.ID].minigame == "GG")
+		{
+			MessagePlayer("[#FFDD33]Information:[#FFFFFF] Commands:"+bas+" start, leave, help, playercount", player);
+		}
+		else if(!arguments || !IsNum(arguments) || arguments.tointeger() < 0 || arguments.tointeger() > 3) MessagePlayer("[#FF0000]Error:[#FFFFFF] USe /"+bas+cmd+" <1-3>", player);
 		else
 		{
 			if(arguments.tointeger() == 1) MessagePlayer("[#FFDD33]Information:[#FFFFFF] Account Commands:"+bas+" register, login, changepass, level, clan, lastjoined, clanchat, teamchat",player);
-			else if(arguments.tointeger() == 2) MessagePlayer("[#FFDD33]Information:[#FFFFFF] Fighting Commands:"+bas+" wep, spawnwep, removespawnwep, disarm, spree, playersonspree", player);
+			else if(arguments.tointeger() == 2) MessagePlayer("[#FFDD33]Information:[#FFFFFF] Fighting Commands:"+bas+" ping, fps, wep, spawnwep, removespawnwep, disarm, spree, playersonspree", player);
 		}
 	}
 
