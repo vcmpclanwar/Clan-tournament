@@ -330,7 +330,7 @@ function onPlayerRequestSpawn( player )
 		local lvl = status[player.ID].Level;
 		if(lvl < 2 && player.Team != 1) 
 		{
-			MessagePlayer("[#FF0000]Error:[#FFFFFF] You are neither a tournament participant nor refree so you cannot spawn with the team. Take Team Yellow.", player);
+			MessagePlayer("[#FF0000]Error:[#FFFFFF] You are neither a tournament participant nor referee so you cannot spawn with the team. Take Team Yellow.", player);
 			return 0;
 		}
 		else if(lvl == 2 &&(player.Team == 3 ||  player.Team == 4 ||  player.Team == 5))
@@ -345,7 +345,7 @@ function onPlayerRequestSpawn( player )
 		}
 		else if(lvl == 4 &&(player.Team == 2 || player.Team == 3 || player.Team == 5))
 		{
-			MessagePlayer("[#FF0000]Error:[#FFFFFF] You are a Refree. You can only spawn will Team Yellow or Green.", player);
+			MessagePlayer("[#FF0000]Error:[#FFFFFF] You are a referee. You can only spawn will Team Yellow or Green.", player);
 			return 0;
 		}
 		else return 1;
@@ -536,7 +536,7 @@ function BodyPartText( bodypart )
         default: return "It's a mystery...";
     }
 }
-function onPlayerKill( player, killer, reason, bodypart )
+function onPlayerKill( killer, player, reason, bodypart )
 {
     local killerName = pcol( killer.ID ) + killer.Name + white, playerName = pcol( player.ID ) + player.Name + white;
     Message( "[#FFDD33][Info][#FFFFFF] "+ killerName +" killed "+ playerName +" (" + GetWeaponName( reason ) + ") (" + BodyPartText( bodypart ) + ")" );
@@ -547,11 +547,13 @@ function onPlayerKill( player, killer, reason, bodypart )
 	
 	if(status[killer.ID].minigame != null)
 	{
-		NewTimer("miniroundspawn", 6500, 1, killer.ID, "kill")
+		miniround(killer.ID, "kill");
+		local score = killer.Name+" : "+status[killer.ID].miniscore;
+		_GG.updateGG(score);
 	}
 	if(status[player.ID].minigame != null)
 	{
-		NewTimer("miniroundspawn", 6500, 1, player.ID, "death")
+		NewTimer("miniroundspawn", 6500, 1, player.ID, "death");
 	}
 	if(status[player.ID].spree > 4) Message("[#FFDD33]Information:[#FFFFFF] "+pcol(killer.ID)+killer.Name+ white+" has ended "+pcol(player.ID)+player.Name+white+" killing spree of "+status[player.ID].spree+" kills in a row.");
 	status[player.ID].spree = 0;
@@ -690,7 +692,7 @@ _GG <-{
   
 	if( Alive >= 2 )
 	{
-		State = "STARTED";
+		state = "STARTED";
 		local iPlayer;
 		foreach( ID in Players )
 		{
@@ -712,7 +714,7 @@ _GG <-{
 function PartGG( player )
  {
   Alive--;
-  Players.remove( player.ID );
+//  Players.remove( player.ID );
   player.World = 1;
   Message( "[#FFDD33]Minigame:[#FFFFFF] Player:"+pcol(player.ID) + player.Name +white+ " has left the minigame: Gun Game." );
   if(status[player.ID].spawnwep != null) setspawnwep(player.ID, status[player.ID].spawnwep);
@@ -730,7 +732,7 @@ function PartGG( player )
  
  function Winner( player )
  {
-	State = "OFF";
+	state = "OFF";
 	Alive = 0;
 	local iPlayer;
 	foreach( ID in Players )
@@ -740,12 +742,28 @@ function PartGG( player )
 		{
 			iPlayer.IsFrozen = false;
 			iPlayer.CanAttack = false;
+			iPlayer.world = 1;
+			iPlayer.Pos = Vector( -657.091, 762.422, 11.5998 );
 		}
 	}
 	Players.clear();
 	player.Pos = iData[ player.ID ];
 	Message( "[#FFDD33]Minigame:[#FFFFFF] "+pcol(player.ID)+player.Name+white + " has won the minigame: Gun Game" );
-}
+
+ }
+
+ function updateGG(p)
+ {
+ 		local iPlayer;
+		foreach( ID in Players )
+		{
+			iPlayer = FindPlayer( ID );
+			if( iPlayer )
+			{
+				SendDataToClient(iPlayer, 2, p);
+			}
+		}
+	}
 
 }
 
@@ -764,7 +782,10 @@ function miniroundspawn(p, state)
 		{
 			local GL = GGlocs[ rand() % GGlocs.len() ];
 			player.Pos = Vector( GetTok(GL, " ", 1).tofloat(), GetTok(GL, " ", 2).tofloat(), GetTok(GL, " ", 3).tofloat());
-			miniround(player.ID, state);
+			player.Team = _GG.teamid;
+			_GG.teamid = _GG.teamid + 1;
+			NewTimer("miniround", 2000, 1 player.ID, state);
+			
 		}
 	}
 }
@@ -776,7 +797,7 @@ function miniround(p, state)
 	{
 		if(status[player.ID].minigame == "GG")
 		{
-			iPlayer.CanAttack = true;
+			player.CanAttack = true;
 			for (local i = 0 ; i <200 ; i++)
 			{
 				player.RemoveWeapon(i);
@@ -788,6 +809,11 @@ function miniround(p, state)
 			local score = status[player.ID].miniscore;
 			switch (score)
 			{
+				case 0: 
+				{
+					player.SetWeapon(20, 9999);
+					break;
+				}
 				case 1: 
 				{
 					player.SetWeapon(19, 9999);
@@ -873,6 +899,28 @@ function miniround(p, state)
 }
 
 // ------------------ END MINIGAMES
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1547,7 +1595,7 @@ local playerName = pcol(player.ID) + player.Name + white;
 		}
 	}
 	
-	else if ( cmd == "addrefree" || cmd == "setrefree")
+	else if ( cmd == "addreferee" || cmd == "setreferee")
 	{
 		if(status[player.ID].Level < 6) MessagePlayer("[#FFDD33]Information:[#FFFFFF] Unauthorized Access.", player);
 		else if(!arguments) MessagePlayer("[#FF0000]Error:[#FFFFFF] Use /"+bas+cmd+" <player>", player);
@@ -1562,11 +1610,11 @@ local playerName = pcol(player.ID) + player.Name + white;
 				{
 					status[player.ID].Level = 4;
 					QuerySQL(DB, "UPDATE Accounts SET Level = '4' WHERE LowerName = '"+escapeSQLString(plr.Name.tolower())+"'");
-					QuerySQL(DB, "INSERT INTO staff ( name, rank, madeby ) VALUES ('"+escapeSQLString(plr.Name.tolower())+"', 'refree', '"+escapeSQLString(player.Name.tolower())+"') ");
+					QuerySQL(DB, "INSERT INTO staff ( name, rank, madeby ) VALUES ('"+escapeSQLString(plr.Name.tolower())+"', 'referee', '"+escapeSQLString(player.Name.tolower())+"') ");
 					Message("[#FFDD00]Administrator Command:[#FFFFFF] Admin "+playerName+" changed rank of player: "+pcol(plr.ID)+plr.Name+white+" to: "+checklvl(status[player.ID].Level)+".");
                 local today = date(), dat = today.month + "/" + today.day + "/" + today.year;
 					QuerySQL( DB, "INSERT INTO AdminLog ( Admin, Level, Player, Date, Command, Reason ) VALUES ( '"+ escapeSQLString( player.Name ) +"',  '"+ status[ player.ID ].Level +"', '"+ escapeSQLString( plr.Name ) +"', '"+ dat +"', '"+ cmd +"', '"+ NR +"' ) " );              
-					MessagePlayer("[#FFDD33]Information:[#FFFFFF] Now you are a refree. Type /"+bas+"refreehelp"+white+" to learn about it.", player);
+					MessagePlayer("[#FFDD33]Information:[#FFFFFF] Now you are a referee. Type /"+bas+"refereehelp"+white+" to learn about it.", plr);
 				}
 			}
 			else
@@ -1575,11 +1623,11 @@ local playerName = pcol(player.ID) + player.Name + white;
 				if(!q) MessagePlayer("[#FF0000]Error:[#FFFFFF] Unknown Player.", player);
 				else
 				{
-					QuerySQL(DB, "INSERT INTO staff ( name, rank, madeby ) VALUES ('"+arguments.tolower()+"', 'refree', '"+escapeSQLString(player.Name.tolower())+"') ");
+					QuerySQL(DB, "INSERT INTO staff ( name, rank, madeby ) VALUES ('"+arguments.tolower()+"', 'referee', '"+escapeSQLString(player.Name.tolower())+"') ");
 					QuerySQL(DB, "UPDATE Accounts SET Level = '4' WHERE LowerName = '"+escapeSQLString(arguments.tolower())+"'");
-					Message("[#FFDD00]Administrator Command:[#FFFFFF] Admin "+playerName+" set: [#D3D3D3]"+GetSQLColumnData(q, 0)+white+" rank to: "+checklvl(status[player.ID].Level)+".");
-                local today = date(), dat = today.month + "/" + today.day + "/" + today.year;
-                    QuerySQL( DB, "INSERT INTO AdminLog ( Admin, Level, Player, Date, Command, Reason ) VALUES ( '"+ escapeSQLString( player.Name ) +"',  '"+ status[ player.ID ].Level +"', '"+ escapeSQLString( plr.Name ) +"', '"+ dat +"', '"+ cmd +"', '"+ NR +"' ) " );       
+					Message("[#FFDD00]Administrator Command:[#FFFFFF] Admin "+playerName+" set: [#D3D3D3]"+GetSQLColumnData(q, 0)+white+" rank to: "+checklvl(1)+".");
+					local today = date(), dat = today.month + "/" + today.day + "/" + today.year;
+                    QuerySQL( DB, "INSERT INTO AdminLog ( Admin, Level, Player, Date, Command, Reason ) VALUES ( '"+ escapeSQLString( player.Name ) +"',  '"+ status[ player.ID ].Level +"', '"+ escapeSQLString( arguments.tolower() ) +"', '"+ dat +"', '"+ cmd +"', '"+ NR +"' ) " );       
 				}
 			}
 		}
@@ -1602,9 +1650,9 @@ local playerName = pcol(player.ID) + player.Name + white;
 					QuerySQL(DB, "UPDATE Accounts SET Level = '5' WHERE LowerName = '"+escapeSQLString(plr.Name.tolower())+"'");
 					QuerySQL(DB, "INSERT INTO staff ( name, rank, madeby ) VALUES ('"+escapeSQLString(plr.Name.tolower())+"', 'admin', '"+escapeSQLString(player.Name.tolower())+"') ");
 					Message("[#FFDD00]Administrator Command:[#FFFFFF] Admin "+playerName+" changed rank of player: "+pcol(plr.ID)+plr.Name+white+" to: Admin.");
-                local today = date(), dat = today.month + "/" + today.day + "/" + today.year;
+					local today = date(), dat = today.month + "/" + today.day + "/" + today.year;
                     QuerySQL( DB, "INSERT INTO AdminLog ( Admin, Level, Player, Date, Command, Reason ) VALUES ( '"+ escapeSQLString( player.Name ) +"',  '"+ status[ player.ID ].Level +"', '"+ escapeSQLString( plr.Name ) +"', '"+ dat +"', '"+ cmd +"', '"+ NR +"' ) " );       
-					MessagePlayer("[#FFDD33]Information:[#FFFFFF] Now you are a Admin. Type /"+bas+"refreehelp"+white+" to learn about it.", player);
+					MessagePlayer("[#FFDD33]Information:[#FFFFFF] Now you are a Admin. Type /"+bas+"adminhelp"+white+" to learn about it.", plr);
 				}
 			}
 			else
@@ -1616,13 +1664,142 @@ local playerName = pcol(player.ID) + player.Name + white;
 					QuerySQL(DB, "INSERT INTO staff ( name, rank, madeby ) VALUES ('"+arguments.tolower()+"', 'admin', '"+escapeSQLString(player.Name.tolower())+"') ");
 					QuerySQL(DB, "UPDATE Accounts SET Level = '5' WHERE LowerName = '"+escapeSQLString(arguments.tolower())+"'");
 					Message("[#FFDD00]Administrator Command:[#FFFFFF] Admin "+playerName+" set: [#D3D3D3]"+GetSQLColumnData(q, 0)+white+" rank to: Admin.");
-                local today = date(), dat = today.month + "/" + today.day + "/" + today.year;
-                    QuerySQL( DB, "INSERT INTO AdminLog ( Admin, Level, Player, Date, Command, Reason ) VALUES ( '"+ escapeSQLString( player.Name ) +"',  '"+ status[ player.ID ].Level +"', '"+ escapeSQLString( plr.Name ) +"', '"+ dat +"', '"+ cmd +"', '"+ NR +"' ) " );       
+					local today = date(), dat = today.month + "/" + today.day + "/" + today.year;
+                    QuerySQL( DB, "INSERT INTO AdminLog ( Admin, Level, Player, Date, Command, Reason ) VALUES ( '"+ escapeSQLString( player.Name ) +"',  '"+ status[ player.ID ].Level +"', '"+ escapeSQLString( arguments.tolower() ) +"', '"+ dat +"', '"+ cmd +"', '"+ NR +"' ) " );       
 				}
 			}
 		}
 	}
 
+	else if ( cmd == "removereferee" || cmd == "delreferee")
+	{
+		if(status[player.ID].Level < 6) MessagePlayer("[#FFDD33]Information:[#FFFFFF] Unauthorized Access.", player);
+		else if(!arguments) MessagePlayer("[#FF0000]Error:[#FFFFFF] Use /"+bas+cmd+" <player>", player);
+		else
+		{
+			local plr = FindPlayer(arguments);
+			if(plr)
+			{
+				local q = QuerySQL(DB, "SELECT * FROM Accounts WHERE LowerName = '"+escapeSQLString(plr.Name.tolower())+"'");
+				if(!q) MessagePlayer("[#FF0000]Error:[#FFFFFF] Player is not registered.", player);
+				else
+				{
+					status[player.ID].Level = 1;
+					QuerySQL(DB, "UPDATE Accounts SET Level = '1' WHERE LowerName = '"+escapeSQLString(plr.Name.tolower())+"'");
+					QuerySQL(DB, "DELETE FROM  staff WHERE name = '"+escapeSQLString(plr.Name.tolower())+"'");
+					Message("[#FFDD00]Administrator Command:[#FFFFFF] Admin "+playerName+" changed rank of player: "+pcol(plr.ID)+plr.Name+white+" to: "+checklvl(status[player.ID].Level)+".");
+					local today = date(), dat = today.month + "/" + today.day + "/" + today.year;
+					QuerySQL( DB, "INSERT INTO AdminLog ( Admin, Level, Player, Date, Command, Reason ) VALUES ( '"+ escapeSQLString( player.Name ) +"',  '"+ status[ player.ID ].Level +"', '"+ escapeSQLString( plr.Name ) +"', '"+ dat +"', '"+ cmd +"', '"+ NR +"' ) " );              
+				}
+			}
+			else
+			{
+				local q = QuerySQL(DB, "SELECT * FROM Accounts WHERE LowerName = '"+escapeSQLString(arguments.tolower())+"'");
+				if(!q) MessagePlayer("[#FF0000]Error:[#FFFFFF] Unknown Player.", player);
+				else
+				{
+					QuerySQL(DB, "DELETE FROM staff WHERE name = '"+arguments.tolower()+"'");
+					QuerySQL(DB, "UPDATE Accounts SET Level = '1' WHERE LowerName = '"+escapeSQLString(arguments.tolower())+"'");
+					Message("[#FFDD00]Administrator Command:[#FFFFFF] Admin "+playerName+" set: [#D3D3D3]"+GetSQLColumnData(q, 0)+white+" rank to: "+checklvl(1)+".");
+					local today = date(), dat = today.month + "/" + today.day + "/" + today.year;
+                    QuerySQL( DB, "INSERT INTO AdminLog ( Admin, Level, Player, Date, Command, Reason ) VALUES ( '"+ escapeSQLString( player.Name ) +"',  '"+ status[ player.ID ].Level +"', '"+ escapeSQLString( arguments.tolower() ) +"', '"+ dat +"', '"+ cmd +"', '"+ NR +"' ) " );       
+				}
+			}
+		}
+	}
+	
+	else if ( cmd == "removeadmin" || cmd == "deladmin")
+	{
+		if(status[player.ID].Level < 6) MessagePlayer("[#FFDD33]Information:[#FFFFFF] Unauthorized Access.", player);
+		else if(!arguments) MessagePlayer("[#FF0000]Error:[#FFFFFF] Use /"+bas+cmd+" <player>", player);
+		else
+		{
+			local plr = FindPlayer(arguments);
+			if(plr)
+			{
+				local q = QuerySQL(DB, "SELECT * FROM Accounts WHERE LowerName = '"+escapeSQLString(plr.Name.tolower())+"'");
+				if(!q) MessagePlayer("[#FF0000]Error:[#FFFFFF] Player is not registered.", player);
+				else
+				{
+					status[plr.ID].Level = 1;
+					QuerySQL(DB, "UPDATE Accounts SET Level = '1' WHERE LowerName = '"+escapeSQLString(plr.Name.tolower())+"'");
+					QuerySQL(DB, "DELETE FROM staff WHERE name = '"+escapeSQLString(plr.Name.tolower())+"'");
+					Message("[#FFDD00]Administrator Command:[#FFFFFF] Admin "+playerName+" changed rank of player: "+pcol(plr.ID)+plr.Name+white+" to: "+checklvl(status[plr.ID].Level)+".");
+					local today = date(), dat = today.month + "/" + today.day + "/" + today.year;
+                    QuerySQL( DB, "INSERT INTO AdminLog ( Admin, Level, Player, Date, Command, Reason ) VALUES ( '"+ escapeSQLString( player.Name ) +"',  '"+ status[ player.ID ].Level +"', '"+ escapeSQLString( plr.Name ) +"', '"+ dat +"', '"+ cmd +"', '"+ NR +"' ) " );       
+				}
+			}
+			else
+			{
+				local q = QuerySQL(DB, "SELECT * FROM Accounts WHERE LowerName = '"+escapeSQLString(arguments.tolower())+"'");
+				if(!q) MessagePlayer("[#FF0000]Error:[#FFFFFF] Unknown Player.", player);
+				else
+				{
+					QuerySQL(DB, "DELETE FROM staff WHERE name = '"+arguments.tolower()+"'");
+					QuerySQL(DB, "UPDATE Accounts SET Level = '1' WHERE LowerName = '"+escapeSQLString(arguments.tolower())+"'");
+					Message("[#FFDD00]Administrator Command:[#FFFFFF] Admin "+playerName+" set: [#D3D3D3]"+GetSQLColumnData(q, 0)+white+" rank to: "+checklvl(1)+".");
+					local today = date(), dat = today.month + "/" + today.day + "/" + today.year;
+                    QuerySQL( DB, "INSERT INTO AdminLog ( Admin, Level, Player, Date, Command, Reason ) VALUES ( '"+ escapeSQLString( player.Name ) +"',  '"+ status[ player.ID ].Level +"', '"+ escapeSQLString(arguments.tolower()) +"', '"+ dat +"', '"+ cmd +"', '"+ NR +"' ) " );       
+				}
+			}
+		}
+	}
+
+	else if ( cmd == "tempreferee")
+	{
+		if(status[player.ID].Level < 6) MessagePlayer("[#FFDD33]Information:[#FFFFFF] Unauthorized Access.", player);
+		else if(!arguments) MessagePlayer("[#FF0000]Error:[#FFFFFF] Use /"+bas+cmd+" <player>", player);
+		else
+		{
+			local plr = FindPlayer(arguments);
+			if(plr)
+			{
+				local q = QuerySQL(DB, "SELECT * FROM Accounts WHERE LowerName = '"+escapeSQLString(plr.Name.tolower())+"'");
+				if(!q) MessagePlayer("[#FF0000]Error:[#FFFFFF] Player is not registered.", player);
+				else
+				{
+					status[player.ID].Level = 4;
+					QuerySQL(DB, "INSERT INTO staff ( name, rank, madeby ) VALUES ('"+escapeSQLString(plr.Name.tolower())+"', 'temp referee', '"+escapeSQLString(player.Name.tolower())+"') ");
+					Message("[#FFDD00]Administrator Command:[#FFFFFF] Admin "+playerName+" temporarily changed rank of player: "+pcol(plr.ID)+plr.Name+white+" to: "+checklvl(status[player.ID].Level)+".");
+					local today = date(), dat = today.month + "/" + today.day + "/" + today.year;
+					QuerySQL( DB, "INSERT INTO AdminLog ( Admin, Level, Player, Date, Command, Reason ) VALUES ( '"+ escapeSQLString( player.Name ) +"',  '"+ status[ player.ID ].Level +"', '"+ escapeSQLString( plr.Name ) +"', '"+ dat +"', '"+ cmd +"', '"+ NR +"' ) " );              
+					MessagePlayer("[#FFDD33]Information:[#FFFFFF] Now you are a referee. Type /"+bas+"refereehelp"+white+" to learn about it.", plr);
+				}
+			}
+			else
+			{
+				MessagePlayer("[#FF0000]Error:[#FFFFFF] Unknown Player.", player);
+			}
+		}
+	}
+	
+	else if ( cmd == "tempadmin")
+	{
+		if(status[player.ID].Level < 6) MessagePlayer("[#FFDD33]Information:[#FFFFFF] Unauthorized Access.", player);
+		else if(!arguments) MessagePlayer("[#FF0000]Error:[#FFFFFF] Use /"+bas+cmd+" <player>", player);
+		else
+		{
+			local plr = FindPlayer(arguments);
+			if(plr)
+			{
+				local q = QuerySQL(DB, "SELECT * FROM Accounts WHERE LowerName = '"+escapeSQLString(plr.Name.tolower())+"'");
+				if(!q) MessagePlayer("[#FF0000]Error:[#FFFFFF] Player is not registered.", player);
+				else
+				{
+					status[plr.ID].Level = 5;
+					QuerySQL(DB, "INSERT INTO staff ( name, rank, madeby ) VALUES ('"+escapeSQLString(plr.Name.tolower())+"', 'temp admin', '"+escapeSQLString(player.Name.tolower())+"') ");
+					Message("[#FFDD00]Administrator Command:[#FFFFFF] Admin "+playerName+" temporarily changed rank of player: "+pcol(plr.ID)+plr.Name+white+" to: Admin.");
+					local today = date(), dat = today.month + "/" + today.day + "/" + today.year;
+                    QuerySQL( DB, "INSERT INTO AdminLog ( Admin, Level, Player, Date, Command, Reason ) VALUES ( '"+ escapeSQLString( player.Name ) +"',  '"+ status[ player.ID ].Level +"', '"+ escapeSQLString( plr.Name ) +"', '"+ dat +"', '"+ cmd +"', '"+ NR +"' ) " );       
+					MessagePlayer("[#FFDD33]Information:[#FFFFFF] Now you are a Admin. Type /"+bas+"adminhelp"+white+" to learn about it.", plr);
+				}
+			}
+			else
+			{
+				MessagePlayer("[#FF0000]Error:[#FFFFFF] Unknown Player.", player);
+			}
+		}
+	}
 	
 	else if(cmd == "addclan")
 	{
@@ -2421,7 +2598,7 @@ local playerName = pcol(player.ID) + player.Name + white;
 			else
 			{
 				Message("[#FFDD00]Administrator Command:[#FFFFFF] Admin "+playerName+" brought player: "+pcol(plr.ID)+plr.Name+white+" to his location.");
-				plr.Pos = Vector(player.Pos.x+1, player.Pos.y, player.pos.z);
+				plr.Pos = Vector(player.Pos.x+1, player.Pos.y, player.Pos.z);
 			}
 		}
 	}
@@ -2573,6 +2750,7 @@ local playerName = pcol(player.ID) + player.Name + white;
 			status[player.ID].minigame = "GG";
 			status[player.ID].miniscore = 0;
 			_GG.JoinGG( player );
+			SendDataToClient(player, 1, "GunGame");
 		}
 	}
 	else if(cmd == "start")
@@ -2617,6 +2795,36 @@ local playerName = pcol(player.ID) + player.Name + white;
 			}
 		}
 	}
+		else if (  cmd == "admin"  ||  cmd == "admins"  )
+	{
+		Message("[#FFDD33]Information:[#FFFFFF] Admins Online requested by: "+playerName+".");
+		local plr, b, m;
+		b=0;
+		m = 0;
+		for( local i = 0; i <= GetMaxPlayers(); i++ )
+		{
+			plr = FindPlayer( i );
+			if ( ( plr ) && ( status[ plr.ID ].Level >= 4 ) )
+			{
+				b=b+1;
+				if( m == 0)
+				{
+					m = pcol(plr.ID) + plr.Name + white + "(Level: "+checklvl(status[plr.ID].Level) +")";
+				}
+				else
+				{
+					m = m + ", " + pcol(plr.ID) + plr.Name + white + "(Level: "+checklvl(status[plr.ID].Level) +")";
+				}
+			}
+		}
+		if (b)
+		{
+			Message("[#FFFFFF] "+m+".");
+		}
+		if(!b) rMessage( "None." );
+	}
+
+	
 	else if(cmd == "rest")
 	{
 		if(status[player.ID].Level < 6) MessagePlayer("[#FFDD33]Information:[#FFFFFF] Unauthorized Access", player);
@@ -2629,6 +2837,15 @@ local playerName = pcol(player.ID) + player.Name + white;
 	else if(cmd == "st")
 	{
 		SendDataToClient(player, 2, "Umar 1");
+	}
+	else if(cmd == "stt")
+	{
+		SendDataToClient(player, 2, "dfd 10");
+	}
+	else if(cmd == "send")
+	{
+		if(!arguments || NumTok(arguments, " ") < 2 || !IsNum(GetTok(arguments, " ", 2))) MessagePlayer(white+"Error", player);
+		else SendDataToClient(player, 2, arguments);
 	}
 
 	else if(cmd == "cmds" || cmd == "commands")
@@ -2645,12 +2862,12 @@ local playerName = pcol(player.ID) + player.Name + white;
 		}
 	}
 
-	else if(cmd == "refreecmds")
+	else if(cmd == "refereecmds")
 	{
 		if(status[player.ID].Level < 4) MessagePlayer("[#FFDD33]Information:[#FFFFFF] Unauthorized Access", player);
 		else
 		{
-			MessagePlayer("[#FFDD33]Information:[#FFFFFF] Refree Commands:"+bas+" ", player);
+			MessagePlayer("[#FFDD33]Information:[#FFFFFF] referee Commands:"+bas+" ", player);
 		}
 	}
 	else if(cmd == "acmds" || cmd == "admincommands")
@@ -2659,7 +2876,7 @@ local playerName = pcol(player.ID) + player.Name + white;
 		else
 		{
 			MessagePlayer("[#FFDD33]Information:[#FFFFFF] Admin Commands:"+bas+" slap, warn, kick, sethp, canattack, setattack, setspawnattack, goto, bring, gotoloc, setspree ", player);
-			if(status[player.ID].Level > 5) MessagePlayer(white+"Founder Commands:"+bas+" setrefree, setadmin, addclan, removeclan, addclanmember, removeclanmember, getaccinfo, alias, setpass, gotoloc, addveh, delveh, vehaccess, getadminlog, setmemberrank ", player);
+			if(status[player.ID].Level > 5) MessagePlayer(white+"Founder Commands:"+bas+" setreferee, tempreferee, setadmin, tempadmin, addclan, removeclan, addclanmember, removeclanmember, getaccinfo, alias, setpass, gotoloc, addveh, delveh, vehaccess, getadminlog, setmemberrank ", player);
 			if(status[player.ID].Level > 5) MessagePlayer(white+"Ban Commands:"+bas+" nameban, nameunban, permaban, permaunban, tempban, tempunban ", player);
 		}
 	}

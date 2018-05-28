@@ -60,14 +60,127 @@ function GGstart(strread)
 
 }
 
-function GGupdate(strread)
+function GGupdate(string)
 {
 	local sX = GUI.GetScreenSize().X, sY = GUI.GetScreenSize().Y;
-//	local params = split(strread, " "), player = params[0], scr = params[i];
-	if(GGscore.plr == "null : 0")
+	local params = split(string, " "), player = params[0], scr = params[1];
+	if(GGscore.plr.Text == "null : 0")
 	{
-		SendDataToServer("hi", 1);
+		GGscore.plr.Text = player + " : "+scr;
 	}
+	else if(GGscore.plr2.Text == "null : 0")
+	{
+		GGscore.plr2.Text = player + " : "+scr;
+	}
+	else if(GGscore.plr3.Text == "null : 0")
+	{
+		GGscore.plr3.Text = player + " : "+scr;
+	}
+	else if(GGscore.plr4.Text == "null : 0")
+	{
+		GGscore.plr4.Text = player + " : "+scr;
+	}
+	else if(GGscore.plr5.Text == "null : 0")
+	{
+		GGscore.plr5.Text = player + " : "+scr;
+	}
+	else
+	{
+		local p1 = split(GGscore.plr.Text, " "), plar1 = p1[0], score1 = p1[2];
+		local p2 = split(GGscore.plr2.Text, " "), plar2 = p2[0], score2 = p2[2];
+		local p3 = split(GGscore.plr3.Text, " "), plar3 = p3[0], score3 = p3[2];
+		local p4 = split(GGscore.plr4.Text, " "), plar4 = p4[0], score4 = p4[2];
+		local p5 = split(GGscore.plr5.Text, " "), plar5 = p5[0], score5 = p5[2];
+		
+		if(score1.tointeger() < scr.tointeger())
+		{
+			if(plar1 == player)
+			{
+				GGscore.plr.Text = player+" : "+scr;
+				
+			}
+			else if(plar2 == player)
+			{
+				GGscore.plr2.Text = GGscore.plr.Text;
+				GGscore.plr.Text = player+" : "+scr;
+				
+			}
+			else
+			{
+				GGscore.plr5.Text = GGscore.plr4.Text;
+				GGscore.plr4.Text = GGscore.plr3.Text;
+				GGscore.plr3.Text = GGscore.plr2.Text;
+				GGscore.plr2.Text = GGscore.plr.Text;
+				GGscore.plr.Text = player+" : "+scr;
+			}
+		}
+		else if(score2.tointeger() < scr.tointeger())
+		{
+			if(plar2 == player)
+			{
+				GGscore.plr2.Text = player+" : "+scr;
+				
+			}
+			else if(plar3 == player)
+			{
+				GGscore.plr3.Text = GGscore.plr2.Text;
+				GGscore.plr2.Text = player+" : "+scr;
+				
+			}
+			else
+			{
+				GGscore.plr5.Text = GGscore.plr4.Text;
+				GGscore.plr4.Text = GGscore.plr3.Text;
+				GGscore.plr3.Text = GGscore.plr2.Text;
+				GGscore.plr2.Text = player+" : "+scr;
+			}
+		}
+		else if(score3.tointeger() < scr.tointeger())
+		{
+			if(plar3 == player)
+			{
+				GGscore.plr3.Text = player+" : "+scr;
+				
+			}
+			else if(plar4 == player)
+			{
+				GGscore.plr4.Text = GGscore.plr3.Text;
+				GGscore.plr3.Text = player+" : "+scr;
+				
+			}
+			else
+			{
+				GGscore.plr5.Text = GGscore.plr4.Text;
+				GGscore.plr4.Text = GGscore.plr3.Text;
+				GGscore.plr3.Text = player+" : "+scr;
+			}
+		}
+		else if(score4.tointeger() < scr.tointeger())
+		{
+			if(plar4 == player)
+			{
+				GGscore.plr4.Text = player+" : "+scr;
+				
+			}
+			else if(plar5 == player)
+			{
+				GGscore.plr5.Text = GGscore.plr4.Text;
+				GGscore.plr4.Text = player+" : "+scr;
+				
+			}
+			else
+			{
+				GGscore.plr5.Text = GGscore.plr4.Text;
+				GGscore.plr4.Text = player+" : "+scr;
+			}
+		}
+		else if(score5.tointeger() < scr.tointeger())
+		{
+			GGscore.plr5.Text = player+" : "+scr;
+		}
+		else return;
+	}
+	SendDataToServer("hi", 1);
 }
 	
 
