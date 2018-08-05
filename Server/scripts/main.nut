@@ -35,9 +35,9 @@ function onScriptLoad()
 {
  DB <- ConnectSQL("databases/Registration.db");
  status <- array(GetMaxPlayers(), null);
- con <- mysql_connect( "localhost", "discordbot", "1234", "mydb");
- if( con ) print( "[SERVER] Connection to mySQL database successful." );
- QuerySQL(DB, "CREATE TABLE if not exists Accounts ( Name TEXT, LowerName TEXT, Password VARCHAR ( 255 ), Level NUMERIC DEFAULT 1, TimeRegistered VARCHAR ( 255 ) DEFAULT CURRENT_TIMESTAMP, UID VARCHAR ( 255 ), IP VARCHAR ( 255 ), AutoLogin BOOLEAN DEFAULT true, Banned TEXT, clan VARCHAR ( 255 ), Kills VARCHAR ( 255 ), Headshots VARCHAR ( 255 ), Deaths VARCHAR ( 255 ), lastjoined VARCHAR ( 255 ) ) ");
+// con <- mysql_connect( "localhost", "discordbot", "1234", "mydb");
+// if( con ) print( "[SERVER] Connection to mySQL database successful." );
+// QuerySQL(DB, "CREATE TABLE if not exists Accounts ( Name TEXT, LowerName TEXT, Password VARCHAR ( 255 ), Level NUMERIC DEFAULT 1, TimeRegistered VARCHAR ( 255 ) DEFAULT CURRENT_TIMESTAMP, UID VARCHAR ( 255 ), IP VARCHAR ( 255 ), AutoLogin BOOLEAN DEFAULT true, Banned TEXT, clan VARCHAR ( 255 ), Kills VARCHAR ( 255 ), Headshots VARCHAR ( 255 ), Deaths VARCHAR ( 255 ), lastjoined VARCHAR ( 255 ) ) ");
  QuerySQL(DB," create table if not exists kicked ( name VARCHAR ( 255 ), admin VARCHAR ( 255 ), date VARCHAR ( 255 ), reason VARCHAR ( 255 ) ) ");
  QuerySQL(DB," create table if not exists warn ( name VARCHAR ( 255 ), admin VARCHAR ( 255 ), date VARCHAR ( 255 ), reason VARCHAR ( 255 ) ) ");
  QuerySQL(DB," create table if not exists slap ( name VARCHAR ( 255 ), admin VARCHAR ( 255 ), date VARCHAR ( 255 ), reason VARCHAR ( 255 ) ) ");
@@ -66,9 +66,9 @@ function onScriptLoad()
     AddClass( 5, RGB( 211, 211, 211 ), 84, Vector( -657.091, 762.422, 11.5998 ), -3.13939, 21, 999 ,1, 1, 25, 255 );
     funmessages <- [ "Hey hey, hands up because it's ", "Yo, it's ", "Say what? It's ", "All hail ", "Give it up for ", "Hooray! We've ", "Well, well, well. Isn't it ", "Welcome to the party, ", "Greetings ", "Hellow " ];
 	GGlocs <- ["-128.821 488.705 13.4961", "-166.972 608.88 13.5054", "-240.9 552.673 13.9821", "-241.094 466.62 14.9759", "-187.274 447.715 13.9719", "-73.6621 512.677 11.8284", "-195.861 507.561 16.4494"];
-	MakeTimer(this, loadid, 500, 1);
-	MakeTimer(this, loaddid, 500, 1);
-	MakeTimer(this, loadserverbot, 500, 0);
+//	MakeTimer(this, loadid, 500, 1);
+//	MakeTimer(this, loaddid, 500, 1);
+//	MakeTimer(this, loadserverbot, 500, 0);
 
 	}
 

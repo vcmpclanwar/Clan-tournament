@@ -25,16 +25,43 @@ function Server::ServerData(stream)
 		case 7:
 			FRsettime(StreamReadString);
 		break;
-		case 8:
-			
-		break;
-		case 9:
-			
-		break;
-		case 10:
-			
-		break;
-	}
+        case 8:
+        if( StreamReadString != "null" )
+        {
+            local params = split( StreamReadString, "," ), clann = params[0], clann2 = params[1], clans = params[2], clans2 = params[3], r = params[4], cp1 = params[5], cp2 = params[6], cs1 = params[7], cs2 = params[8];
+            ::ClanName = clann;
+            ::ClanName2 = clann2;
+            ::ClanScore1 = clans;
+            ::ClanScore2 = clans2;
+            ::Round = r;
+            ::ClanPlayers1 = cp1;
+            ::ClanPlayers2 = cp2;
+            ::Subs1 = cs1;
+            ::Subs2 = cs2;
+            //Console.Print( "[Clan Battle] Clan Name: "+ clann +" | Clan Name 2: "+ clann2 +" | Score: "+clans+":"+clans2+" | Round: "+r+" | Clan Players: "+ cp1 +" | Clan Players 2: "+ cp2 +" | Subs 1: "+ cs1 +" | Subs 2: "+ cs2 +"" );
+        }
+        else
+        {
+            ::ClanName = null;
+            ::ClanName2 = null;
+            ::ClanScore1 = 0;
+            ::ClanScore2 = 0;
+            ::Round = 0;
+            ::ClanPlayers1 = null;
+            ::ClanPlayers2 = null;
+            ::Subs1 = null;
+            ::Subs2 = null;
+            //Console.Print( "[Clan Battle] Variables cleared." );
+        }
+        break;
+        case 9:
+        if( StreamReadString != "null" ) CBRoundScreen( StreamReadString );
+        else RemoveCBScoreboardDisplay();  
+        break;
+        case 10:
+           
+        break;
+    }
 }
 
 function Script::ScriptProcess()
@@ -373,6 +400,171 @@ function FRremove()
 }
 
 
+
+
+
+
+
+ 
+//========================================= C L A N  B A T T L E  R O U N D  S Y S T E M ================================================
+ 
+function JoinArray( array, seperator )
+{
+  return array.reduce( function( prevData, nextData ){ return ( prevData + seperator + nextData ); } );
+}
+RoundLogo <- null; 
+ClanName <- null;
+ClanName2 <- null;
+ClanScore1 <- 0;
+ClanScore2 <- 0;
+Round <- 0;
+ClanPlayers1 <- null;
+ClanPlayers2 <- null;
+Subs1 <- null;
+Subs2 <- null;
+ 
+CBScoreboardDisplay <- {
+    RoundGUI = { ClanBadge1 = null, ClanBadge2 = null, ClanLogo1 = null, ClanLogo2 = null, ClanName1 = null, ClanName2 = null, ClanScore1 = null, ClanScore2 = null },
+    ScoreboardGUI = {
+        Clan1Name = null,
+        ClanPlrs1 = null,
+        ClanSubs1 = null,
+    //============================
+        Clan2Name = null,
+        ClanPlrs2 = null,
+        ClanSubs2 = null,
+    },
+    VSLogo = null,
+    Round = null,
+}
+ 
+function CBRoundScreen( strread )
+{
+	RoundLogo = GUISprite("wallpaper.png", VectorScreen(0,0));
+    local params = split( strread, "," ), fclanlogo = params[0], sclanlogo = params[1];
+    CBScoreboardDisplay.RoundGUI.ClanBadge1 = GUISprite( "empty badge.png", VectorScreen( ( screen.X * 0.05 ), ( screen.Y * 0.20 ) ) );
+    CBScoreboardDisplay.RoundGUI.ClanBadge1.Size = VectorScreen( 360, 200 );
+    if( fclanlogo == "true" )
+    {  
+        CBScoreboardDisplay.RoundGUI.ClanLogo1 = GUISprite( ""+ ClanName +".png", VectorScreen( ( screen.X * 0.05 ), ( screen.Y * 0.20 ) ) );
+        CBScoreboardDisplay.RoundGUI.ClanLogo1.Size = VectorScreen( 320, 180 );
+    }
+    else
+    {
+        CBScoreboardDisplay.RoundGUI.ClanLogo1 = GUILabel( VectorScreen( ( screen.X * 0.07 ), ( screen.Y * 0.20 ) ), Colour( 0, 0, 0 ), "N/A" );
+        CBScoreboardDisplay.RoundGUI.ClanLogo1.FontSize = 120;
+        CBScoreboardDisplay.RoundGUI.ClanLogo1.FontName = "WRESTLEMANIA";
+    }
+    CBScoreboardDisplay.RoundGUI.ClanBadge2 = GUISprite( "empty badge.png", VectorScreen( ( screen.X * 0.57 ), ( screen.Y * 0.20 ) ) );
+    CBScoreboardDisplay.RoundGUI.ClanBadge2.Size = VectorScreen( 360, 200 );
+    if( sclanlogo == "true" )
+    {  
+        CBScoreboardDisplay.RoundGUI.ClanLogo2 = GUISprite( ""+ ::ClanName2 +".png", VectorScreen( ( screen.X * 0.62 ), ( screen.Y * 0.20 ) ) );
+        CBScoreboardDisplay.RoundGUI.ClanLogo2.Size = VectorScreen( 320, 180 );
+
+    }
+    else
+    {
+        CBScoreboardDisplay.RoundGUI.ClanLogo2 = GUILabel( VectorScreen( ( screen.X * 0.58 ), ( screen.Y * 0.20 ) ), Colour( 0, 0, 0 ), "N/A" );
+        CBScoreboardDisplay.RoundGUI.ClanLogo2.FontSize = 120;
+        CBScoreboardDisplay.RoundGUI.ClanLogo2.FontName = "WRESTLEMANIA";
+    }
+    CBScoreboardDisplay.RoundGUI.ClanName1 = GUILabel( VectorScreen( ( screen.X * 0.03 ), ( screen.Y * 0.50 ) ), Colour( 100, 149, 237 ), ClanName );
+    if( ClanName.len() < 20 ) CBScoreboardDisplay.RoundGUI.ClanName1.FontSize = 40;
+    else CBScoreboardDisplay.RoundGUI.ClanName1.FontSize = 25;
+    CBScoreboardDisplay.RoundGUI.ClanName1.FontName = "Copperplate Gothic Bold";
+    CBScoreboardDisplay.RoundGUI.ClanName1.FontFlags = GUI_FFLAG_ULINE;
+    CBScoreboardDisplay.RoundGUI.ClanName2 = GUILabel( VectorScreen( ( screen.X * 0.60 ), ( screen.Y * 0.50 ) ), Colour( 200, 0, 0 ), ::ClanName2 );
+    if( ::ClanName2.len() < 20 ) CBScoreboardDisplay.RoundGUI.ClanName2.FontSize = 40;
+    else CBScoreboardDisplay.RoundGUI.ClanName2.FontSize = 25;
+    CBScoreboardDisplay.RoundGUI.ClanName2.FontName = "Copperplate Gothic Bold";
+    CBScoreboardDisplay.RoundGUI.ClanName2.FontFlags = GUI_FFLAG_ULINE;
+    CBScoreboardDisplay.VSLogo = GUILabel( VectorScreen( ( screen.X * 0.35 ), ( screen.Y * 0.25 ) ), Colour( 229, 137, 62 ), "VS" );
+    CBScoreboardDisplay.VSLogo.FontSize = 120;
+    CBScoreboardDisplay.VSLogo.FontName = "WRESTLEMANIA";
+    CBScoreboardDisplay.Round = GUILabel( VectorScreen( ( screen.X * 0.20 ), ( screen.Y * 0.0050 ) ), Colour( 170, 165, 165 ), "Round "+Round+"" );
+    CBScoreboardDisplay.Round.FontSize = 120;
+    CBScoreboardDisplay.Round.FontName = "WRESTLEMANIA";
+    CBScoreboardDisplay.RoundGUI.ClanScore1 = GUILabel( VectorScreen( ( screen.X * 0.33 ), ( screen.Y * 0.55 ) ), Colour( 229, 137, 62 ), ::ClanScore1 + ":" );
+    CBScoreboardDisplay.RoundGUI.ClanScore1.FontSize = 110;
+    CBScoreboardDisplay.RoundGUI.ClanScore1.FontName = "Copperplate Gothic Bold";
+    CBScoreboardDisplay.RoundGUI.ClanScore2 = GUILabel( VectorScreen( ( screen.X * 0.44 ), ( screen.Y * 0.55 ) ), Colour( 229, 137, 62 ), ::ClanScore2 );
+    CBScoreboardDisplay.RoundGUI.ClanScore2.FontSize = 110;
+    CBScoreboardDisplay.RoundGUI.ClanScore2.FontName = "Copperplate Gothic Bold";
+}
+ 
+function CBRoundScoreboard()
+{
+    CBScoreboardDisplay.ScoreboardGUI.Clan1Name = GUILabel( VectorScreen( ( screen.X * 0.80 ), ( screen.Y * 0.40 ) ), Colour( 255, 255, 255 ), ClanName );
+    CBScoreboardDisplay.ScoreboardGUI.Clan1Name.FontSize = 12;
+    CBScoreboardDisplay.ScoreboardGUI.Clan1Name.FontFlags = GUI_FFLAG_BOLD;
+    CBScoreboardDisplay.ScoreboardGUI.ClanPlrs1 = GUILabel( VectorScreen( ( screen.X * 0.80 ), ( screen.Y * 0.43 ) ), Colour( 255, 255, 255 ), ClanPlayers1 );
+    CBScoreboardDisplay.ScoreboardGUI.ClanPlrs1.FontSize = 11;
+    CBScoreboardDisplay.ScoreboardGUI.ClanSubs1 = GUILabel( VectorScreen( ( screen.X * 0.80 ), ( screen.Y * 0.45 ) ), Colour( 255, 255, 255 ), Subs1 );
+    CBScoreboardDisplay.ScoreboardGUI.ClanSubs1.FontSize = 11;
+    CBScoreboardDisplay.ScoreboardGUI.Clan2Name = GUILabel( VectorScreen( ( screen.X * 0.80 ), ( screen.Y * 0.47 ) ), Colour( 255, 255, 255 ), ::ClanName2 );
+    CBScoreboardDisplay.ScoreboardGUI.Clan2Name.FontSize = 12;
+    CBScoreboardDisplay.ScoreboardGUI.Clan2Name.FontFlags = GUI_FFLAG_BOLD;
+    CBScoreboardDisplay.ScoreboardGUI.ClanPlrs2 = GUILabel( VectorScreen( ( screen.X * 0.80 ), ( screen.Y * 0.43 ) ), Colour( 255, 255, 255 ), ClanPlayers2 );
+    CBScoreboardDisplay.ScoreboardGUI.ClanPlrs2.FontSize = 11;
+    CBScoreboardDisplay.ScoreboardGUI.ClanSubs2 = GUILabel( VectorScreen( ( screen.X * 0.80 ), ( screen.Y * 0.45 ) ), Colour( 255, 255, 255 ), Subs2 );
+    CBScoreboardDisplay.ScoreboardGUI.ClanSubs2.FontSize = 11;
+}
+ 
+function RemoveCBScoreboardDisplay()
+{
+    if( CBScoreboardDisplay.RoundGUI.ClanBadge1 != null || CBScoreboardDisplay.RoundGUI.ClanBadge2 != null )
+    {
+        CBScoreboardDisplay.RoundGUI.ClanBadge1 = null;
+        CBScoreboardDisplay.RoundGUI.ClanBadge2 = null;
+        CBScoreboardDisplay.RoundGUI.ClanLogo1 = null;
+        CBScoreboardDisplay.RoundGUI.ClanLogo2 = null;
+        CBScoreboardDisplay.RoundGUI.ClanName1 = null;
+        CBScoreboardDisplay.RoundGUI.ClanName2 = null;
+        CBScoreboardDisplay.RoundGUI.ClanScore1 = null;
+        CBScoreboardDisplay.RoundGUI.ClanScore2 = null;
+        CBScoreboardDisplay.VSLogo = null;
+        CBScoreboardDisplay.Round = null;
+    }
+    else if( CBScoreboardDisplay.ScoreboardGUI.Clan1Name != null || CBScoreboardDisplay.ScoreboardGUI.Clan2Name != null )
+    {
+        CBScoreboardDisplay.ScoreboardGUI.Clan1Name = null;
+        CBScoreboardDisplay.ScoreboardGUI.ClanPlrs1 = null;
+        CBScoreboardDisplay.ScoreboardGUI.ClanSubs1 = null;
+        CBScoreboardDisplay.ScoreboardGUI.Clan2Name = null;
+        CBScoreboardDisplay.ScoreboardGUI.ClanPlrs2 = null;
+        CBScoreboardDisplay.ScoreboardGUI.ClanSubs2 = null;
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 function SendDataToServer(str, int)
 {
  local message = Stream();
@@ -380,6 +572,8 @@ function SendDataToServer(str, int)
  message.WriteString(str);
  Server.SendData(message);
 }
+
+
 
 
 
