@@ -17,7 +17,7 @@ class PlayerStats
  attack = false;
  vehaccess = false;
  Warns = 0;
- crank = 0;
+ crank = null;
  team = 0;
  minigame = null;
  miniscore = 0;
@@ -27,6 +27,7 @@ class PlayerStats
 const white = "[#FFFFFF]";
 const bas = "[#FFDD33]";
 const NR = "No reason including this command.";
+const RequiredRounds = 2; // <- Set the required rounds to win the match here!
 
 id <- 0;
 did <- 0;
@@ -69,6 +70,169 @@ function onScriptLoad()
 //	MakeTimer(this, loadid, 500, 1);
 //	MakeTimer(this, loaddid, 500, 1);
 //	MakeTimer(this, loadserverbot, 500, 0);
+
+
+
+
+
+
+
+
+
+	pUpdateTimer <- NewTimer( "Update", 1000/30, 0 );
+	KEY_W <- BindKey( true, 0x57, 0, 0 );
+	KEY_A <- BindKey( true, 0x41, 0, 0 );
+	KEY_S <- BindKey( true, 0x53, 0, 0 );
+	KEY_D <- BindKey( true, 0x44, 0, 0 );
+	KEY_UP <- BindKey( true, 0x26, 0, 0);
+	KEY_LEFT <- BindKey( true, 0x25, 0, 0 );
+	KEY_RIGHT <- BindKey( true, 0x27, 0, 0 );
+	KEY_DOWN <- BindKey( true, 0x28, 0, 0 );
+	KEY_SPACEBAR <- BindKey( true, 0x20, 0, 0 );
+	KEY_Y <- BindKey( true, 0x59, 0, 0 );
+	KEY_N <- BindKey( true, 0x4E, 0, 0 );
+	SetPassword( "Makingvcmpgreat2018" );
+	CreateObject( 314, 2, Vector( -1010.59, 199.92, 11.2893 ), 0) .RotateToEuler( Vector( 0, 0, 1.45 ), 1 );
+	CreateObject( 314, 2, Vector( 138.682, -1369.6, 13.1827 ), 0 );
+	CreateObject( 314, 2, Vector( -791.667, 410.613, 12.6254 ), 0 ).RotateToEuler( Vector( 0, 0, 1.55 ), 1 );
+	CreateObject( 306, 2, Vector( -913.343, 425.257, 9.24396 ), 0 ).RotateToEuler( Vector( 0, 0, 1.5 ),1 );
+	CreateObject( 306, 2, Vector( -938.339, 427.654, 9.89591 ), 0 ).RotateToEuler( Vector( -6.58201e-008, 5.56856e-008, 1.45 ),1 );
+	CreateObject( 306, 2, Vector( -1019.08, 415.757, 10.1074 ), 0 ).RotateToEuler( Vector( 0, 0, 0 ), 1 );
+	CreateObject( 306, 2, Vector( -1019.12, 390.737, 9.94547 ), 0 ).RotateToEuler( Vector( 0, 0, 0 ), 1);
+	CreateObject( 314, 2, Vector( -969.878, 369.233, 12.7629 ), 0 ).RotateToEuler( Vector( 0, 0, 0 ), 1 );
+	CreateObject( 314, 2, Vector( -1721.25, -293.256, 14.8683 ), 0 ).RotateToEuler( Vector( 0, 0, 0 ), 1 );
+	CreateObject( 311, 2, Vector( -1702.12, -288.036, 14.8683 ), 0 ).RotateToEuler( Vector( 0, 0, -1.4 ), 1 );
+	CreateObject( 314, 2, Vector( -1749.68, -281.176, 14.8683 ), 0 ).RotateToEuler( Vector( 0, 0, -1.15 ), 1 );
+	CreateObject( 306, 2, Vector( -1096.19, -1433.05, 10.6833 ), 0 ).RotateToEuler( Vector( 1.434e-008, -1.23838e-008, -0.45 ), 1 );
+	CreateObject( 314, 2, Vector( -1097.49, -1443.87, 13.7177 ), 0 ).RotateToEuler( Vector( 0, 0, 1.1 ), 1 );
+	CreateObject( 314, 2, Vector( -1166.73, -1415.47, 13.7843 ), 0 ).RotateToEuler( Vector( 0, 0, 1.15 ), 1 );
+	CreateObject( 306, 2, Vector( -1014.19, -1240.63, 9.98414 ), 0 ).RotateToEuler( Vector( 0, 0, -0.45 ), 1 );
+	CreateObject( 314, 2, Vector( -1003.69, -1226.19, 12.7158 ), 0 ).RotateToEuler( Vector( 0, 0, 1.15 ), 1 );
+	CreateObject( 306, 2, Vector( -414.617, 1230.54, 9.68468 ), 0 ).RotateToEuler( Vector( 0, 0, 0.2 ), 1 );
+	CreateObject( 306, 2, Vector( -412.421, 1218.42, 10.037 ), 0 ).RotateToEuler( Vector( 0, 0, 0 ), 1 );
+	CreateObject( 306, 2, Vector( -459.166, 1239.01, 10.267 ), 0 ).RotateToEuler( Vector( 0, 0, 1.5 ), 1 );
+	CreateObject( 306, 2, Vector( -492.02, 1160.28, 10.1998 ), 0 ).RotateToEuler( Vector( 0, 0, 1 ), 1 );
+	CreateObject( 314, 2, Vector( -479.484, 1154.51, 12.5712 ), 0 ).RotateToEuler( Vector( 0, 0, -0.85 ), 1 );
+	CreateObject( 306, 2, Vector( -415.5, 1149.21, 10.037 ), 0 ).RotateToEuler( Vector( 0, 0, -0.75 ), 1 );
+	CreateObject( 306, 2, Vector( -568.944, 765.141, 190.463 ), 0 ).RotateToEuler( Vector( -1.56232, 0.665018, 0.0214611 ),1 )
+	CreateObject( 306, 2, Vector( -568.617, 823.206, 190.463 ), 0 ).RotateToEuler( Vector( -1.56631, -0.684798, 0.00213722 ),1 );
+	CreateObject( 306, 2, Vector( -509.023, 761.47, 194.213 ), 0 ).RotateToEuler( Vector( 0, 0, -1 ),1 )
+	CreateObject( 306, 2, Vector( -530.771, 756.054, 194.213 ), 0 ).RotateToEuler( Vector( 0, 0, -1.55 ),1 )
+	CreateObject( 306, 2, Vector( -555.94, 755.939, 194.213 ), 0 ).RotateToEuler( Vector( 0, 0, -1.55 ),1 )
+	CreateObject( 306, 2, Vector( -574.825, 756.754, 194.213 ), 0 ).RotateToEuler( Vector( 0, 0, 0.75 ),1 )
+	CreateObject( 306, 2, Vector( -583.778, 776.093, 193.963 ), 0 ).RotateToEuler( Vector( 0, 0, 3.72529e-009 ),1 )
+	CreateObject( 306, 2, Vector( -583.784, 800.887, 194.213 ), 0 ).RotateToEuler( Vector( 0, 0, 0 ),1 )
+	CreateObject( 306, 2, Vector( -576.832, 825.196, 193.963 ), 0 ).RotateToEuler( Vector( 0, 0, -0.7 ),1 )
+	CreateObject( 306, 2, Vector( -555.39, 831.133, 194.213 ), 0 ).RotateToEuler( Vector( 3.14159, 3.14159, 1.54159 ),1 )
+	CreateObject( 306, 2, Vector( -534.945, 837.708, 194.463 ), 0 ).RotateToEuler( Vector( 0, 0, -1.55 ),1 )
+	CreateObject( 306, 2, Vector( -505.75, 830.838, 194.463 ), 0 ).RotateToEuler( Vector( 0, 0, 1.55 ),1 )
+	CreateObject( 306, 2, Vector( -488.771, 816.722, 194.213 ), 0 ).RotateToEuler( Vector( 0, 0, 0.55 ),1 )
+	CreateObject( 314, 2, Vector( -494.034, 831.655, 195.713 ), 0 ).RotateToEuler( Vector( -1.54099, -1.00344, -0.0188182 ),1 )
+	CreateObject( 306, 2, Vector( -493.295, 816.966, 196.463 ), 0 ).RotateToEuler( Vector( 1.5652, -0.50979, 0.008909),1 )
+	CreateObject( 306, 2, Vector( -510.084, 758.535, 190.463 ), 0 ).RotateToEuler( Vector( -1.55603, -0.960475, -0.012416 ),1 )
+	FirstCPosLocBF <- [
+		Vector( -944.223 ,405.314 ,11.2486 ),
+		Vector( -943.815 ,399.459 ,11.2509 ),
+		Vector( -943.764 ,391.716 ,11.2541 ),
+		Vector( -950.014 ,394.175 ,11.2531 ),
+		Vector( -949.531 ,400.779 ,11.2504 )
+	];
+	SecondCPosLocBF <- [
+		Vector( -896.585 ,400.708 ,11.0801 ),
+		Vector( -896.969 ,395.127 ,11.14 ),
+		Vector( -897.348 ,389.644 ,11.1371 ),
+		Vector( -891.782 ,391.109 ,11.1143 ),
+		Vector( -891.812 ,395.592 ,11.1055 )
+	];
+	FirstCPosLocArmy <- [
+		Vector( -1721.69 ,-267.066 ,14.8683 ),
+		Vector( -1725.99 ,-266.898 ,14.8683 ),
+		Vector( -1714.61 ,-267.338 ,14.8683 ),
+		Vector( -1716.23 ,-272.485 ,14.8683 ),
+		Vector( -1722.34 ,-272.271 ,14.8683 )
+	];
+	SecondCPosLocArmy <- [
+		Vector( -1719.94 ,-229.492 ,14.8683 ),
+		Vector( -1714.42 ,-229.658 ,14.8683 ),
+		Vector( -1725.95 ,-229.64 ,14.8683 ),
+		Vector( -1724.78 ,-225.611 ,14.8683 ),
+		Vector( -1718.4 ,-225.839 ,14.8683 )
+	];
+	FirstCPosLocDocks <- [
+		Vector( -1100.5 ,-1337.44 ,11.4258 ),
+		Vector( -1094.49 ,-1339.96 ,11.4959 ),
+		Vector( -1108.52 ,-1331.7 ,11.3074 ),
+		Vector( -1107.71 ,-1338.43 ,11.3642 ),
+		Vector( -1102.07 ,-1341.87 ,11.443 )
+	];
+	SecondCPosLocDocks <- [
+		Vector( -1071.91 ,-1271.17 ,11.2165 ),
+		Vector( -1079.46 ,-1268.6 ,11.1867 ),
+		Vector( -1064.66 ,-1276.29 ,11.2989 ),
+		Vector( -1066.4 ,-1269.76 ,11.2589 ),
+		Vector( -1073.83 ,-1267.31 ,11.178 )
+	];
+	FirstCPosLocParkingLot <- [
+		Vector( -458.126 ,1217.24 ,9.68458 ),
+		Vector( -452.883 ,1217.14 ,9.68458 ),
+		Vector( -466.111 ,1216.94 ,9.68458 ),
+		Vector( -463.187 ,1220.35 ,9.68458 ),
+		Vector( -457.503 ,1220.23 ,9.68458 )
+	];
+	SecondCPosLocParkingLot <- [
+		Vector( -461.674 ,1183.51 ,9.68458 ),
+		Vector( -467.819 ,1183.96 ,9.68458 ),
+		Vector( -454.317 ,1183.89 ,9.68458 ),
+		Vector( -457.381 ,1180.13 ,9.68458 ),
+		Vector( -463.886 ,1180.49 ,9.68458 )
+	];
+	FirstCPosLocLegend <- [
+		Vector( -533.102 ,824.547 ,195.213 ),
+		Vector( -539.975 ,824.831 ,195.213 ),
+		Vector( -524.882 ,822.906 ,195.213 ),
+		Vector( -528.194 ,826.969 ,195.213 ),
+		Vector( -535.321 ,827.31 ,195.213 )
+	];
+	SecondCPosLocLegend <- [
+		Vector( -534.315 ,774.065 ,195.213 ),
+		Vector( -527.913 ,773.964 ,195.213 ),
+		Vector( -542.318 ,775.423 ,195.213 ),
+		Vector( -537.539 ,771.543 ,195.213 ),
+		Vector( -531.373 ,771.153 ,195.213 )
+	];
+	LocBFCameraPositions <- {
+		CameraLookPos = Vector( -927.777 ,399.073 ,11.247 ),
+		CamerasPos = [ Vector( -935.97 ,430.422 ,24.9979 ), Vector( -861.56 ,376.553 ,22.8127 ), Vector( -965.617 ,375.588 ,22.8403 ) ],
+		RenderLoc = Vector( -850.503, 499.017, 15.9285 )
+	}
+	LocArmyCameraPositions <- {
+		CameraLookPos = Vector( -1722.67 ,-248.551 ,14.8683 ),
+		CamerasPos = [ Vector( -1698.6 ,-210.59 ,31.9292 ), Vector( -1723.86 ,-312.664 ,36.6515 ), Vector( -1761.09 ,-265.454 ,30.6272 ) ],
+		RenderLoc = Vector( -1616.87, -221.455, 28.3622 )
+	}
+	LocDocksCameraPositions <- {
+		CameraLookPos = Vector( -1089.7, -1314.95, 11.3653 ),
+		CamerasPos = [ Vector( -1134.08 ,-1344.78 ,30.5625 ), Vector( -1100.74 ,-1239.59 ,27.3181 ), Vector( -1026.51 ,-1270.58 ,41.74 ) ],
+		RenderLoc = Vector( -1128.36, -1224.86, 14.9238 )
+	}
+	LocPLCameraPositions <- {
+		CameraLookPos = Vector( -459.726 ,1192.15 ,9.68458 ),
+		CamerasPos = [ Vector( -487.526 ,1233.31 ,26.4135 ), Vector( -421.89 ,1199.01 ,11.4402 ), Vector( -436.821 ,1142.22 ,40.1701 ) ],
+		RenderLoc = Vector( -468.842, 1252.76, 79.751 )
+	}
+	LocLegendCameraPositions <- {
+		CameraLookPos = Vector( -531.151 ,792.627 ,195.213 ),
+		CamerasPos = [ Vector( -506.902 ,755.075 ,214.213 ), Vector( -597.196 ,754.567 ,225.303 ), Vector( -562.989 ,851.052 ,207.477 ) ],
+		RenderLoc = Vector( -527.868, 799.931, 97.5104 )
+	}
+	MainCamera <- {
+		CameraLookPos = Vector( 495.486, -1625.17, 25.06831 ),
+		CameraPos = Vector( 566.165, -1795.44, 18.82471 )
+	}
+	staffloc <- Vector( 140.287, -1367.48, 13.8592 );
+	clansloc <- Vector( -991.786, 199.831, 15.2197 );
+	funmessages <- [ "Hey hey, hands up because it's ", "Yo, it's ", "Say what? It's ", "All hail ", "Give it up for ", "Hooray! We've ", "Well, well, well. Isn't it ", "Welcome to the party, ", "Greetings ", "Hellow " ];
+	TPTimeRunning <- array( GetMaxPlayers(), false );
 
 	}
 
@@ -403,6 +567,11 @@ status[player.ID].team = player.Team.tointeger();
 	if(status[player.ID].attack == true) player.CanAttack = true;
 	else player.CanAttack = false;
 	if(status[player.ID].spawnwep != null) setspawnwep(player.ID, status[player.ID].spawnwep);
+	if( CBattle.TPlayers.find( player.ID ) != null )
+	{
+		player.Pos = clansloc;
+		player.CanAttack = false;
+	}
 	else
 	{
 		if(player.Team == 1)
@@ -523,6 +692,7 @@ function setspawnwep(p, text)
 function onPlayerDeath( player, reason )
 {
     local playerName = pcol( player.ID ) + player.Name + white;
+	if( CBattle.State == "STARTED" && CBattle.TPlayers.find( player.ID ) != null ) CBattle.PartCB( player );
     switch (reason)
     {
         case 44:
@@ -588,12 +758,17 @@ function BodyPartText( bodypart )
 }
 function onPlayerKill( killer, player, reason, bodypart )
 {
-    local killerName = pcol( killer.ID ) + killer.Name + white, playerName = pcol( player.ID ) + player.Name + white;
-    Message( "[#FFDD33][Info][#FFFFFF] "+ killerName +" killed "+ playerName +" (" + GetWeaponName( reason ) + ") (" + BodyPartText( bodypart ) + ")" );
-	status[killer.ID].spree++;
-	checkspree(killer.ID);
-	if(killer.Health < 80) killer.Health += 20;
+	local killerName = pcol( killer.ID ) + killer.Name + white, playerName = pcol( player.ID ) + player.Name + white;
+	Message( "[#FFDD33][Info][#FFFFFF] "+ killerName +" killed "+ playerName +" (" + GetWeaponName( reason ) + ") (" + BodyPartText( bodypart ) + ")" );
+	if( CBattle.State == "STARTED" && CBattle.TPlayers.find( player.ID ) != null ) CBattle.PartCB( player ); 
+	status[ killer.ID ].kills++;
+	status[ killer.ID ].spree++;
+	status[ player.ID ].deaths--;
+	checkspree( killer.ID );
+	if ( killer.Health <= 80 ) killer.Health += 20;
 	else killer.Health = 100;
+	if( status[player.ID].spree > 4 ) Message( "[#FFDD33]Information:[#FFFFFF] "+ pcol(player.ID)+player.Name+white +" has ended their own killing spree of "+ status[player.ID].spree +" kills in a row." );
+    status[player.ID].spree = 0;
 	
 	if( _GG.Players.find( killer.ID ) != null )
 	{
@@ -615,8 +790,6 @@ function onPlayerKill( killer, player, reason, bodypart )
 		_FR.deathFR(player.ID);
 	}
 
-	if(status[player.ID].spree > 4) Message("[#FFDD33]Information:[#FFFFFF] "+pcol(killer.ID)+killer.Name+ white+" has ended "+pcol(player.ID)+player.Name+white+" killing spree of "+status[player.ID].spree+" kills in a row.");
-	status[player.ID].spree = 0;
 }
 
 function onPlayerTeamKill( player, killer, reason, bodypart )
@@ -709,6 +882,1063 @@ local message = text;
 
 return 1;
 }
+
+
+
+
+
+
+pCamera <- array( GetMaxPlayers() );
+
+class CCamera
+{
+	function IsEnabled() { return bEnabled; }
+	function Pos() { return vPos; }
+	function Target() { return vTarget; }
+	function _typeof() { return "CCamera"; }
+	function Remove() { this.clear(); }
+	vPos = Vector( 0.0, 0.0, 0.0 );
+	vTarget = Vector( 0.0, 0.0, 0.0 );
+	fYaw = 0.0;
+	fPitch = 0.0;
+	fSpeed = 1.5;
+	Player = null;
+	bEnabled = false;
+	bMovingForward = null;
+	bMovingLeft = null;
+	bMovingBackward = null;
+	bMovingRight = null;
+	bRotatingUp = null;
+	bRotatingLeft = null;
+	bRotatingDown = null;
+	bRotatingRight = null;
+}
+
+function CCamera::Enable()
+{
+	vPos = Player.Pos;
+	fPitch = 0.0;
+	fYaw = 0.0;
+	Rotate( -1 * Player.Angle * PI/180.0, 0.0 );
+	Player.SetCameraPos( vPos, vTarget );
+	Player.Frozen = true;
+	bEnabled = true;
+}
+
+function CCamera::Disable()
+{
+	Player.Pos = vPos;
+	Player.Frozen = false;
+	Player.RestoreCamera();
+	bEnabled = false;
+}
+
+function CCamera::Rotate( fHoriz, fVert )
+{
+	fYaw += fHoriz;
+	fPitch += fVert;
+	vTarget.x = vPos.x + cos( fPitch ) * sin( fYaw );
+	vTarget.y = vPos.y + cos( fPitch ) * cos( fYaw );
+	vTarget.z = vPos.z + sin( fPitch );
+}
+
+function CCamera::Move( fDist )
+{
+	vPos.x += fDist * cos( fPitch ) * sin( fYaw );
+	vPos.y += fDist * cos( fPitch ) * cos( fYaw );
+	vPos.z += fDist * sin( fPitch );
+	Rotate( 0.0, 0.0 );
+}
+
+function CCamera::MoveSideways( fDist )
+{
+	vPos.x += fDist * cos( fPitch ) * sin( fYaw + PI/2 );
+	vPos.y += fDist * cos( fPitch ) * cos( fYaw + PI/2 );
+	Rotate( 0.0, 0.0 );
+}
+
+function CCamera::Process()
+{
+	local bMoving = false;
+	local fCamSpeed = fSpeed;
+	if ( bMovingForward )
+	{
+		Move( fCamSpeed );
+		bMoving = true;
+	}
+	if ( bMovingBackward )
+	{
+		Move( -fCamSpeed );
+		bMoving = true;
+	}
+	if ( bMovingLeft )
+	{
+		MoveSideways( -fCamSpeed );
+		bMoving = true;
+	}
+	if ( bMovingRight )
+	{
+		MoveSideways( fCamSpeed );
+		bMoving = true;
+	}
+	if ( bRotatingUp )
+	{
+		Rotate( 0.0, 0.1 );
+		bMoving = true;
+	}
+	if ( bRotatingDown )
+	{
+		Rotate( 0.0, -0.1 );
+		bMoving = true;
+	}
+	if ( bRotatingLeft )
+	{
+		Rotate( -0.1, 0.0 );
+		bMoving = true;
+	}
+	if ( bRotatingRight )
+	{
+		Rotate( 0.1, 0.0 );
+		bMoving = true;
+	}
+	if ( bMoving ) Player.SetCameraPos( vPos, vTarget );
+}
+
+function JoinArray( array, seperator )
+{
+  return array.reduce( function( prevData, nextData ){ return ( prevData + seperator + nextData ); } );
+}
+
+
+
+function onKeyDown( player, key )
+{
+	if( status[ player.ID ].Level == 4 && CBattle.State == "ON" )
+	{
+		if( CBattle.refereeSearch == true )
+		{
+			if( CBattle.selectedReferees[ player.ID ] == true )
+			{
+				if( key == KEY_Y )
+				{
+					if( player.IsSpawned )
+					{
+						if( TPTimeRunning[ player.ID ] == true ) MessagePlayer( "[#FF0000]Error:[#FFFFFF] You're already teleporting to the arena selection.", player );
+						else
+						{
+							local plr = FindPlayer( CBattle.adminrequest );
+							CBattle.V = 0;
+							CBattle.refereeSearch = false;
+							TPTimeRunning[ player.ID ] = true;
+							CBS <- NewTimer( "ClanBattleSetup", 2000, 1, player.ID );
+							MessagePlayer( "[#FFDD33]Information:[#FFFFFF] You had accepted the match to moderate. Teleporting to the arena selection...", player );
+							MessagePlayer( "[#FFDD33]Information:[#FFFFFF] "+ pcol( player.ID ) + player.Name + white +" has accepted your request and its choosing the selected arena for the match.", plr );
+							CBattle.Staff.push( player.ID );
+							CBattle.iData[ player.ID ] = player.Pos;
+							for( local i = 0; i <= GetMaxPlayers(); i++ )
+							{
+								local re = FindPlayer( i );
+								if( ( re ) && ( CBattle.State == "ON" ) && ( CBattle.refereeSearch == true ) && ( CBattle.selectedReferees[ re.ID ] == true ) ) CBattle.selectedReferees[ re.ID ] = false;
+							}
+							CBattle.RAT = null;
+							foreach( ID in CBattle.TPlayers )
+							{
+								local plrs = FindPlayer( ID );
+								if( plrs )
+								{
+									plrs.IsFrozen = true;
+									plrs.World = 2;
+									plrs.Pos = clansloc;
+								}
+							}
+							foreach( ID in CBattle.Staff )
+							{
+								local staff = FindPlayer( ID );
+								if( staff ) staff.IsFrozen = true;
+							}
+							TPTimeRunning[ player.ID ] = false;
+						}
+					}
+					else MessagePlayer( "[#FF0000]Error:[#FFFFFF] You must spawn before interacting with clan battles.", player );
+				}
+				else if( key == KEY_N )
+				{
+					if( player.IsSpawned )
+					{
+						MessagePlayer( "[#FFDD33]Information:[#FFFFFF] You've rejected the invitation. Other refeeres will deal with the situation.", player );
+						CBattle.selectedReferees[ player.ID ] = false;
+						CBattle.V--;
+					}
+					else MessagePlayer( "[#FF0000]Error:[#FFFFFF] You must spawn before interacting with clan battles.", player );
+				}
+			}
+		}
+		else
+		{
+			if( CBattle.Referee_Process == true )
+			{
+				//Positions of the camera of the arenas.
+				if( key == KEY_LEFT )
+				{
+					if( CBattle.A == 1 ) CBattle.A = 5;
+					else CBattle.A--;
+				}
+				else if( key == KEY_RIGHT )
+				{
+					if( CBattle.A == 5 ) CBattle.A = 1;
+					else CBattle.A++;
+				}
+				else if( key == KEY_SPACEBAR )
+				{
+					CBArenaTimer.Delete();
+					player.Widescreen = false;
+					player.RestoreCamera();
+					CBattle.Referee_Process = false;
+					for( local i = 0; i <= GetMaxPlayers(); i++ )
+					{
+						local plr = FindPlayer( i );
+						if( ( plr ) && ( plr.World == 2 ) )
+						{
+							plr.IsFrozen = false;
+							MessagePlayer( "[#FFDD33]Information:[#FFFFFF] "+ pcol( player.ID ) + player.Name + white +" has chosen the arena, "+ bas + CBattle.ArenaName[CBattle.A] + white +", for the battle.\nClan leaders, you've given authority to select your subboardinates using "+ bas + "/selectsub" + white +" &, for the rest, use "+ bas + "/ready" + white +" once your leader selected all three subboardinates.", plr );
+						}
+					}
+					CBattle.Sub_Process = true;
+				}
+			}
+		}
+	}
+	if( CBattle.State == "STARTED" && ( CBattle.Staff.find( player.ID ) != null || CBattle.CPOSubs.find( player.ID ) != null || CBattle.CPTSubs.find( player.ID ) != null || CBattle.Spectators.find( player.ID ) != null ) )
+	{
+		if( key == KEY_LEFT )
+		{
+			if( CBattle.I == 0 ) CBattle.I = 2;
+			else CBattle.I--;
+			if( CBattle.A == 1 ) player.SetCameraPos( LocBFCameraPositions.CamerasPos[CBattle.I], LocBFCameraPositions.CameraLookPos );
+			else if( CBattle.A == 2 ) player.SetCameraPos( LocArmyCameraPositions.CamerasPos[CBattle.I], LocArmyCameraPositions.CameraLookPos );
+			else if( CBattle.A == 3 ) player.SetCameraPos( LocDocksCameraPositions.CamerasPos[CBattle.I], LocDocksCameraPositions.CameraLookPos );
+			else if( CBattle.A == 4 ) player.SetCameraPos( LocPLCameraPositions.CamerasPos[CBattle.I], LocPLCameraPositions.CameraLookPos );
+			else if( CBattle.A == 5 ) player.SetCameraPos( LocLegendCameraPositions.CamerasPos[CBattle.I], LocLegendCameraPositions.CameraLookPos );
+		}
+		else if( key == KEY_RIGHT )
+		{
+			if( CBattle.I == 2 ) CBattle.I = 0;
+			else CBattle.I++;
+			if( CBattle.A == 1 ) player.SetCameraPos( LocBFCameraPositions.CamerasPos[CBattle.I], LocBFCameraPositions.CameraLookPos );
+			else if( CBattle.A == 2 ) player.SetCameraPos( LocArmyCameraPositions.CamerasPos[CBattle.I], LocArmyCameraPositions.CameraLookPos );
+			else if( CBattle.A == 3 ) player.SetCameraPos( LocDocksCameraPositions.CamerasPos[CBattle.I], LocDocksCameraPositions.CameraLookPos );
+			else if( CBattle.A == 4 ) player.SetCameraPos( LocPLCameraPositions.CamerasPos[CBattle.I], LocPLCameraPositions.CameraLookPos );
+			else if( CBattle.A == 5 ) player.SetCameraPos( LocLegendCameraPositions.CamerasPos[CBattle.I], LocLegendCameraPositions.CameraLookPos );
+		}
+	}
+	if( pCamera[ player.ID ].IsEnabled() == true )
+	{
+		switch( key )
+		{
+			case KEY_W:
+				pCamera[ player.ID ].bMovingForward = true;
+				break;
+			case KEY_A:
+				pCamera[ player.ID ].bMovingLeft = true;
+				break;
+			case KEY_S:
+				pCamera[ player.ID ].bMovingBackward = true;
+				break;
+			case KEY_D:
+				pCamera[ player.ID ].bMovingRight = true;
+				break;
+			case KEY_UP:
+				pCamera[ player.ID ].bRotatingUp = true;
+				break;
+			case KEY_LEFT:
+				pCamera[ player.ID ].bRotatingLeft = true;
+				break;
+			case KEY_DOWN:
+				pCamera[ player.ID ].bRotatingDown = true;
+				break;
+			case KEY_RIGHT:
+				pCamera[ player.ID ].bRotatingRight = true;
+				break;
+		}
+	}
+}
+
+function onKeyUp( player, key )
+{
+	if( pCamera[ player.ID ].IsEnabled() == true )
+	{
+		switch( key )
+		{
+			case KEY_W:
+				pCamera[ player.ID ].bMovingForward = false;
+				break;
+			case KEY_A:
+				pCamera[ player.ID ].bMovingLeft = false;
+				break;
+			case KEY_S:
+				pCamera[ player.ID ].bMovingBackward = false;
+				break;
+			case KEY_D:
+				pCamera[ player.ID ].bMovingRight = false;
+				break;
+			case KEY_UP:
+				pCamera[ player.ID ].bRotatingUp = false;
+				break;
+			case KEY_LEFT:
+				pCamera[ player.ID ].bRotatingLeft = false;
+				break;
+			case KEY_DOWN:
+				pCamera[ player.ID ].bRotatingDown = false;
+				break;
+			case KEY_RIGHT:
+				pCamera[ player.ID ].bRotatingRight = false;
+				break;
+		}
+	}
+}
+
+
+
+
+
+
+
+
+CBattle <- {
+	Timer1 = null,
+	Timer2 = null,
+	FC_Alive = 0, // First clan players remaining alive.
+	SC_Alive = 0, // Second clan players remaining alive.
+	Round = 1, // Above, you can compare the rounds to the required one.
+	TPlayers = [], // Total players in the clan battle.
+	ClanPlayers_One = [], // Total playeres in the first clan of the clan battle.
+	ClanTags = [], // Clans tags for usage.
+	CPOSubs = [], // First clan's substitutes during the match by their names.
+	ClanPlayers_Two = [], // Total players in the second clan on the clan battle.
+	CPTSubs = [], // Second clan's substitutes during the match by their names.
+	Staff = [], // Total players in terms of staff.
+	Spectators = [], // Random players spectating the game.
+	A = 1, // Arena ID.
+	ArenaName = [ "None", "Location BF", "Army Base", "Docks", "Parking Lot", "Building Top" ],
+	I = 0, // Integer to help loop through each scene of the arena.
+	V = 0, // The amount of votes casted by the referees.
+	CV = 0, // The amount of votes casted by players to start the battle.
+	CVD = array( GetMaxPlayers(), false ), // A  boolean to determine whether the participant voted or not.
+	FC_Score = 0, // First clan's score.
+	SC_Score = 0, // Second clan's score.
+	RAT = null, // The timer set for the referee scouting function.
+	iData = array( GetMaxPlayers(), null ),
+	State = "OFF",
+	refereeSearch = false, // Varible to determine that a referee search is in progress.
+	Referee_Process = false, // The process to determine referees are selecting an arena.
+	Sub_Process = false, // The process to determine clan leaders selecting 3 subboardinates.
+	RProcess = false, // Variable to determine players that they're ready to start the clan battle.
+	selectedReferees = array( GetMaxPlayers(), false ),
+	MatchEnded = false,
+	adminrequest = null, // The admin who requested the clan battle.
+	tempadmin = null, // In cases when the admins leaves the game and never comes back, the referee is given the admin access temporarily until the match ends.
+	function SearchRefereeOnline( player )
+	{
+		State = "ON";
+		local playerName = pcol( player.ID ) + player.Name + white, success = false;
+		MessagePlayer( "[#FFDD33]Information:[#FFFFFF] Searching for an referee online. Please wait for a few moments...", player );
+		refereeSearch = true;
+		for( local i = 0; i <= GetMaxPlayers(); i++ )
+		{
+			local plr = FindPlayer( i );
+			if( ( plr ) && ( status[ plr.ID ].Level == 4 ) )
+			{
+				MessagePlayer( "[#FFDD33]Information:[#FFFFFF] Dear referee, "+ playerName +" is requesting you to moderate the match.", plr );
+				MessagePlayer( "[#FFDD33]Information:[#FFFFFF] To accept it, press [#FFDD33]Y[#FFFFFF] to confirm it; if you're currently busy, press [#FFDD33]N[#FFFFFF] to deny it & allow another referee to do it.", plr );
+				selectedReferees[ plr.ID ] = true;
+				success = true;
+				V++;
+			}
+		}
+		if( success == false )
+		{
+			MessagePlayer( "[#FF0000]Error:[#FFFFFF] We're terribly sorry, but their is no referees/admins available in the server. Please try again later. Take care, sir/ma'm.", player );
+			refereeSearch = false;
+			State = "OFF";
+			RAT = null;
+			TPlayers.clear();
+			ClanPlayers_One.clear();
+			ClanPlayers_Two.clear();
+			ClanTags.clear();
+			Staff.clear();
+			adminrequest = null;
+		}
+	}
+	function CBRStart( stage = 1 )
+	{
+		if( stage == 1 )
+		{	
+			foreach( ID in TPlayers )
+			{
+				local plr = FindPlayer( ID );
+				if( plr )
+				{
+					if( A == 1 )
+					{
+						if( ClanPlayers_One.find( plr.ID ) != null )
+						{
+							plr.IsFrozen = true;
+							if( plr.Pos != FirstCPosLocBF[ FC_Alive ] ) plr.Pos = FirstCPosLocBF[ FC_Alive ];
+							FC_Alive++;
+							plr.Widescreen = true;
+							plr.SetCameraPos( MainCamera.CameraPos, MainCamera.CameraLookPos );
+						}
+						else if( ClanPlayers_Two.find( plr.ID ) != null )
+						{
+							plr.IsFrozen = true;
+							if( plr.Pos != SecondCPosLocBF[ SC_Alive ] ) plr.Pos = SecondCPosLocBF[ SC_Alive ];
+							SC_Alive++;
+							plr.Widescreen = true;
+							plr.SetCameraPos( MainCamera.CameraPos, MainCamera.CameraLookPos );
+						}
+						SetSpectators();
+						CBAnnounce();
+					}
+					else if( A == 2 )
+					{
+						if( ClanPlayers_One.find( plr.ID ) != null )
+						{
+							plr.IsFrozen = true;
+							if( plr.Pos != FirstCPosLocArmy[ FC_Alive ] ) plr.Pos = FirstCPosLocArmy[ FC_Alive ];
+							FC_Alive++;
+							plr.Widescreen = true;
+							plr.SetCameraPos( MainCamera.CameraPos, MainCamera.CameraLookPos );
+						}
+						else if( ClanPlayers_Two.find( plr.ID ) != null )
+						{
+							plr.IsFrozen = true;
+							if( plr.Pos != SecondCPosLocArmy[ SC_Alive ] ) plr.Pos = SecondCPosLocArmy[ SC_Alive ];
+							SC_Alive++;
+							plr.Widescreen = true;
+							plr.SetCameraPos( MainCamera.CameraPos, MainCamera.CameraLookPos );
+						}
+						CBAnnounce();
+					}
+					else if( A == 3 )
+					{
+						if( ClanPlayers_One.find( plr.ID ) != null )
+						{
+							plr.IsFrozen = true;
+							if( plr.Pos != FirstCPosLocDocks[ FC_Alive ] ) plr.Pos = FirstCPosLocDocks[ FC_Alive ];
+							FC_Alive++;
+							plr.Widescreen = true;
+							plr.SetCameraPos( MainCamera.CameraPos, MainCamera.CameraLookPos );
+						}
+						else if( ClanPlayers_Two.find( plr.ID ) != null )
+						{
+							plr.IsFrozen = true;
+							if( plr.Pos != SecondCPosLocDocks[ SC_Alive ] ) plr.Pos = SecondCPosLocDocks[ SC_Alive ];
+							SC_Alive++;
+							plr.Widescreen = true;
+							plr.SetCameraPos( MainCamera.CameraPos, MainCamera.CameraLookPos );
+						}
+						CBAnnounce();
+					}
+					else if( A == 4 )
+					{
+						if( ClanPlayers_One.find( plr.ID ) != null )
+						{
+							plr.IsFrozen = true;
+							if( plr.Pos != FirstCPosLocParkingLot[ FC_Alive ] ) plr.Pos = FirstCPosLocParkingLot[ FC_Alive ];
+							FC_Alive++;
+							plr.Widescreen = true;
+							plr.SetCameraPos( MainCamera.CameraPos, MainCamera.CameraLookPos );
+						}
+						else if( ClanPlayers_Two.find( plr.ID ) != null )
+						{
+							plr.IsFrozen = true;
+							if( plr.Pos != SecondCPosLocParkingLot[ SC_Alive ] ) plr.Pos = SecondCPosLocParkingLot[ SC_Alive ];
+							SC_Alive++;
+							plr.Widescreen = true;
+							plr.SetCameraPos( MainCamera.CameraPos, MainCamera.CameraLookPos );
+						}
+						CBAnnounce();
+					}
+					else if( A == 5 )
+					{
+						if( ClanPlayers_One.find( plr.ID ) != null )
+						{
+							plr.IsFrozen = true;
+							if( plr.Pos != FirstCPosLocLegend[ FC_Alive ] ) plr.Pos = FirstCPosLocLegend[ FC_Alive ];
+							FC_Alive++;
+							plr.Widescreen = true;
+							plr.SetCameraPos( MainCamera.CameraPos, MainCamera.CameraLookPos );
+						}
+						else if( ClanPlayers_Two.find( plr.ID ) != null )
+						{
+							plr.IsFrozen = true;
+							if( plr.Pos != SecondCPosLocLegend[ SC_Alive ] ) plr.Pos = SecondCPosLocLegend[ SC_Alive ];
+							SC_Alive++;
+							plr.Widescreen = true;
+							plr.SetCameraPos( MainCamera.CameraPos, MainCamera.CameraLookPos );
+						}
+						CBAnnounce();
+					}
+					MessagePlayer( "[#FFDD33]Information:[#FFFFFF] Clan leaders, you've access to "+bas+"/callsub"+white+" to call a substitution to occur at this screen. Note that you've 10 seconds left.", plr );
+				}
+			}
+			SetSpectators();
+		}
+		else if( stage == 2 )
+		{
+			MatchEnded = false;
+			foreach( ID in TPlayers )
+			{
+				local plr = FindPlayer( ID );
+				if( ( plr ) && ( ClanPlayers_One.find( plr.ID  ) != null || ClanPlayers_Two.find( plr.ID ) != null  ) )
+				{
+					plr.Widescreen = false;
+					plr.RestoreCamera();
+				}
+			}
+		}
+		else if( stage == 3 )
+		{
+			foreach( ID in TPlayers )
+			{
+				local plr = FindPlayer( ID );
+				if( ( plr ) && ( ClanPlayers_One.find( plr.ID  ) != null || ClanPlayers_Two.find( plr.ID ) != null  ) )
+				{
+					plr.IsFrozen = false;
+					plr.CanAttack = true;
+				}
+			}
+		}
+	}
+	function PartCB( player, eliminated = 1 )
+	{	
+		if( eliminated )
+		{
+			if( ClanPlayers_One.find( player.ID ) != null ) FC_Alive--;
+			else if( ClanPlayers_Two.find( player.ID ) != null ) SC_Alive--;
+			Message( "[#FFDD33]Information:[#FFFFFF] "+ pcol( player.ID ) + player.Name + white +" has been eliminated from the round. "+ (FC_Alive + SC_Alive) +" left in the match." );
+			CBWinner();
+		}
+		else 
+		{
+			Message( "[#FFDD33]Information:[#FFFFFF] "+ pcol( player.ID ) + player.Name + white +" has left the clan battle." );
+			if( TPlayers.find( player.ID ) != null )
+			{
+				if( ClanPlayers_One.find( player.ID ) != null )
+				{
+					ClanPlayers_One.remove( ClanPlayers_One.find( player.ID ) );
+					if( CBattle.State == "STARTED" ) FC_Alive--;
+				}
+				else if( ClanPlayers_Two.find( player.ID ) != null )
+				{
+					ClanPlayers_Two.remove( ClanPlayers_Two.find( player.ID ) );
+					if( CBattle.State == "STARTED" ) SC_Alive--;
+				}
+				TPlayers.remove( TPlayers.find( player.ID ) );
+			}
+			else if( Staff.find( player.ID ) != null )
+			{
+				Staff.remove( Staff.find( player.ID ) );
+				
+				local r = 0, a = 0;
+				foreach( ID in Staff )
+				{
+					local staffplr = FindPlayer( ID );
+					if( ( staffplr ) && ( status[ staffplr.ID ].Level < 5 ) ) r++;
+					else a++;
+				}
+				if( ( r == 0 || a == 0 ) && State == "STARTED" && ( !Timer1 || !Timer2 ) ) CBPause( 0 );
+			}
+			else if( Spectators.find( player.ID ) != null ) Spectators.remove( Spectators.find( player.ID ) );
+			else if( CPOSubs.find( player.ID ) != null ) CPOSubs.remove( CPOSubs.find( player.ID ) );
+			else if( CPTSubs.find( player.ID ) != null ) CPTSubs.remove( CPTSubs.find( player.ID ) );
+			player.RestoreCamera();
+			player.Widescreen = false;
+			player.IsOnRadar = true;
+			player.IsFrozen = false;
+			player.World = 1;
+			player.Pos = iData[ player.ID ];
+		}
+	} 
+	function CBWinner()
+	{
+		if( FC_Alive == 0 )
+		{
+			if( Round != RequiredRounds )
+			{
+				Message( "[#FFDD33]Information:[#FFFFFF] "+ ClanTags[1] +" clan has won round "+ Round +"!" );
+				SC_Score++;
+				Round++;
+				FC_Alive = 0;
+				SC_Alive = 0;
+				MatchEnded = true;
+				CBRStartCallTimer();
+			}
+			else
+			{
+				Message( "[#FFDD33]Information:[#FFFFFF] "+ ClanTags[1] +" clan has officially won the clan battle!" );
+				for( local i = 0; i <= GetMaxPlayers(); i++ )
+				{
+					local plr = FindPlayer( i );
+					if( plr )
+					{
+						plr.RestoreCamera();
+						plr.Widescreen = false;
+						plr.IsOnRadar = true;
+						plr.IsFrozen = false;
+						plr.World = 1;
+						plr.Pos = iData[ plr.ID ]; 
+					}
+				}
+				State = "OFF";
+				ClanPlayers_One.clear();
+				ClanPlayers_Two.clear();
+				CPOSubs.clear();
+				CPTSubs.clear();
+				Staff.clear();
+				Spectators.clear();
+				TPlayers.clear();
+				adminrequest = null;
+				A = 1;
+				I = 0;
+				if( CBattle.tempadmin )
+				{
+					local ref = FindPlayer( CBattle.tempadmin );
+					status[ ref.ID ].Level = 4; 
+				}
+				SC_Alive = 0;
+				SC_Score = 0;
+				FC_Score = 0;
+				Round = 1;
+			}
+		}
+		else if( SC_Alive == 0 )
+		{
+			if( Round != RequiredRounds )
+			{
+				Message( "[#FFDD33]Information:[#FFFFFF] "+ ClanTags[0] +" clan has won round "+ Round +"!" );
+				FC_Score++;
+				Round++;
+				FC_Alive = 0;
+				SC_Alive = 0;
+				MatchEnded = true;
+				CBRStartCallTimer();
+			}
+			else
+			{
+				Message( "[#FFDD33]Information:[#FFFFFF] "+ ClanTags[0] +" clan has officially won the clan battle!" );
+				for( local i = 0; i <= GetMaxPlayers(); i++ )
+				{
+					local plr = FindPlayer( i );
+					if( plr )
+					{
+						plr.RestoreCamera();
+						plr.Widescreen = false;
+						plr.IsFrozen = false;
+						plr.IsOnRadar = true;
+						plr.World = 1;
+						plr.Pos = iData[ plr.ID ]; 
+					}
+				}
+				State = "OFF";
+				ClanPlayers_One.clear();
+				ClanPlayers_Two.clear();
+				CPOSubs.clear();
+				CPTSubs.clear();
+				Staff.clear();
+				Spectators.clear();
+				TPlayers.clear();
+				adminrequest = null;
+				A = 1;
+				I = 0;
+				if( CBattle.tempadmin )
+				{
+					local ref = FindPlayer( CBattle.tempadmin );
+					status[ ref.ID ].Level = 4; 
+				}
+				FC_Alive = 0;
+				SC_Score = 0;
+				FC_Score = 0;
+				Round = 1;
+			}
+		}
+		else return 0;
+	}
+}
+
+function CBAnnounce()
+{
+	foreach( ID in CBattle.TPlayers )
+	{
+		local cplr = FindPlayer( ID );
+		if( cplr )
+		{
+			::Announce( ""+ CBattle.ClanTags[0] +" vs. "+ CBattle.ClanTags[1] +"", cplr, 7 );
+			::Announce( "Round "+ CBattle.Round +" \x10Score: "+ CBattle.FC_Score +" : "+ CBattle.SC_Score +"", cplr, 8 );
+		}
+	}
+	foreach( ID in CBattle.Staff )
+	{
+		local staffplr = FindPlayer( ID );
+		if( staffplr )
+		{
+			::Announce( ""+ CBattle.ClanTags[0] +" vs. "+ CBattle.ClanTags[1] +"", staffplr, 7 );
+			::Announce( "Round "+ CBattle.Round +" \x10Score: "+ CBattle.FC_Score +" : "+ CBattle.SC_Score +"", staffplr, 8 );
+		}
+	}
+}
+
+function SetSpectators()
+{
+	for( local i = 0; i <= GetMaxPlayers(); i++ )
+	{
+		local plr = FindPlayer( i );
+		if( ( plr ) && ( CBattle.Staff.find( plr.ID ) != null || CBattle.CPOSubs.find( plr.ID ) != null || CBattle.CPTSubs.find( plr.ID ) != null || CBattle.Spectators.find( plr.ID ) != null ) )
+		{
+			plr.IsOnRadar = false;
+			plr.Widescreen = true;
+			if( CBattle.A == 1 )
+			{
+				plr.Pos = LocBFCameraPositions.RenderLoc;
+				plr.SetCameraPos( LocBFCameraPositions.CamerasPos[0], LocBFCameraPositions.CameraLookPos );
+			}
+			else if( CBattle.A == 2 )
+			{
+				plr.Pos = LocArmyCameraPositions.RenderLoc;
+				plr.SetCameraPos( LocArmyCameraPositions.CamerasPos[0], LocArmyCameraPositions.CameraLookPos );
+			}
+			else if( CBattle.A == 3 )
+			{
+				plr.Pos = LocDocksCameraPositions.RenderLoc;
+				plr.SetCameraPos( LocDocksCameraPositions.CamerasPos[0], LocDocksCameraPositions.CameraLookPos );
+			}
+			else if( CBattle.A == 4 )
+			{
+				plr.Pos = LocPLCameraPositions.RenderLoc;
+				plr.SetCameraPos( LocPLCameraPositions.CamerasPos[0], LocPLCameraPositions.CameraLookPos );
+			}
+			else if( CBattle.A == 5 )
+			{
+				plr.Pos = LocLegendCameraPositions.RenderLoc;
+				plr.SetCameraPos( LocLegendCameraPositions.CamerasPos[0], LocLegendCameraPositions.CameraLookPos );
+			}
+		}
+	}
+}
+
+function RefereeActivity( playerID )
+{
+	local player = FindPlayer( playerID ), success = false, plr;
+	if( player )
+	{
+		for( local i = 0; i <= GetMaxPlayers(); i++ )
+		{
+		    local ref = FindPlayer( i );
+			if( ( ref ) && ( status[ ref.ID ].Level == 4 ) )
+			{
+				if( CBattle.State == "ON" && CBattle.refereeSearch == true && CBattle.selectedReferees[ ref.ID ] == true || CBattle.State == "ON" && CBattle.refereeSearch == true && CBattle.V == 0 )
+				{	
+					plr = ref;
+					if( CBattle.refereeSearch == true ) CBattle.refereeSearch = false;
+					if( CBattle.State == "ON" ) CBattle.State = "OFF";
+					CBattle.selectedReferees[ ref.ID ] = false;
+					CBattle.TPlayers.clear();
+					CBattle.Staff.clear();
+					CBattle.ClanPlayers_One.clear();
+					CBattle.ClanPlayers_Two.clear();
+					CBattle.ClanTags.clear();
+					CBattle.adminrequest = null;
+					success = true;
+				}
+			}
+		}
+		if( success == true )
+		{
+			MessagePlayer( "[#FF0000]Error:[#FFFFFF] We're terribly sorry, but their is no referees/admins who'd like to deal with the match. Please try again later. Take care, sir/ma'm.", player );
+			MessagePlayer( "[#FFDD33]Information:[#FFFFFF] The match invitation has expired.", plr );
+	    }
+	}
+}
+
+function ClanBattleSetup( r )
+{
+	local referee = FindPlayer( r );
+	if( referee )
+	{
+		foreach( ID in CBattle.Staff )
+		{
+			local staffplr = FindPlayer( ID );
+			if( staffplr )
+			{
+				staffplr.World = 2;
+				staffplr.IsOnRadar = false;
+				staffplr.Pos = staffloc;
+			}
+		}
+		Message( "[#FFDD33]Information:[#FFFFFF] Dear staff team, a clan battle is currently active. If you'd like to assist the staff, use "+bas+"/joincb"+white+"." );
+		CBattle.Referee_Process = true;
+		CBArenaTimer <- NewTimer( "CBArenaProcess", 2000, 0, referee.ID );
+	}
+} 
+	
+function CBArenaProcess( r )
+{
+	local referee = FindPlayer( r );
+	if( referee )
+	{
+		Announce( "Use the left and right arrow keys to switch to the next/previous arena, and the SPACEBAR to confirm the selection.", referee, 1 );
+		referee.Widescreen = true;
+		if( CBattle.A == 1 )
+		{	
+			referee.SetCameraPos( LocBFCameraPositions.CamerasPos[CBattle.I], LocBFCameraPositions.CameraLookPos );
+			if( CBattle.I == 2 ) CBattle.I = 0;
+			else CBattle.I++;
+		}
+		else if( CBattle.A == 2 )
+		{
+			referee.SetCameraPos( LocArmyCameraPositions.CamerasPos[CBattle.I], LocArmyCameraPositions.CameraLookPos );
+			if( CBattle.I == 2 ) CBattle.I = 0;
+			else CBattle.I++;
+		}
+		else if( CBattle.A == 3 )
+		{
+			referee.SetCameraPos( LocDocksCameraPositions.CamerasPos[CBattle.I], LocDocksCameraPositions.CameraLookPos );
+			if( CBattle.I == 2 ) CBattle.I = 0;
+			else CBattle.I++;
+		}
+		else if( CBattle.A == 4 )
+		{
+			referee.SetCameraPos( LocPLCameraPositions.CamerasPos[CBattle.I], LocPLCameraPositions.CameraLookPos );
+			if( CBattle.I == 2 ) CBattle.I = 0;
+			else CBattle.I++;
+		}
+		else if( CBattle.A == 5 )
+		{
+			referee.SetCameraPos( LocLegendCameraPositions.CamerasPos[CBattle.I], LocLegendCameraPositions.CameraLookPos );
+			if( CBattle.I == 2 ) CBattle.I = 0;
+			else CBattle.I++;
+		}
+	}
+}
+
+function CBRStartCall( stage ) { CBattle.CBRStart( stage ); }
+
+function CBRStartCallTimer()
+{
+	if( CBattle.Round > 1 )
+	{
+		NewTimer( "CBRStartCall", 6000, 1, 1 );
+		NewTimer( "CBRStartCall", 16000, 1, 2 );
+		NewTimer( "Ann", 17000, 1, "10" );
+		NewTimer( "Ann", 18000, 1, "9" );
+		NewTimer( "Ann", 19000, 1, "8" );
+		NewTimer( "Ann", 20000, 1, "7" );
+		NewTimer( "Ann", 21000, 1, "6" );
+		NewTimer( "Ann", 22000, 1, "5" );
+		NewTimer( "Ann", 23000, 1, "4" );
+		NewTimer( "Ann", 24000, 1, "3" );
+		NewTimer( "Ann", 25000, 1, "2" );
+		NewTimer( "Ann", 26000, 1, "1" );
+		NewTimer( "Ann", 27000, 1, "11" );
+		NewTimer( "CBRStartCall", 27000, 1, 3 );
+	}
+	else
+	{
+		CBRStartCall( 1 );
+		NewTimer( "CBRStartCall", 10000, 1, 2 );
+		NewTimer( "Ann", 11000, 1, "10" );
+		NewTimer( "Ann", 12000, 1, "9" );
+		NewTimer( "Ann", 13000, 1, "8" );
+		NewTimer( "Ann", 14000, 1, "7" );
+		NewTimer( "Ann", 15000, 1, "6" );
+		NewTimer( "Ann", 16000, 1, "5" );
+		NewTimer( "Ann", 17000, 1, "4" );
+		NewTimer( "Ann", 18000, 1, "3" );
+		NewTimer( "Ann", 19000, 1, "2" );
+		NewTimer( "Ann", 20000, 1, "1" );
+		NewTimer( "Ann", 21000, 1, "11" );
+		NewTimer( "CBRStartCall", 21000, 1, 3 );
+	}
+}
+
+function CBPause( active, timesup = 0 )
+{
+	if( !active )
+	{
+		if( timesup == 1 )
+		{
+			local found = false;
+			if( CBattle.Staff.len() == 0 ) CBattle.Timer2 = NewTimer( "CBPause", 120000, 1, 0, 2 );
+			else
+			{
+				for( local i = 0; i <= GetMaxPlayers(); i++ )
+				{
+					local plr = FindPlayer( i );
+					if( plr )
+					{	
+						MessagePlayer( "[#FFDD33]Information:[#FFFFFF] Time's up! Unfortunately, hence the admin is inactive, a referee will be given temporary admin access to resume the match.", plr );
+						if( CBattle.Staff.find( plr.ID ) != null && status[ plr.ID ].Level == 4 && !found )
+						{
+							status[ plr.ID ].Level = 5;
+							CBattle.tempadmin = plr.Name;
+							found = true;
+						}
+					}
+				}
+				foreach( ID in CBattle.TPlayers )
+				{
+					local plr = FindPlayer( ID );
+					if( plr )
+					{
+						if( CBattle.ClanPlayers_One.find( plr.ID ) != null ) plr.Pos = FirstCPosLocBF[ CBattle.FC_Alive ];
+						else if( CBattle.ClanPlayers_Two.find( plr.ID ) != null ) plr.Pos = SecondCPosLocBF[ CBattle.SC_Alive ];
+					}
+				}
+				SetSpectators();
+				CBattle.State = "STARTED";
+				CBattle.CBRStart( 3 );
+			}	
+		}
+		else if( timesup == 2 )
+		{
+			for( local i = 0; i <= GetMaxPlayers(); i++ )
+			{
+				local plr = FindPlayer( i );
+				if( ( plr ) && ( plr.World == 2 ) )
+				{
+					MessagePlayer( "[#FFDD33]Information:[#FFFFFF] We're terribly sorry for the incovinience but since there's no staff members in the clan battle, our options is to declare a resignation of the clan battle.", plr );
+					plr.IsFrozen = false;
+					plr.World = 1;
+					plr.Pos = CBattle.iData[ plr.ID ];	
+				}
+			}
+			CBattle.State = "OFF";
+			CBattle.ClanPlayers_One.clear();
+			CBattle.ClanPlayers_Two.clear();
+			CBattle.CPOSubs.clear();
+			CBattle.CPTSubs.clear();
+			CBattle.Staff.clear();
+			CBattle.Spectators.clear();
+			CBattle.TPlayers.clear();
+			CBattle.adminrequest = null;
+			CBattle.A = 1;
+			CBattle.I = 0;
+			CBattle.FC_Alive = 0;
+			CBattle.SC_Alive = 0;
+			CBattle.SC_Score = 0;
+			CBattle.FC_Score = 0;
+			CBattle.Round = 1;
+			Message( "[#FFDD33]Information:[#FFFFFF] The clan battle between "+ CBattle.ClanTags[0] +" & "+ CBattle.ClanTags[1] +" has been officially canceled due to lack of staff members." );
+			CBattle.ClanTags.clear();
+		}
+		else
+		{
+			CBattle.State = "PENDING";
+			foreach( ID in CBattle.TPlayers )
+			{
+				local plr = FindPlayer( ID );
+				if( plr )
+				{
+					plr.IsFrozen = true;
+					plr.Pos = clansloc;
+					plr.CanAttack = false;
+					if( CBattle.ClanPlayers_One.find( plr.ID ) == null || CBattle.ClanPlayers_Two.find( plr.ID ) == null ) plr.RestoreCamera();
+				}
+			}
+			Message( "[#FFDD33]Information:[#FFFFFF] The clan battle has been paused due to an inactive staff member(s) to continue the match. If the staff member fails to return by 3 minutes, any referee online in the match will be given the admin level temporarily." );
+			CBattle.Timer1 = NewTimer( "CBPause", 180000, 1, 0, 1 );
+		}
+	}
+	else
+	{
+		if( CBattle.Timer1 ) CBattle.Timer1 = null;
+		if( CBattle.Timer2 ) CBattle.Timer2 = null;
+		Message( "[#FFDD33]Information:[#FFFFFF] The clan battle has been resumed as the administrator(s) have returned in-game." );
+		foreach( ID in CBattle.TPlayers )
+		{
+			local plr = FindPlayer( ID );
+			if( plr )
+			{
+				if( CBattle.ClanPlayers_One.find( plr.ID ) != null ) plr.Pos = FirstCPosLocBF[ CBattle.FC_Alive ];
+				else if( CBattle.ClanPlayers_Two.find( plr.ID ) != null ) plr.Pos = SecondCPosLocBF[ CBattle.SC_Alive ];
+			}
+		}
+		SetSpectators();
+		CBattle.State = "STARTED";
+		CBattle.CBRStart( 3 );
+	}
+}
+
+function Ann ( number )
+{
+  for( local i=0; i <= GetMaxPlayers(); i++ )
+  {
+    local plr = FindPlayer( i );
+    if( ( plr ) && ( CBattle.TPlayers.find( plr.ID ) != null ) )
+    {
+        switch( number.tointeger() )
+        {
+          case 1:
+            Announce( "1", plr, 6 );
+            break;
+          case 2:
+            Announce( "2", plr, 6 );
+            break;
+          case 3:
+            Announce( "3", plr, 6 );
+            break;
+          case 4:
+            Announce( "4", plr, 6 );
+            break;
+          case 5:
+            Announce( "5", plr, 6 );
+            break;
+          case 6:
+            Announce( "6", plr, 6 );
+            break;
+          case 7:
+            Announce( "7", plr, 6 );
+            break;
+          case 8:
+            Announce( "8", plr, 6 );
+            break;
+          case 9:
+            Announce( "9", plr, 6 );
+            break;
+          case 10:
+            Announce( "10", plr, 6 );
+            break;
+		  case 11:
+			Announce( "GO!", plr, 6 );
+			break;
+        }
+    }
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1563,6 +2793,298 @@ function onPlayerEnterVehicle( player, veh, isPassenger )
 
 
 
+function onWorld2Command( player, command, arguments )
+{
+	local cmd, text;
+	cmd = command.tolower();
+	text = arguments;
+	local params, playerName = pcol( player.ID ) + player.Name + white; 
+		if( cmd == "selectsub" )
+		{
+			if( !arguments ) MessagePlayer( "[#FF0000]Error:[#FFFFFF] Use /"+ bas + cmd +" <player>", player );
+			else if( CBattle.State == "OFF" || CBattle.State == "STARTED"  || CBattle.State == "PENDING" || CBattle.Sub_Process == false ) MessagePlayer( "[#FF0000]Error:[#FFFFFF] This command is no longer used in this current state.", player );
+			else if( !status[ player.ID ].clan ) MessagePlayer( "[#FF0000]Error:[#FFFFFF] You're not in a clan.", player );
+			else if( status[ player.ID ].crank < 3 ) MessagePlayer( "[#FF0000]Error:[#FFFFFF] The leader has authorized permission to select your subboardinates.", player );
+			else if( CBattle.TPlayers.find( player.ID ) == null ) MessagePlayer( "[#FF0000]Error:[#FFFFFF] You're not a clan battle participant.", player );
+			else
+			{
+				local cplr =  FindPlayer( arguments );
+				if( !cplr || CBattle.TPlayers.find( cplr.ID ) == null ) MessagePlayer( "[#FF0000]Error:[#FFFFFF] This player is not present in the clan battle.", player );
+				else if( status[ cplr.ID ].clan != status[ player.ID ].clan ) MessagePlayer( "[#FF0000]Error:[#FFFFFF] "+ pcol( cplr.ID ) + cplr.Name + white +" is not in your clan.", player );
+				else if( CBattle.ClanPlayers_One.find( player.ID ) != null && CBattle.CPOSubs.find( cplr.ID ) != null || CBattle.ClanPlayers_Two.find( player.ID ) != null && CBattle.CPTSubs.find( cplr.ID ) != null ) MessagePlayer( "[#FF0000]Error:[#FFFFFF] "+ pcol( cplr.ID ) + cplr.Name + white +" is already a subboardinate.", player );
+				else if( CBattle.ClanPlayers_One.find( player.ID ) != null && CBattle.CPOSubs.len() == 3 || CBattle.ClanPlayers_Two.find( player.ID ) != null && CBattle.CPTSubs.len() == 3 ) MessagePlayer( "[#FF0000]Error:[#FFFFFF] You've already have 3 subboardinates in your clan.", player );
+				else
+				{
+					if( CBattle.ClanPlayers_One.find( cplr.ID ) != null )
+					{
+						CBattle.ClanPlayers_One.remove( CBattle.ClanPlayers_One.find( cplr.ID ) );
+						CBattle.CPOSubs.push( cplr.ID );
+					}
+					else if( CBattle.ClanPlayers_Two.find( cplr.ID ) != null )
+					{
+						CBattle.ClanPlayers_Two.remove( CBattle.ClanPlayers_Two.find( cplr.ID ) );
+						CBattle.CPTSubs.push( cplr.ID );
+					}
+					for( local i = 0; i <= GetMaxPlayers(); i++ )
+					{
+						local plr = FindPlayer( i );
+						if( ( plr ) && ( plr.World == 2 ) )
+						{
+							MessagePlayer( "[#FFDD33]Information:[#FFFFFF] Clan Leader "+ playerName +" has chosen "+ pcol( cplr.ID ) + cplr.Name + white +" as a subboardinate.", plr );
+							if( CBattle.CPOSubs.len() == 3 && CBattle.CPTSubs.len() == 3 )
+							{
+								MessagePlayer( "[#FFDD33]Information:[#FFFFFF] All subboardinates have been chosen; if you're ready to commence, use "+ bas + "/ready" + white +".", plr );
+								CBattle.RProcess = true;
+								CBattle.Sub_Process = false;
+								continue;
+							}
+						}
+					}		
+				}
+			}
+		}
+		else if( cmd == "ready" )
+		{
+			if( CBattle.State == "OFF" || CBattle.State == "STARTED" || CBattle.State == "PENDING" || CBattle.RProcess == false ) MessagePlayer( "[#FF0000]Error:[#FFFFFF] This command is no longer used in this current state.", player );
+			else if( !status[ player.ID ].clan ) MessagePlayer( "[#FF0000]Error:[#FFFFFF] You're not in a clan.", player );
+			else if( CBattle.TPlayers.find( player.ID ) == null ) MessagePlayer( "[#FF0000]Error:[#FFFFFF] You're not a clan battle participant.", player );
+			else if( CBattle.CVD[ player.ID ] == true ) MessagePlayer( "[#FF0000]Error:[#FFFFFF] You're already ready for combat.", player );
+			else
+			{
+				CBattle.CV++;
+				CBattle.CVD[ player.ID ] = true;
+				for( local i = 0; i <= GetMaxPlayers(); i++ )
+				{
+					local plr = FindPlayer( i );
+					if( ( plr ) && ( plr.World == 2 ) )
+					{
+						MessagePlayer( "[#FFDD33]Information:[#FFFFFF] "+ playerName +" is ready to commence in battle. ("+bas + CBattle.CV+"/16"+ white+")", plr );
+						if( CBattle.CV == 16 ) MessagePlayer( "[#FFDD33]Information:[#FFFFFF] All votes has been casted. When the staff is ready, they'll use "+ bas + "/start" + white +" to begin the clan battle.", plr );
+					}
+				}
+			}
+		}
+		else if( cmd == "start" )
+		{
+			if( CBattle.State == "OFF" || CBattle.State == "STARTED" || CBattle.RProcess == false || CBattle.CV < 16 ) MessagePlayer( "[#FF0000]Error:[#FFFFFF] This command is no longer used in this current state.", player );
+			else if( status[ player.ID ].Level < 4 ) MessagePlayer( "[#FF0000]Error:[#FFFFFF] Unauthorized access.", player );
+			else if( CBattle.Staff.find( player.ID ) == null ) MessagePlayer( "[#FF0000]Error:[#FFFFFF] You're not in the clan battle.", player );
+			else
+			{
+				for( local i = 0; i <= GetMaxPlayers(); i++ )
+				{
+					local plr = FindPlayer( i );
+					if( ( plr ) && ( plr.World == 2 ) )
+					{
+						MessagePlayer( "[#FFDD33]Information:[#FFFFFF] "+ playerName +" has started the clan battle.", plr );
+						plr.IsFrozen = true;
+						CBattle.RProcess = false;
+						CBattle.V = 0;
+						CBattle.CV = 0;
+						CBattle.CVD[ plr.ID ] = false;
+					}
+				}
+				Message( "[#FFDD33]Information:[#FFFFFF] Dear audience, you can spectate the match using "+bas+"/joincb"+white+"!" );
+				CBRStartCallTimer();
+				CBattle.State = "STARTED";
+			}
+		}
+		else if( cmd == "wep" || cmd == "we" )
+		{
+			if( !text ) return MessagePlayer( "[#FF0000]Error:[#FFFFFF] /"+cmd+" <wep 1> <wep 2> <...>", player );
+			else
+			{
+				local params = split( text, " " ); 
+				player.SetWeapon(0,0);
+				local weapons; // Create a new null variable which will be holding the list of weapons player took.
+				local b;
+				b = 0;
+				for( local i = 0; i <= params.len() - 1; i++ ) // since the 'len' returns value from 1 and array's starting value point is 0, we will use len() - 1 otherwise we'll receive an error.
+				{
+					if( !IsNum( params[i] ) && GetWeaponID( params[i]) && GetWeaponID( params[i]) > 0 && GetWeaponID( params[i]) <= 32 ) // if Name was specified. 
+					{
+						player.SetWeapon( GetWeaponID( params[i] ), 99999 ); // Get the weapon ID from its Name
+						if( b == 0)
+						{
+							weapons = GetWeaponName( GetWeaponID( params[i]) ); // Add the weapon name to given weapon list
+							b = b + 1;
+						}
+						else weapons = weapons + ", " + GetWeaponName( GetWeaponID( params[i] ) );
+					}
+					else if( IsNum( params[i] ) && params[i].tointeger() < 33 && params[i].tointeger() > 0  ) // if ID was specified
+					{
+						player.SetWeapon( params[i].tointeger(), 99999 ); // Then just give player that weapon
+						weapons = GetWeaponName( params[i].tointeger() ); // Get the weapon name from the ID and add it.
+						if( b == 0)
+						{
+							weapons = GetWeaponName( params[i].tointeger() ); // Add the weapon name to given weapon list
+							b = b + 1;
+						}
+						else weapons = weapons + ", " + GetWeaponName( params[i].tointeger() );
+						//MessagePlayer( "[#FFDD33]Information:[#FFFFFF] You received the following weapon: "+weapons+".", player );
+						//status[player.ID].wepcmd = true;
+						//NewTimer( "wepcmdf", 1000, 1, player.ID );
+					}
+					else MessagePlayer( "[#FFDD33]Information:[#FFFFFF] Invalid Weapon Name/ID", player ); // if the invalid ID/Name was given
+				}
+				if( weapons != null ) MessagePlayer("[#FFDD33]Information:[#FFFFFF] You received the following weps : "+weapons+".", player );
+			}
+		}	
+		else if( cmd == "spawnwep")
+		{
+			if( !arguments ) MessagePlayer( "[#FF0000]Error:[#FFFFFF] Use /"+cmd+" [wep1] [wep2] [wep3] ...", player );
+			else
+			{
+				for ( local i = 0 ; i <200 ; i++)
+				{
+					player.RemoveWeapon( i );
+				}
+				status[player.ID].spawnwep = arguments;
+				local params = split( text, " " ); 
+				player.SetWeapon(0,0);
+				local weapons; // Create a new null variable which will be holding the list of weapons player took.
+				local b;
+				b = 0;
+				for( local i = 0; i <= params.len() - 1; i++ ) // since the 'len' returns value from 1 and array's starting value point is 0, we will use len() - 1 otherwise we'll receive an error.
+				{
+					if( !IsNum( params[i] ) && GetWeaponID( params[i]) && GetWeaponID( params[i]) > 0 && GetWeaponID( params[i]) <= 32 ) // if Name was specified. 
+					{
+						player.SetWeapon( GetWeaponID( params[i] ), 99999 ); // Get the weapon ID from its Name
+						if( b == 0)
+						{
+							weapons = GetWeaponName( GetWeaponID( params[i]) ); // Add the weapon name to given weapon list
+							b = b + 1;
+						}
+						else weapons = weapons + ", " + GetWeaponName( GetWeaponID(params[i]) );
+					}
+					else if( IsNum( params[i] ) && params[i].tointeger() < 33 && params[i].tointeger() > 0  ) // if ID was specified
+					{
+						player.SetWeapon( params[i].tointeger(), 99999 ); // Then just give player that weapon
+						weapons = GetWeaponName( params[i].tointeger() ); // Get the weapon name from the ID and add it.
+						if( b == 0)
+						{
+							weapons = GetWeaponName( params[i].tointeger() ); // Add the weapon name to given weapon list
+							b = b + 1;
+						}
+						else weapons = weapons + ", " + GetWeaponName( params[i].tointeger() );				
+						//MessagePlayer( "[#FFDD33]Information:[#FFFFFF] You received the following weapon: "+weapons+".", player );
+						//status[player.ID].wepcmd = true;
+						//NewTimer( "wepcmdf", 1000, 1, player.ID);
+
+					}
+					else MessagePlayer( "[#FFDD33]Information:[#FFFFFF] Invalid Weapon Name/ID", player ); // if the invalid ID/Name was given
+				}
+				if( weapons != null) MessagePlayer( "[#FFDD33]Information:[#FFFFFF] You received the following weps : "+weapons+".", player );
+			}
+		}
+		else if( cmd == "leavecb" )
+		{
+			if( status[ player.ID ].Level < 4 ) MessagePlayer( "[#FF0000]Error:[#FFFFFF] Unauthorized access.", player );
+			else if( player.World != 2 ) MessagePlayer( "[#FF0000]Error:[#FFFFFF] You're not in the clan battle.", player );
+			else CBattle.PartCB( player, 0 );
+		}
+		else if( cmd == "cancelclanbattle" || cmd == "cancelcb" )
+		{
+			if( CBattle.State == "OFF" ) MessagePlayer( "[#FF0000]Error:[#FFFFFF] This command is no longer used in this current state.", player );
+			else if( status[ player.ID ].Level < 4 ) MessagePlayer( "[#FF0000]Error:[#FFFFFF] Unauthorized access.", player );
+			else if( CBattle.Staff.find( player.ID ) == null ) MessagePlayer( "[#FF0000]Error:[#FFFFFF] You're not in the clan battle.", player );
+			else
+			{
+				for( local i = 0; i <= GetMaxPlayers(); i++ )
+				{
+					local plr = FindPlayer( i );
+					if( ( plr ) && ( plr.World == 2 ) )
+					{
+						plr.IsFrozen = false;
+						plr.IsOnRadar = true;
+						plr.World = 1;
+						plr.Pos = CBattle.iData[ plr.ID ];	
+					}
+				}
+				CBattle.State = "OFF";
+				CBattle.ClanPlayers_One.clear();
+				CBattle.ClanPlayers_Two.clear();
+				if( CBattle.CPOSubs.len() > 0 ) CBattle.CPOSubs.clear();
+				if( CBattle.CPTSubs.len() > 0 ) CBattle.CPTSubs.clear();
+				CBattle.TPlayers.clear();
+				CBattle.Staff.clear();
+				if( CBattle.Spectators.len() > 0 ) CBattle.Spectators.clear();
+				CBattle.adminrequest = null;
+				CBattle.A = 1;
+				CBattle.I = 0;
+				CBattle.FC_Alive = 0;
+				CBattle.SC_Alive = 0;
+				CBattle.SC_Score = 0;
+				CBattle.FC_Score = 0;
+				CBattle.Round = 1;
+				Message( "[#FFDD33]Information:[#FFFFFF] The clan battle between "+ CBattle.ClanTags[0] +" & "+ CBattle.ClanTags[1] +" has been officially canceled by "+ playerName +"." );
+				CBattle.ClanTags.clear();
+			}
+		}
+		else if( cmd == "callsub" )
+		{
+			if( !arguments || NumTok( arguments, " " ) < 2 ) MessagePlayer( "[#FF0000]Error:[#FFFFFF] Use /"+ bas + cmd +" <subboardinate> <clan member (in combat)>", player );
+			else if( CBattle.State == "ON" || CBattle.State == "PENDING" || CBattle.MatchEnded == false ) MessagePlayer( "[#FF0000]Error:[#FFFFFF] This command is no longer used in this current state.", player );
+			else if( !status[ player.ID ].clan ) MessagePlayer( "[#FF0000]Error:[#FFFFFF] You're not in a clan.", player );
+			else if( status[ player.ID ].crank < 3 ) MessagePlayer( "[#FF0000]Error:[#FFFFFF] The leader has authorized permission to select your subboardinates.", player );
+			else if( CBattle.TPlayers.find( player.ID ) == null ) MessagePlayer( "[#FF0000]Error:[#FFFFFF] You're not a clan battle participant.", player );
+			else
+			{
+					local sub = FindPlayer( GetTok( arguments, " ", 1 ) ), plr = FindPlayer( GetTok( arguments, " ", 2 ) );
+					if( !sub || !plr || CBattle.TPlayers.find( sub.ID ) == null || CBattle.TPlayers.find( plr.ID ) == null ) MessagePlayer( "[#FF0000]Error:[#FFFFFF] This player is not present in the clan battle.", player );
+					else if( sub == plr ) MessagePlayer( "[#FF0000]Error:[#FFFFFF] These players have to be different.", player );
+					else if( CBattle.ClanPlayers_One.find( player.ID ) != null && CBattle.CPOSubs.find( sub.ID ) == null || CBattle.ClanPlayers_Two.find( player.ID ) && CBattle.CPTSubs.find( sub.ID ) == null ) MessagePlayer( "[#FF0000]Error:[#FFFFFF] "+ pcol( sub.ID ) + sub.Name + white +" isn't a subboardinate in your clan.", player );
+					else if( CBattle.ClanPlayers_One.find( player.ID ) != null && CBattle.ClanPlayers_One.find( plr.ID ) == null || CBattle.ClanPlayers_Two.find( player.ID ) != null && CBattle.ClanPlayers_Two.find( plr.ID ) == null ) MessagePlayer( "[#FF0000]Error:[#FFFFFF] "+ pcol( plr.ID ) + plr.Name + white +" is not in your clan, in combat.", player );
+					else if( CBattle.ClanPlayers_One.find( player.ID ) != null && CBattle.CPOSubs.find( plr.ID ) != null || CBattle.ClanPlayers_Two.find( player.ID ) && CBattle.CPTSubs.find( plr.ID ) != null ) MessagePlayer( "[#FF0000]Error:[#FFFFFF] "+ pcol( plr.ID ) + plr.Name + white +" is already a subboardinate in your clan.", player );
+					else
+					{
+						if( CBattle.ClanPlayers_One.find( player.ID ) != null )
+						{
+							CBattle.CPOSubs.remove( CBattle.CPOSubs.find( sub.ID ) );
+							CBattle.ClanPlayers_One.remove( CBattle.ClanPlayers_One.find( plr.ID ) );
+							CBattle.CPOSubs.push( plr.ID );
+							CBattle.ClanPlayers_One.push( sub.ID );
+						}
+						else if( CBattle.ClanPlayers_Two.find( player.ID ) != null )
+						{
+							CBattle.CPTSubs.remove( CBattle.CPTSubs.find( sub.ID ) );
+							CBattle.ClanPlayers_Two.remove( CBattle.ClanPlayers_Two.find( plr.ID ) );
+							CBattle.CPTSubs.push( plr.ID );
+							CBattle.ClanPlayers_Two.push( sub.ID );
+						}
+						sub.Pos = plr.Pos;
+						sub.Widescreen = true;
+						sub.SetCameraPos( MainCamera.CameraPos, MainCamera.CameraLookPos );
+						SetSpectators();
+						for( local i = 0; i <= GetMaxPlayers(); i++ )
+						{
+							local plrs = FindPlayer( i );
+							if( ( plrs ) && ( plrs.World == 2 ) ) MessagePlayer( "[#FFDD33]Information:[#FFFFFF] Clan Leader "+ playerName +" has substituted clan member "+ pcol( plr.ID ) + plr.Name + white +" with clan subboardinate "+ pcol( sub.ID ) + sub.Name + white +", ready for combat.", plrs );
+						}
+					}
+			}
+		}
+		else if( cmd == "clanbattlekick" || cmd == "cbkick" )
+		{
+			if( !arguments ) MessagePlayer( "[#FF0000]Error:[#FFFFFF] Use /"+bas+cmd+white+" <player>", player );
+			else if( CBattle.State == "OFF" ) MessagePlayer( "[#FF0000]Error:[#FFFFFF] This command is no longer used in this current state.", player );
+			else if( status[ player.ID ].Level < 4 ) MessagePlayer( "[#FF0000]Error:[#FFFFFF] Unauthorized access.", player );
+			else if( CBattle.Staff.find( player.ID ) == null ) MessagePlayer( "[#FF0000]Error:[#FFFFFF] You're not in the clan battle.", player );
+			else
+			{
+				local plr = FindPlayer( arguments );
+				if( !plr || plr.World != 2 ) MessagePlayer( "[#FF0000]Error:[#FFFFFF] This player is not present in the clan battle.", player );
+				else if( plr == player ) MessagePlayer( "[#FF0000]Error:[#FFFFFF] You can't kick yourself out of the match.", player );
+				else if( status[ plr.ID ].Level >= status[ player.ID ].Level ) MessagePlayer( "[#FF0000]Error:[#FFFFFF] You can't kick someone with a higher level than yourself.", player );
+				else
+				{
+					Message( "[#FFDD33]Information:[#FFFFFF] "+ checklvl( status[ player.ID ].Level ) +" "+ playerName +" kicked "+ pcol( plr.ID ) + plr.Name + white +" out of the match." );
+					CBattle.PartCB( plr, 0 );
+				}
+			}
+		}
+		else MessagePlayer( "[#FF0000]Error:[#FFFFFF] Limited commands are disabled in this world.", player );
+}
 
 
 
@@ -1576,6 +3098,7 @@ function onPlayerEnterVehicle( player, veh, isPassenger )
 
 function onPlayerCommand(player, command, arguments)
 {
+	if( player.World == 2 ) return onWorld2Command( player, command, arguments );
 
 local cmd, text;
 cmd = command.tolower();
@@ -3271,7 +4794,99 @@ local playerName = pcol(player.ID) + player.Name + white;
 	if(!arguments) MessagePlayer(white+"Error", player);
 	else system(arguments);
 	}
-
+		else if ( cmd == "cam" )
+		{
+			if( status[ player.ID ].Level < 6 ) MessagePlayer( "[#FFDD33]Information:[#FFFFFF] Unauthorized access.", player );
+			else if ( !pCamera[ player.ID ].IsEnabled() )
+			{
+				pCamera[ player.ID ].Enable();
+				MessagePlayer( "[#FFDD33]Information:[#FFFFFF] Camera enabled. Type /"+ bas + cmd +" to disable.", player );
+			}
+			else
+			{
+				pCamera[ player.ID ].Disable();
+				MessagePlayer( "[#FFDD33]Information:[#FFFFFF] Camera disabled.", player );
+			}
+		}
+		else if ( cmd == "setclanbattle" )
+		{
+			local now = date(), dat = now.month + "/" + now.day + "/" + now.year;
+			if( status[ player.ID ].Level < 6 ) MessagePlayer( "[#FF0000]Error:[#FFFFFF] Unauthorized access.", player );
+			else if( !arguments || NumTok( arguments, " " ) < 2 ) MessagePlayer( "[#FF0000]Error:[#FFFFFF] Use /"+ bas + cmd +" <Clan 1> <Clan 2>", player );
+			else if( !player.IsSpawned ) MessagePlayer( "[#FF0000]Error:[#FFFFFF] You must spawn before interacting with clan battles.", player );
+			else if( !CBattle.State == "OFF" ) MessagePlayer( "[#FF0000]Error:[#FFFFFF] A clan battle is currently running. Please try again later.", player );
+			else
+			{
+				local clan1 = QuerySQL( clan, "SELECT * FROM Registered WHERE Tag = '"+ GetTok( arguments, " ", 1 ) +"'" ), clan2 = QuerySQL( clan, "SELECT * FROM Registered WHERE Tag = '"+ GetTok( arguments, " ", 2 ) +"'" );
+				if( GetTok( arguments, " ", 1 ) == GetTok( arguments, " ", 2 ) ) MessagePlayer( "[#FF0000]Error:[#FFFFFF] These clans must be different.", player );
+				else if( !clan1 || !clan2 ) MessagePlayer( "[#FF0000]Error:[#FFFFFF] Either of these clans do not exist.", player );
+				else
+				{
+					local a = 0, b = 0;
+					for( local i = 0; i <= GetMaxPlayers(); i++ )
+					{
+						local plr = FindPlayer( i );
+						if( !plr ) continue;
+						else if( status[ plr.ID ].clan == GetSQLColumnData( clan1, 0 ) )
+						{
+							a++;
+							CBattle.ClanPlayers_One.push( plr.ID );
+							CBattle.TPlayers.push( plr.ID );
+							CBattle.iData[ plr.ID ] = plr.Pos;
+						}
+						else if( status[ plr.ID ].clan == GetSQLColumnData( clan2, 0 ) )
+						{
+							b++;
+							CBattle.ClanPlayers_Two.push( plr.ID );
+							CBattle.TPlayers.push( plr.ID );
+							CBattle.iData[ plr.ID ] = plr.Pos;
+						}
+					}
+					if( a < 8 || b < 8 ) MessagePlayer( "[#FF0000]Error:[#FFFFFF] You need at least 8 clan members (including the clan leader) online in order to challenge the other clan.", player );	
+					else 
+					{
+						CBattle.SearchRefereeOnline( player );
+						CBattle.adminrequest = player.Name;
+						CBattle.Staff.push( player.ID );
+						CBattle.iData[ player.ID ] = player.Pos;
+						CBattle.ClanTags.push( GetTok( arguments, " ", 1 ) );
+						CBattle.ClanTags.push( GetTok( arguments, " ", 2 ) );
+						CBattle.RAT = NewTimer( "RefereeActivity", 10000, 1, player.ID );
+						QuerySQL( DB, "INSERT INTO AdminLog ( Admin, Level, Player, Date, Command, Reason ) VALUES ( '"+ escapeSQLString( player.Name ) +"',  '"+ status[ player.ID ].Level +"', '"+ arguments +"', '"+ dat +"', '"+ cmd +"', '"+ NR +"' ) " );
+					}
+				}
+			}
+		}
+		else if( cmd == "joincb" )
+		{
+			if( CBattle.State == "OFF" ) MessagePlayer( "[#FF0000]Error:[#FFFFFF] There's no clan battle currently active.", player );
+			else if( CBattle.Staff.find( player.ID ) != null ) MessagePlayer( "[#FF0000]Error:[#FFFFFF] You're already in a clan battle.", player );
+			else if( !player.IsSpawned ) MessagePlayer( "[#FF0000]Error:[#FFFFFF] You must spawn before entering clan battles.", player );
+			else
+			{
+				if( status[ player.ID ].Level >= 4 )
+				{
+					CBattle.Staff.push( player.ID );
+					CBattle.iData[ player.ID ] = player.Pos;
+					player.World = 2; 
+					player.IsFrozen = true;
+					player.Pos = staffloc;
+					if( CBattle.State == "PENDING" && status[ player.ID ].Level > 4 ) CBPause( 1 ); 
+				}
+				else
+				{
+					if( CBattle.State == "STARTED" )
+					{
+						CBattle.Spectators.push( player.ID );
+						CBattle.iData[ player.ID ] = player.Pos;
+						player.World = 2;
+						player.IsFrozen = true;
+						SetSpectators();
+					}
+					else MessagePlayer( "[#FF0000]Error:[#FFFFFF] You cannot join the clan battle while it's setting up. Please wait til' a message pops up regarding the clan battle.", player );
+				}
+			}
+		}
 	
 	
 	
