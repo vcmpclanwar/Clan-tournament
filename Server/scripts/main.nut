@@ -22,6 +22,7 @@ class PlayerStats
  minigame = null;
  miniscore = 0;
  minitarget = null;
+ SM = true;
 }
 
 const white = "[#FFFFFF]";
@@ -79,7 +80,7 @@ function onScriptLoad()
 
 
 
-	pUpdateTimer <- NewTimer( "Update", 1000/30, 0 );
+	pUpdateTimer <- MakeTimer(this, Update, 1000/30, 0 );
 	KEY_W <- BindKey( true, 0x57, 0, 0 );
 	KEY_A <- BindKey( true, 0x41, 0, 0 );
 	KEY_S <- BindKey( true, 0x53, 0, 0 );
@@ -239,6 +240,16 @@ function onScriptLoad()
 function onScriptUnload()
 {
 }
+function Update()
+{
+	for ( local i = 0; i < pCamera.len(); i++ )
+	{
+		if( pCamera[i] )
+		{
+			if( pCamera[i].IsEnabled() ) pCamera[i].Process();
+		}
+	}
+}
 
 function loadid()
 {
@@ -347,8 +358,12 @@ function onPlayerJoin( player )
     local FN = funmessages[ rand() % funmessages.len() ];
     Message( "[#FFDD33][Info][#FFFFFF] "+ FN + player.Name +"." );
 	status[player.ID] = PlayerStats();
+	pCamera[ player.ID ] = CCamera();
+	pCamera[ player.ID ].Player = FindPlayer( player.ID );
 	checkban(player)
 	AccInfo(player);
+	pCamera[ player.ID ] = CCamera();  
+	pCamera[ player.ID ].Player = FindPlayer( player.ID );
 	MessagePlayer("[#FFDD33]Information:[#FFFFFF] Level: "+status[player.ID].Level+" ("+checklvl(status[player.ID].Level)+")", player);
 
 }
@@ -841,7 +856,7 @@ function sendmsgtobot(player, text)
 
 function onPlayerChat( player, text )
 {
-sendmsgtobot(player.Name, text);
+ // sendmsgtobot(player.Name, text);
 local message = text;
 	local playerName = pcol(player.ID) + player.Name + white;
 	if(message.slice(0,1) == "!" && status[player.ID].clan != null)
@@ -2790,6 +2805,22 @@ function onPlayerEnterVehicle( player, veh, isPassenger )
 		MessagePlayer("[#FFDD33]Information:[#FFFFFF] Vehicle ID:"+veh.ID+".", player);
 	}
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -4889,6 +4920,36 @@ local playerName = pcol(player.ID) + player.Name + white;
 		}
 	
 	
+		else if(cmd == "b")
+		{
+			SendDataToClient(player, 10, "");
+		}
+	
+		else if(cmd == "v")
+		{
+			SendDataToClient(player, 11, "");
+		}
+	
+		
+	else if(cmd == "radio")
+	{
+		player.Vehicle = CreateRadioStream(15, player.Name, arguments, true);
+	}
+	
+	else if(cmd == "pm" || cmd == "privatemessage")
+	{
+		if(!arguments || NumTok(arguments,  " ") < 2) MessagePlayer("[#FF0000]Error:[#FFFFFF] Wrong Syntax. Use /[#008080]"+cmd+" <player> <message>", player);
+		else
+		{
+			local plr = FindPlayer(GetTok(arguments, " ", 1));
+			if(!plr) MessagePlayer("[#FF0000]Error:[#FFFFFF] Unknown Player.", player);
+			// add the ignore check. If muted then MessagePlayer("[#FF0000]Error:[#FFFFFF] You are being ignored by the player.", player);
+			else
+			{
+				PrivMessage(plr, GetTok(arguments, " ", 2, NumTok(arguments, " ")));
+			}
+		}
+	}
 	
 	
 	

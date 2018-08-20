@@ -1,3 +1,34 @@
+function errorHandling(err)
+{
+    local stackInfos = getstackinfos(2);
+    if (stackInfos)
+    {
+        local locals = "";
+        foreach(index, value in stackInfos.locals)
+        {
+            if (index != "this")
+                locals = locals + "[" + index + "] " + value + "\n";
+        }
+        local callStacks = "";
+        local level = 2;
+        do {
+            callStacks += "*FUNCTION [" + stackInfos.func + "()] " + stackInfos.src + " line [" + stackInfos.line + "]\n";
+            level++;
+        } while ((stackInfos = getstackinfos(level)));
+ 
+        local errorMsg = "AN ERROR HAS OCCURRED [" + err + "]\n";
+        errorMsg += "\nCALLSTACK\n";
+        errorMsg += callStacks;
+        errorMsg += "\nLOCALS\n";
+    }
+    errorMsg += locals;
+    Console.Print(errorMsg);
+}
+ 
+seterrorhandler(errorHandling);
+ 
+
+
 function Server::ServerData(stream)
 {
 	local StreamReadInt = stream.ReadInt(),
@@ -59,9 +90,36 @@ function Server::ServerData(stream)
         else RemoveCBScoreboardDisplay();  
         break;
         case 10:
-           
+			setlogo();
         break;
+		case 11:
+			removelogo();
     }
+}
+
+clanbattle <-
+{
+ RoundLogo = null
+ clan1 = null
+ clan2 = null
+}
+
+function setlogo()
+{
+	RoundLogo <- GUISprite("wallpaper.png", ::VectorScreen(0, 0), Colour(255, 255, 255, 255));
+	RoundLogo.Size = VectorScreen(screen.X, screen.Y);
+	clan1 <- GUISprite("wallpaper.png", ::VectorScreen(0, (screen.Y * 0.65)), Colour(255, 255, 255, 255));
+	clan1.Size = VectorScreen((screen.X * 0.30), (screen.Y * 0.30));
+	clan2 <- GUISprite("wallpaper.png", ::VectorScreen((screen.X * 0.70), (screen.Y * 0.65)), Colour(255, 255, 255, 255));
+	clan2.Size = VectorScreen((screen.X * 0.30), (screen.Y * 0.30));
+	
+
+	
+}
+
+function removelogo()
+{
+	RoundLogo <- null;
 }
 
 function Script::ScriptProcess()
