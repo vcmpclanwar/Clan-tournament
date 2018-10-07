@@ -15792,3 +15792,171 @@ Loaded plugin: sqlite-win32
 [WEAPONS] No custom weapons to load.
 [VEHICLEMODELS] No custom vehicle models to load.
 Unable to start server on host:  port: 8192. Port in use?
+
+ Vice City Multiplayer Server
+ -------------------------------
+ v0.4, (c) 2007-2014 VC:MP Team
+
+Loaded plugin: squirrel04rel32
+
+Loaded plugin: xmlconf04rel32
+
+Loaded plugin: announce04rel32
+
+Loaded plugin: hashing04rel32
+
+Loaded plugin: ini04rel32
+
+Loaded plugin: mysql04rel32
+
+Loaded plugin: sockets04rel32
+
+Loaded plugin: sqlite-win32
+
+[WEAPONS] No custom weapons to load.
+[VEHICLEMODELS] No custom vehicle models to load.
+Unable to start server on host:  port: 8192. Port in use?
+
+ Vice City Multiplayer Server
+ -------------------------------
+ v0.4, (c) 2007-2014 VC:MP Team
+
+Loaded plugin: squirrel04rel32
+
+Loaded plugin: xmlconf04rel32
+
+Loaded plugin: announce04rel32
+
+Loaded plugin: hashing04rel32
+
+Loaded plugin: ini04rel32
+
+Loaded plugin: mysql04rel32
+
+Loaded plugin: sockets04rel32
+
+Loaded plugin: sqlite-win32
+
+[WEAPONS] No custom weapons to load.
+[VEHICLEMODELS] No custom vehicle models to load.
+Unable to start server on host:  port: 8192. Port in use?
+
+ Vice City Multiplayer Server
+ -------------------------------
+ v0.4, (c) 2007-2014 VC:MP Team
+
+Loaded plugin: squirrel04rel32
+
+Loaded plugin: xmlconf04rel32
+
+Loaded plugin: announce04rel32
+
+Loaded plugin: hashing04rel32
+
+Loaded plugin: ini04rel32
+
+Loaded plugin: mysql04rel32
+
+Loaded plugin: sockets04rel32
+
+Loaded plugin: sqlite-win32
+
+[WEAPONS] No custom weapons to load.
+[VEHICLEMODELS] No custom vehicle models to load.
+Unable to start server on host:  port: 8192. Port in use?
+
+ Vice City Multiplayer Server
+ -------------------------------
+ v0.4, (c) 2007-2014 VC:MP Team
+
+Loaded plugin: squirrel04rel32
+
+Loaded plugin: xmlconf04rel32
+
+Loaded plugin: announce04rel32
+
+Loaded plugin: hashing04rel32
+
+Loaded plugin: ini04rel32
+
+Loaded plugin: mysql04rel32
+
+Loaded plugin: sockets04rel32
+
+Loaded plugin: sqlite-win32
+
+[WEAPONS] No custom weapons to load.
+[VEHICLEMODELS] No custom vehicle models to load.
+Unable to start server on host:  port: 8192. Port in use?
+
+ Vice City Multiplayer Server
+ -------------------------------
+ v0.4, (c) 2007-2014 VC:MP Team
+
+Loaded plugin: squirrel04rel32
+
+Loaded plugin: xmlconf04rel32
+
+Loaded plugin: announce04rel32
+
+Loaded plugin: hashing04rel32
+
+Loaded plugin: ini04rel32
+
+Loaded plugin: mysql04rel32
+
+Loaded plugin: sockets04rel32
+
+Loaded plugin: sqlite-win32
+
+[WEAPONS] No custom weapons to load.
+[VEHICLEMODELS] No custom vehicle models to load.
+Unable to start server on host:  port: 8192. Port in use?
+
+ Vice City Multiplayer Server
+ -------------------------------
+ v0.4, (c) 2007-2014 VC:MP Team
+
+Loaded plugin: squirrel04rel32
+
+Loaded plugin: xmlconf04rel32
+
+Loaded plugin: announce04rel32
+
+Loaded plugin: hashing04rel32
+
+Loaded plugin: ini04rel32
+
+Loaded plugin: mysql04rel32
+
+Loaded plugin: sockets04rel32
+
+Loaded plugin: sqlite-win32
+
+[WEAPONS] No custom weapons to load.
+[VEHICLEMODELS] No custom vehicle models to load.
+Unable to start server on host:  port: 8192. Port in use?
+
+ Vice City Multiplayer Server
+ -------------------------------
+ v0.4, (c) 2007-2014 VC:MP Team
+
+Loaded plugin: squirrel04rel32
+
+Loaded plugin: xmlconf04rel32
+
+Loaded plugin: announce04rel32
+
+Loaded plugin: hashing04rel32
+
+Loaded plugin: ini04rel32
+
+Loaded plugin: mysql04rel32
+
+Loaded plugin: sockets04rel32
+
+Loaded plugin: sqlite-win32
+
+[WEAPONS] No custom weapons to load.
+[VEHICLEMODELS] No custom vehicle models to load.
+Unable to start server on host:  port: 8192. Port in use?

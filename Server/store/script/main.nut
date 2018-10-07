@@ -1,3 +1,5 @@
+_Return <- KeyBind( 0x0D );
+DefaultSprite <- null;
 function errorHandling(err)
 {
     local stackInfos = getstackinfos(2);
@@ -90,38 +92,405 @@ function Server::ServerData(stream)
         else RemoveCBScoreboardDisplay();  
         break;
         case 10:
-			setlogo();
+            WelcomeScreen.Create(StreamReadString);
         break;
 		case 11:
-			removelogo();
+			WelcomeScreen.ErrorText.Text = "Wrong Password";
+		break;
+		case 12:
+			WelcomeScreen.ClearForm();
+		break;
+		case 13:
+			WelcomeScreen.Create();
+		break;
+
     }
 }
 
-clanbattle <-
+WelcomeScreen <-
 {
- RoundLogo = null
- clan1 = null
- clan2 = null
-}
+	player			= null
+	Registered		= null
+	LoggedIn		= null
+	pass			= null
+    Username		= null
+    Outline			= null
+    Password		= null
+    PasswordText	= null
+	ErrorText		= null
+    Continue		= null
+	ContinueSprite	= null
+	InWork			= false
+	
+    Stage			= null
+	Default			= null
+    Wallpaper		= null
+    Spinner			= null
+    Information		= null
 
-function setlogo()
-{
-	RoundLogo <- GUISprite("wallpaper.png", ::VectorScreen(0, 0), Colour(255, 255, 255, 255));
-	RoundLogo.Size = VectorScreen(screen.X, screen.Y);
-	clan1 <- GUISprite("wallpaper.png", ::VectorScreen(0, (screen.Y * 0.65)), Colour(255, 255, 255, 255));
-	clan1.Size = VectorScreen((screen.X * 0.30), (screen.Y * 0.30));
-	clan2 <- GUISprite("wallpaper.png", ::VectorScreen((screen.X * 0.70), (screen.Y * 0.65)), Colour(255, 255, 255, 255));
-	clan2.Size = VectorScreen((screen.X * 0.30), (screen.Y * 0.30));
+	timer			= null
+	timer2			= null
+	timer3			= null
+	
+	
+	WallAlpha		= 500
+	SpinnerAlpha	= 250
+	
+	InfoR			= 255
+	InfoG			= 255
+	InfoB			= 255
+	InfoLoc			= 0.60
 	
 
+    function Create(string)
+    {
+		
+		local params = split(string, " ");
+		player			<- params[0];
+		Registered 		<- params[1].tointeger();
+		LoggedIn 		<- params[2].tointeger();
+		pass			<- params[3];
+		InWork			<- true;
+        this.Stage <- 1;
 	
+		this.Default		 <- :: GUISprite("processor/wallpaper.png", VectorScreen(0,0), Colour(255,255,255,255));
+		this.Default.Size = VectorScreen(screen.X, screen.Y);
+		
+		this.Wallpaper       <- ::GUISprite("wallpaper.png", VectorScreen(0, 0), Colour(255, 255, 255, 255));
+		this.Wallpaper.Size = VectorScreen(screen.X, screen.Y);
+		timer <-	Timer.Create(this, SetWallAlpha, 30, 100);
+    }
+	
+
+    function Destroy()
+    {
+        this.Stage          <- null;
+        this.Wallpaper      <- null;
+        this.Spinner        <- null;
+        this.Information    <- null;
+		this.timer 			<- null;
+		this.timer2			<- null;
+		this.timer3			<- null;
+		Timer.Delete(this.timer);
+		Timer.Delete(this.timer2);
+		Timer.Delete(this.timer3);
+		GUI.SetMouseEnabled(false);  
+		this.Username		<- null;
+		this.Outline		<- null;
+		this.Password		<- null;
+		this.PasswordText	<- null;
+		this.ErrorText		<- null;
+		this.Continue		<- null;
+		this.ContinueSprite	<- null;
+		this.WallAlpha <- 255
+		this.timer <- Timer.Create(this, CloseScreen, 30, 0);
+	}
+	
+    function ClearForm()
+    {
+		Timer.Delete(this.timer);
+		Timer.Delete(this.timer2);
+		Timer.Delete(this.timer3);
+		this.timer 			<- null;
+		this.timer2			<- null;
+		this.timer3			<- null;
+		GUI.SetMouseEnabled(false);
+		this.Username		<- null;
+		this.Outline		<- null;
+		this.Password		<- null;
+		this.PasswordText	<- null;
+		this.ErrorText		<- null;
+		this.Continue		<- null;
+		this.ContinueSprite	<- null;
+		
+		SetSpinner();
+		SetInformation();
+	}
+	
+	function SetWallAlpha()
+	{
+		if(this.WallAlpha > 255) this.WallAlpha = this.WallAlpha - 5;
+		else
+		{
+			this.WallAlpha = this.WallAlpha - 5;
+			this.Wallpaper.Colour = Colour(255, 255, 255, this.WallAlpha);
+			if(this.WallAlpha == 0)
+			{
+				Timer.Delete(this.timer);
+				this.timer	<-	null;
+				this.Wallpaper <- null;
+				CheckRegisteration();
+			}
+		}
+	}
+	function CloseScreen()
+	{
+		this.WallAlpha <- this.WallAlpha - 5;
+		if(this.WallAlpha < 0) this.WallAlpha <- 0
+		this.Default.Colour = Colour(255, 255, 255, this.WallAlpha);
+		if(this.WallAlpha.tointeger() < 1)
+		{
+			Timer.Delete(this.timer);
+			this.timer	<-	null;
+			this.Default <- null;
+			SendDataToServer("", 4);
+			InWork <- "sidebar";
+			this.Outline		<- ::GUISprite("processor/overlay.png", VectorScreen(screen.X * 0.72, screen.Y * 0.75), Colour(255, 255, 255, 150));
+			this.Outline.Size = VectorScreen(screen.X * 0.25, screen.Y * 0.12);
+			this.Information	<- ::GUILabel(VectorScreen(screen.X * 0.79, screen.Y * 0.76), Colour(255, 255, 255), "Vice City");
+			this.Information.FontName = "WRESTLEMANIA";
+			this.Information.FontSize = screen.X * 0.02;
+			this.Default	<- ::GUILabel(VectorScreen(screen.X * 0.79, screen.Y * 0.79), Colour(255, 255, 255), "Clansmanship");
+			this.Default.FontName = "WRESTLEMANIA";
+			this.Default.FontSize = screen.X * 0.02;
+			this.Continue	<- ::GUILabel(VectorScreen(screen.X * 0.79, screen.Y * 0.82), Colour(255, 255, 255), "League");
+			this.Continue.FontName = "WRESTLEMANIA";
+			this.Continue.FontSize = screen.X * 0.02;
+		}
+	}
+	
+	function CheckRegisteration()
+	{
+		if(this.Registered == 1) CheckLogin();
+		else
+		{
+
+			GUI.SetMouseEnabled(true);
+
+			this.Information	<- ::GUILabel(VectorScreen(screen.X * 0.28, screen.Y * 0.10), Colour(28, 174, 190), "Registeration");
+			this.Information.FontFlags = GUI_FFLAG_BOLD;
+			this.Information.TextAlignment = GUI_ALIGN_CENTERH;
+			this.Information.FontName = "Candara";
+			this.Information.FontSize = screen.X * 0.06;
+
+			this.Username		<- ::GUILabel(VectorScreen(screen.X * 0.35, screen.Y * 0.29), Colour(28, 174, 190), player);
+			this.Username.FontFlags = GUI_FFLAG_NONE;
+			this.Username.TextAlignment = GUI_ALIGN_CENTERH;
+			this.Username.FontName = "Corbel";
+			this.Username.FontSize = screen.X * 0.04;
+
+			this.PasswordText		<- ::GUILabel(VectorScreen(screen.X * 0.20, screen.Y * 0.42), Colour(0, 0, 0), "Password:");
+			this.PasswordText.FontFlags = GUI_FFLAG_NONE;
+			this.PasswordText.TextAlignment = GUI_ALIGN_CENTERH;
+			this.PasswordText.FontName = "Corbel";
+			this.PasswordText.FontSize = screen.X * 0.03;
+        
+			this.Password		<- ::GUIEditbox(VectorScreen(screen.X * 0.35, screen.Y * 0.42), VectorScreen(screen.X * 0.25, screen.Y * 0.07), Colour(255, 255, 255, 200));
+			this.Password.AddFlags(GUI_FLAG_EDITBOX_MASKINPUT);
+			this.Password.RemoveFlags(GUI_FLAG_BORDER);
+			this.Password.FontName = "Corbel";
+			this.Password.FontSize = screen.X * 0.03;
+
+			this.ErrorText		<- ::GUILabel(VectorScreen(screen.X * 0.32, screen.Y * 0.5), Colour(200, 0, 0), "");
+			this.ErrorText.FontFlags = GUI_FFLAG_NONE;
+			this.ErrorText.TextAlignment = GUI_ALIGN_CENTERH;
+			this.ErrorText.FontName = "Corbel";
+			this.ErrorText.FontSize = screen.X * 0.02;
+
+			
+			this.Outline		<- ::GUISprite("Login/outline.png", VectorScreen(screen.X * 0.35, screen.Y * 0.42), Colour(255, 255, 255, 255));
+			this.Outline.Size = VectorScreen(screen.X * 0.25, screen.Y * 0.07);
+			
+			this.ContinueSprite	<- ::GUISprite("Login/next.png", VectorScreen(screen.X * 0.60, screen.Y * 0.42), Colour(255, 255, 255, 255));
+			this.ContinueSprite.Size = VectorScreen(screen.X * 0.05, screen.Y * 0.07);
+			this.Continue		<- ::GUIButton(VectorScreen(screen.X * 0.60, screen.Y * 0.42), VectorScreen(screen.X * 0.05, screen.Y * 0.07), Colour(255, 255, 255, 0));
+			GUI.SetFocusedElement(WelcomeScreen.Continue);
+			
+		}
+	}
+	function CheckLogin()
+	{
+		if(this.LoggedIn == 1)
+		{
+			SetInformation();
+			SetSpinner();
+		}
+		else
+		{
+			GUI.SetMouseEnabled(true);
+
+			this.Information	<- ::GUILabel(VectorScreen(screen.X * 0.38, screen.Y * 0.10), Colour(28, 174, 190), "Login");
+			this.Information.FontFlags = GUI_FFLAG_BOLD;
+			this.Information.TextAlignment = GUI_ALIGN_CENTERH;
+			this.Information.FontName = "Candara";
+			this.Information.FontSize = screen.X * 0.06;
+
+			this.Username		<- ::GUILabel(VectorScreen(screen.X * 0.35, screen.Y * 0.29), Colour(28, 174, 190), player);
+			this.Username.FontFlags = GUI_FFLAG_NONE;
+			this.Username.TextAlignment = GUI_ALIGN_CENTERH;
+			this.Username.FontName = "Corbel";
+			this.Username.FontSize = screen.X * 0.04;
+
+			this.PasswordText		<- ::GUILabel(VectorScreen(screen.X * 0.20, screen.Y * 0.42), Colour(0, 0, 0), "Password:");
+			this.PasswordText.FontFlags = GUI_FFLAG_NONE;
+			this.PasswordText.TextAlignment = GUI_ALIGN_CENTERH;
+			this.PasswordText.FontName = "Corbel";
+			this.PasswordText.FontSize = screen.X * 0.03;
+        
+			this.Password		<- ::GUIEditbox(VectorScreen(screen.X * 0.35, screen.Y * 0.42), VectorScreen(screen.X * 0.25, screen.Y * 0.07), Colour(255, 255, 255, 200));
+			this.Password.AddFlags(GUI_FLAG_EDITBOX_MASKINPUT);
+			this.Password.RemoveFlags(GUI_FLAG_BORDER);
+			this.Password.FontName = "Corbel";
+			this.Password.FontSize = screen.X * 0.03;
+
+			this.ErrorText		<- ::GUILabel(VectorScreen(screen.X * 0.32, screen.Y * 0.5), Colour(200, 0, 0), "");
+			this.ErrorText.FontFlags = GUI_FFLAG_NONE;
+			this.ErrorText.TextAlignment = GUI_ALIGN_CENTERH;
+			this.ErrorText.FontName = "Corbel";
+			this.ErrorText.FontSize = screen.X * 0.02;
+
+			
+			this.Outline		<- ::GUISprite("Login/outline.png", VectorScreen(screen.X * 0.35, screen.Y * 0.42), Colour(255, 255, 255, 255));
+			this.Outline.Size = VectorScreen(screen.X * 0.25, screen.Y * 0.07);
+			
+			this.ContinueSprite	<- ::GUISprite("Login/next.png", VectorScreen(screen.X * 0.60, screen.Y * 0.42), Colour(255, 255, 255, 255));
+			this.ContinueSprite.Size = VectorScreen(screen.X * 0.05, screen.Y * 0.07);
+			this.Continue		<- ::GUIButton(VectorScreen(screen.X * 0.60, screen.Y * 0.42), VectorScreen(screen.X * 0.05, screen.Y * 0.07), Colour(255, 255, 255, 0));
+			GUI.SetFocusedElement(WelcomeScreen.Continue);
+		
+		}
+	}
+	
+	function SetSpinner()
+	{
+		this.Spinner         <- ::GUISprite("processor/spinner/20.png", VectorScreen(screen.X * 0.21, screen.Y * 0.36), Colour(255, 255, 255, 255));
+		this.Spinner.Size = VectorScreen(screen.X * 0.20, screen.Y * 0.20);
+		timer <- 	Timer.Create(this, ChangeSpinner, 35, 0);
+	}
+	function ChangeSpinner()
+	{
+		this.Spinner.SetTexture("processor/spinner/" + WelcomeScreen.Stage + ".png");
+		this.Stage <- this.Stage + 1;
+		if (this.Stage > 90)
+		{
+			this.Stage <- 1;
+		}
+	}
+	function ChangeSpinnerAlpha()
+	{
+		this.SpinnerAlpha = this.SpinnerAlpha - 5;
+		if(this.SpinnerAlpha < 1)
+		{
+			Timer.Delete(this.timer3);
+			this.timer3 <- null;
+		}
+		else this.Spinner.Colour = Colour(255,255,255,this.SpinnerAlpha);
+	}
+	function SetInformation()
+	{
+		this.Information    <- ::GUILabel(VectorScreen(screen.X * 0.38, screen.Y * 0.4), Colour(255, 255, 255), "Welcome");
+		this.Information.FontName = "Candara";
+		this.Information.FontSize = screen.X * 0.05;
+		timer2 	<- Timer.Create(this, ChangeInfoColour, 35, 0);
+	}
+	function ChangeInfoColour()
+	{
+		this.InfoR <- this.InfoR - 5;
+		this.InfoG <- this.InfoG - 5;
+		this.InfoB <- this.InfoB - 5;
+		if(this.InfoR < 28) this.InfoR <- 28;
+		if(this.InfoG < 194) this.InfoG <- 194;
+		if(this.InfoB < 170) this.InfoB <- 170;
+
+		if(this.InfoR.tointeger() == 28 && this.InfoG.tointeger() == 194 && this.InfoB.tointeger() == 170)
+		{
+			Timer.Delete(this.timer2);
+			timer2 	<- Timer.Create(this, ChangeInfoAlpha, 35, 0);
+		}
+		else
+		{
+			this.Information    <- ::GUILabel(VectorScreen(screen.X * 0.38, screen.Y * 0.4), Colour(this.InfoR, this.InfoG, this.InfoG), "Welcome");
+			this.Information.FontName = "Candara";
+			this.Information.FontSize = screen.X * 0.05;
+		}
+
+	}
+	function ChangeInfoAlpha()
+	{
+		
+		this.InfoR <- this.InfoR + 5;
+		this.InfoG <- this.InfoG + 5;
+		this.InfoB <- this.InfoB + 5;
+		if(this.InfoR > 255) this.InfoR <- 255;
+		if(this.InfoG > 255) this.InfoG <- 255;
+		if(this.InfoB > 255) this.InfoB <- 255;
+
+		if(this.InfoR == 255 && this.InfoG == 255 && this.InfoB == 255)
+		{
+			Timer.Delete(this.timer);
+			Timer.Delete(this.timer2);
+			Timer.Delete(this.timer3);
+			Destroy();
+		}
+		else
+		{
+			this.Information    <- ::GUILabel(VectorScreen(screen.X * 0.38, screen.Y * 0.4), Colour(this.InfoR, this.InfoG, this.InfoG), "Welcome");
+			this.Information.FontName = "Candara";
+			this.Information.FontSize = screen.X * 0.05;
+		}
+		if(this.InfoR < 230)
+		{
+			timer3 <- 	Timer.Create(this, ChangeSpinnerAlpha, 400, 0);
+		}
+
+	}
 }
 
-function removelogo()
+ 
+ 
+function GUI::ElementClick(element, mouseX, mouseY)
 {
-	RoundLogo <- null;
-}
+	if(element == WelcomeScreen.Continue)
+	{
+		if(WelcomeScreen.Registered == 0)
+		{
+			if(WelcomeScreen.Password.Text.len() < 4) WelcomeScreen.ErrorText.Text = "Password should contain atleast 4 characters.";
+			else
+			{
+				SendDataToServer(WelcomeScreen.Password.Text, 2);
+				WelcomeScreen.ClearForm();
+			}
+		}
+		else
+		{
+			if(WelcomeScreen.Password.Text.len() < 4) WelcomeScreen.ErrorText.Text = "Wrong Password";
+			else
+			{
+				SendDataToServer(WelcomeScreen.Password.Text, 3);
+			}
+			
+		}
+	}
 
+} 
+ 
+function KeyBind::OnDown( key )
+{
+	if ( key == _Return && WelcomeScreen.InWork == true )
+	{
+		if(WelcomeScreen.Registered == 0)
+		{
+			if(WelcomeScreen.Password.Text.len() < 4) WelcomeScreen.ErrorText.Text = "Password should contain atleast 4 characters.";
+			else
+			{
+				SendDataToServer(WelcomeScreen.Password.Text, 2);
+				WelcomeScreen.ClearForm();
+			}
+		}
+		else
+		{
+			if(WelcomeScreen.Password.Text.len() < 4) WelcomeScreen.ErrorText.Text = "Wrong Password";
+			else
+			{
+				SendDataToServer(WelcomeScreen.Password.Text, 3);
+			}
+			
+		}
+	}
+3}
+ 
+ 
+ 
 function Script::ScriptProcess()
 {
 	Timer.Process();
@@ -162,7 +531,7 @@ Timer <- {
   return hash;
  }
 
- function Destroy(hash)
+ function Delete(hash)
  {
   // See if the specified timer exists
   if (Timers.rawin(hash))
@@ -260,24 +629,24 @@ function GGremove()
 screen <- GUI.GetScreenSize();
 function GGstart(strread)
 {
-	Scoreboard.Label = GUILabel(VectorScreen((screen.X * 0.80), (screen.Y * 0.40)), Colour(235, 0, 0), "Scoreboard : " + strread);
-	Scoreboard.Label.FontSize = 12;
+	Scoreboard.Label = GUILabel(VectorScreen((screen.X * 0.75), (screen.Y * 0.40)), Colour(235, 0, 0), "Scoreboard : " + strread);
+	Scoreboard.Label.FontSize = screen.X * 0.015;
 	Scoreboard.Label.FontFlags = GUI_FFLAG_BOLD;
 
-	GGscore.plr = GUILabel(VectorScreen((screen.X * 0.80), (screen.Y * 0.43)), Colour(255, 255, 255), "null : 0");
-	GGscore.plr.FontSize = 11;
+	GGscore.plr = GUILabel(VectorScreen((screen.X * 0.75), (screen.Y * 0.43)), Colour(255, 255, 255), "null : 0");
+	GGscore.plr.FontSize = screen.X * 0.015;
 
-	GGscore.plr2 = GUILabel(VectorScreen((screen.X * 0.80), (screen.Y * 0.45)), Colour(255, 255, 255), "null : 0");
-	GGscore.plr2.FontSize = 11;
+	GGscore.plr2 = GUILabel(VectorScreen((screen.X * 0.75), (screen.Y * 0.46)), Colour(255, 255, 255), "null : 0");
+	GGscore.plr2.FontSize = screen.X * 0.015;
 
-	GGscore.plr3 = GUILabel(VectorScreen((screen.X * 0.80), (screen.Y * 0.47)), Colour(255, 255, 255), "null : 0");
-	GGscore.plr3.FontSize = 11;
+	GGscore.plr3 = GUILabel(VectorScreen((screen.X * 0.75), (screen.Y * 0.49)), Colour(255, 255, 255), "null : 0");
+	GGscore.plr3.FontSize = screen.X * 0.015;
 
-	GGscore.plr4 = GUILabel(VectorScreen((screen.X * 0.80), (screen.Y * 0.49)), Colour(255, 255, 255), "null : 0");
-	GGscore.plr4.FontSize = 11;
+	GGscore.plr4 = GUILabel(VectorScreen((screen.X * 0.75), (screen.Y * 0.52)), Colour(255, 255, 255), "null : 0");
+	GGscore.plr4.FontSize = screen.X * 0.015;
 
-	GGscore.plr5 = GUILabel(VectorScreen((screen.X * 0.80), (screen.Y * 0.51)), Colour(255, 255, 255), "null : 0");
-	GGscore.plr5.FontSize = 11;
+	GGscore.plr5 = GUILabel(VectorScreen((screen.X * 0.75), (screen.Y * 0.55)), Colour(255, 255, 255), "null : 0");
+	GGscore.plr5.FontSize = screen.X * 0.015;
 
 
 }
@@ -383,22 +752,22 @@ FRtimetimer <- null;
 function FRtarget(strread)
 {
 	FRtt.target = GUILabel(VectorScreen((screen.X * 0.80), (screen.Y * 0.85)), Colour(235, 0, 0), "Target:");
-	FRtt.target.FontSize = 14;
+	FRtt.target.FontSize = screen.X * 0.015;
 	FRtt.target.FontFlags = GUI_FFLAG_BOLD;
 	FRtt.name = GUILabel(VectorScreen((screen.X * 0.86), (screen.Y * 0.85)), Colour(255, 255, 255), strread);
-	FRtt.name.FontSize = 14;
+	FRtt.name.FontSize = screen.X * 0.015;
 	FRtt.name.FontFlags = GUI_FFLAG_BOLD;
 	
 	FRtt.tname = GUILabel(VectorScreen((screen.X * 0.80), (screen.Y * 0.88)), Colour(235, 0, 0), "Time Left:");
 	FRtt.tname.FontFlags = GUI_FFLAG_BOLD;
-	FRtt.tname.FontSize = 14;
+	FRtt.tname.FontSize = screen.X * 0.015;
 	
 	FRtt.min = GUILabel(VectorScreen((screen.X * 0.865), (screen.Y * 0.883)), Colour(255, 255, 255), "02");
 	FRtt.col = GUILabel(VectorScreen((screen.X * 0.875), (screen.Y * 0.883)), Colour(255, 255, 255), ":");
 	FRtt.sec = GUILabel(VectorScreen((screen.X * 0.885), (screen.Y * 0.883)), Colour(255, 255, 255), "00");
-	FRtt.min.FontSize = 12;
-	FRtt.col.FontSize = 12;
-	FRtt.sec.FontSize = 12;
+	FRtt.min.FontSize = screen.X * 0.015;
+	FRtt.col.FontSize = screen.X * 0.013;
+	FRtt.sec.FontSize = screen.X * 0.013;
 	Timer.Create(this, FRupdatetime, 1000, 1000);
 	
 }
@@ -431,7 +800,7 @@ function FRupdatetime()
 		if(Min <= 0)
 		{
 			SendDataToServer("out", 1);
-			Timer.Destroy(FRtimetimer);
+			Timer.Delete(FRtimetimer);
 		}
 		else
 		{
@@ -456,6 +825,59 @@ function FRremove()
 	FRtt.target = null;
 	FRtt.name = null;
 }
+
+
+
+
+
+
+
+
+
+
+
+function GUI::GameResize(width, height) 
+{
+screen <- GUI.GetScreenSize();
+	if(WelcomeScreen.InWork == true)
+	{
+		if(this.Default != null) this.Default.Size = VectorScreen(screen.X, screen.Y);
+		if(this.Wallpaper != null) this.Wallpaper.Size = VectorScreen(screen.X, screen.Y);
+		if(this.Registeration == 0)
+		{
+			this.Information.Position = VectorScreen(screen.X * 0.28, screen.Y * 0.10);
+			this.Information.FontSize = screen.X * 0.06;
+
+			this.Username.Position = VectorScreen(screen.X * 0.35, screen.Y * 0.29);
+			this.Username.FontSize = screen.X * 0.04;
+
+			this.PasswordText.Position = VectorScreen(screen.X * 0.20, screen.Y * 0.42);
+			this.PasswordText.FontSize = screen.X * 0.03;
+
+			this.Password.Position = VectorScreen(screen.X * 0.35, screen.Y * 0.42);
+			this.Password.FontSize = screen.X * 0.03;
+
+			this.ErrorText.Position = VectorScreen(screen.X * 0.32, screen.Y * 0.5);
+			this.ErrorText.FontSize = screen.X * 0.02;
+
+			this.Outline.Position = VectorScreen(screen.X * 0.35, screen.Y * 0.42);
+			this.Outline.Size = VectorScreen(screen.X * 0.25, screen.Y * 0.07);
+
+			this.ContinueSprite.Position = VectorScreen(screen.X * 0.60, screen.Y * 0.42);
+			this.ContinueSprite.Size = VectorScreen(screen.X * 0.05, screen.Y * 0.07);
+
+			this.Continue.Position =VectorScreen(screen.X * 0.60, screen.Y * 0.42);
+			this.Continue.Size = VectorScreen(screen.X * 0.05, screen.Y * 0.07);
+			}
+		}
+	}
+
+}
+
+
+
+
+
 
 
 
@@ -603,26 +1025,6 @@ function RemoveCBScoreboardDisplay()
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 function SendDataToServer(str, int)
 {
  local message = Stream();
@@ -630,6 +1032,26 @@ function SendDataToServer(str, int)
  message.WriteString(str);
  Server.SendData(message);
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
