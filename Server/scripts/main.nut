@@ -67,12 +67,17 @@ function onScriptLoad()
 
 
 
+	myDiscord <- CDiscord();
+	myDiscord.Connect(myDiscord.BotToken);
 
 
 
 
 
-	pUpdateTimer <- MakeTimer(this, Update, 1000/30, 0 );
+
+
+
+	pUpdateTimer <- NewTimer("Update", 1000/30, 0 );
 	KEY_W <- BindKey( true, 0x57, 0, 0 );
 	KEY_A <- BindKey( true, 0x41, 0, 0 );
 	KEY_S <- BindKey( true, 0x53, 0, 0 );
@@ -242,21 +247,24 @@ function Update()
 		}
 	}
 }
-ction onPlayerJoin( player )
+function onPlayerJoin( player )
 {
 	status[player.ID] = PlayerStats();
 	AccInfo(player);
-	local a,b,c;
-	if(status[player.ID].Registered) a = 1; else a = 0;
-	if(status[player.ID].LoggedIn == true) b = 1; else b = 0;
-	c = player.Name+" "+a+" "+b+" "+status[player.ID].pass;
-	MakeTimer(this, SendDataToClient, 200, 1, player, 10, c);
     local FN = funmessages[ rand() % funmessages.len() ];
     Message( "[#FFDD33][Info][#FFFFFF] "+ FN + player.Name +"." );
 	pCamera[ player.ID ] = CCamera();  
 	pCamera[ player.ID ].Player = FindPlayer( player.ID );
 	checkban(player);
 	MessagePlayer("[#FFDD33]Information:[#FFFFFF] Level: "+status[player.ID].Level+" ("+checklvl(status[player.ID].Level)+")", player);
+	SendDiscord(channel, "**"+player.Name+"** joined the server.");
+
+	local a,b,c;
+	if(status[player.ID].Registered) a = 1; else a = 0;
+	if(status[player.ID].LoggedIn == true) b = 1; else b = 0;
+	c = player.Name+" "+a+" "+b+" "+status[player.ID].pass;
+	NewTimer("SendDataToClient", 500, 1, player, 10, c);
+	MessagePlayer("data sent", player);
 
 }
 
@@ -386,6 +394,7 @@ function onPlayerPart( player, reason )
     }
 //    if ( status[ player.ID ].LoggedIn == true ) QuerySQL( DB, "UPDATE Accounts SET Level = '"+ status[ player.ID ].Level +"', IP = '"+ status[ player.ID ].IP +"', UID = '"+ status[ player.ID ].UID +"', Kills = '"+ status[ player.ID ].kills +"', Deaths = '"+ status[ player.ID ].deaths +"' WHERE Name LIKE '"+ player.Name +"'" );
     status[ player.ID ] = null;
+	SendDiscord(channel, "**"+player.Name+"** left the server.");
 }
 
  function onPlayerRequestClass( player, classID, team, skin )
@@ -464,8 +473,8 @@ if(status[player.ID].minigame != null)
 {
 	player.IsFrozen = true;
 	player.CanAttack = true;
-	MakeTimer(this, miniround, 2000, 1, player.ID);
-	MakeTimer(this, GGchangepos, 3000, 1, player.ID);	
+	NewTimer("miniround", 2000, 1, player.ID);
+	NewTimer("GGchangepos", 3000, 1, player.ID);	
 
 }
 status[player.ID].team = player.Team.tointeger();
@@ -628,11 +637,11 @@ function onPlayerDeath( player, reason )
     }
 		if(_GG.Players.find(player.ID) != null)
 		{
-			MakeTimer(this, miniroundspawn, 8000, 1, player.ID)
+			NewTimer("miniroundspawn", 8000, 1, player.ID)
 		}
 		if( _FR.Players.find(player.ID) != null)
 		{
-			MakeTimer(this, miniroundspawn, 8000, 1, player.ID)
+			NewTimer("miniroundspawn", 8000, 1, player.ID)
 			_FR.deathFR(player.ID);
 		}
 		if(status[player.ID].spree > 4) Message("[#FFDD33]Information:[#FFFFFF] "+pcol(player.ID)+player.Name+white+" has ended their own killing spree of "+status[player.ID].spree+" kills in a row.");
@@ -674,6 +683,8 @@ function onPlayerKill( killer, player, reason, bodypart )
 	else killer.Health = 100;
 	if( status[player.ID].spree > 4 ) Message( "[#FFDD33]Information:[#FFFFFF] "+ pcol(player.ID)+player.Name+white +" has ended their own killing spree of "+ status[player.ID].spree +" kills in a row." );
     status[player.ID].spree = 0;
+
+	SendDiscord(channel, "**"+killer.Name+"** killed **"+player.Name+"** (" + GetWeaponName( reason ) + ") (" + BodyPartText( bodypart ) + ")");
 	
 	if( _GG.Players.find( killer.ID ) != null )
 	{
@@ -681,7 +692,7 @@ function onPlayerKill( killer, player, reason, bodypart )
 	}
 	if( _GG.Players.find( player.ID ) != null )
 	{
-		MakeTimer(this, miniroundspawn, 8000, 1, player.ID);
+		NewTimer("miniroundspawn", 8000, 1, player.ID);
 	}
 
 
@@ -691,7 +702,7 @@ function onPlayerKill( killer, player, reason, bodypart )
 	}
 	if( _FR.Players.find(player.ID) != null)
 	{
-		MakeTimer(this, miniroundspawn, 8000, 1, player.ID);
+		NewTimer("miniroundspawn", 8000, 1, player.ID);
 		_FR.deathFR(player.ID);
 	}
 
@@ -2456,6 +2467,233 @@ function setteam(p)
 
 
 
+// ---------------- Discord Bot ----------------
+myDiscord <- null;
+sessions <- {};
+channel <- "574932214203285504";
+achannel <- "574932591187197952";
+uDiscordToggle <- true;
+class CDiscord
+{
+	session 		= null;
+	connID			= null;
+	BotToken		= null;
+	Prefix			= null;
+	function constructor()
+	{
+		session 		= ::SqDiscord.CSession();
+		connID			= session.ConnID;
+		Prefix			= "!";
+		BotToken		= "NTc0OTI2OTYyNjcwMzA1Mjgx.XNAkmg._-y1FmEVz0IBajrqOXrfNp4HKck";
+		::sessions.rawset(connID, this);
+	}
+	
+	function Connect(token)
+	{
+		session.Connect(token);
+	}
+	
+	function sendMessage(chanel, message)
+	{
+		session.Message(chanel, message);
+	}
+
+
+	function sendEmbed(channelID, embed)
+	{
+		session.MessageEmbed(channelID, embed);
+	}
+	
+	function GetRoleName(roleID)
+	{
+//		return session.GetRoleName("333951896182325249", roleID);
+	}
+
+	function onReady()
+	{
+		local embed = ::SqDiscord.Embed.Embed();
+		embed.SetTitle("VCT Discord Bot Connected!");
+		embed.SetDescription("Integrated with the server");
+		embed.SetColor(45658);
+		sendEmbed(channel, embed);
+		embed.SetColor(22780);
+		embed.SetDescription("Admin Channel only");
+		sendEmbed(achannel, embed);
+		SetActivity("VC:MP");
+		print("Discord Bot Setup Complete.");
+	}
+	
+	function onMessage(channelID, author, authorNick, authorID, roles, message)
+	{
+	}
+	
+	function SetActivity(activity)
+	{
+		session.SetActivity(activity);
+	}
+}
+
+function onDiscord_Ready(session)
+{
+	if(sessions.rawin(session.ConnID))
+	{
+		local session_s = sessions.rawget(session.ConnID);
+		session_s.onReady();
+	}
+}
+
+function onDiscord_Message(session, channelID, author, authorNick, authorID, roles, message)
+{
+	if(sessions.rawin(session.ConnID))
+	{
+		local session_s = sessions.rawget(session.ConnID);
+		session_s.onMessage(channelID, author, authorNick, authorID, roles, message);
+		if(channelID == channel && authorID != "574926962670305281")
+		{
+			if(message.slice(0,1) == myDiscord.Prefix) 
+			{
+				if(message.find("<:") != null || ucheckchars(message) == true) SendDiscord(channel, "**"+author+"**, emojies/special characters are not allowed.");
+				else
+				{
+					RunDiscordCommand(author, authorID, message);
+				}
+			}
+		}
+//		if(channelID == admin_channel && authorID != "574926962670305281") RunDiscordAdminCommand(author, authorID, message);
+	}
+}
+
+function SendDiscord(ch, message)
+{
+	if(uDiscordToggle == true)
+	{
+		if(message == "" || message.slice(0,1) != '\\' || message.slice(0,1) != '/')
+		{
+			myDiscord.sendMessage(ch, message);
+		}
+	}
+}
+
+
+
+function SendDiscord2(ch, m1, m2)
+{
+	if(uDiscordToggle == true)
+	{
+		if(m1 == "" || m1.slice(0,1) != '\\' || m1.slice(0,1) != '/' || m2 == "" || m2.slice(0,1) != '\\' || m2.slice(0,1) != '/')
+		{
+			local embed = ::SqDiscord.Embed.Embed();
+			embed.SetTitle(m1);
+			embed.SetDescription(m2);
+			embed.SetColor(4359924);
+			myDiscord.sendEmbed(ch, embed);
+		}
+	}
+	
+}
+
+
+
+
+class DiscordPlayer
+{
+	Name = null;
+	ID = 1000;
+	Vehicle = null;
+	Team = 1000;
+	UID = null;
+	IP = null;
+	
+}
+
+
+function RunDiscordCommand(author, authorID, message)
+{
+	local player = DiscordPlayer();
+	player.Name = author+"(Discord)";
+	player.UID = authorID;
+	player.IP = 0.0.0.0;
+	player.ID = 110;
+	local command, cmd, text, arguments;
+	cmd = message.slice(1, (GetTok2(message, " ", 1)).len());
+	arguments = GetTok2(message, " ", 2, NumTok(message, " "));
+	text = arguments;
+	
+	if(message.len() > 100) SendDiscord(channel, "**Error:** "+author+", the limit of message is 100 characters.");
+	else
+	{
+	
+	if(cmd == "say")
+	{
+		ClientMessageToAll("[#C8C8C8][Discord][#FFFFFF] [#00B2B2]"+author+"[#FFFFFF]: "+arguments, 0,0,0);
+	}
+
+	else if(cmd == "players" || cmd == "player")
+	{
+		SendDiscord2("Total Players online", GetPlayers()+"/"+GetMaxPlayers());
+	}
+	else if(cmd == "help" || cmd == "commands" || cmd == "cmds")
+	{
+		SendDiscord2("Available commands", "!say, !players, !admins");
+	}
+	
+	else if(cmd == "admins" || cmd == "admin")
+	{
+		local plr, b, m;
+		b=0;
+		m = 0;
+		for( local i = 0; i <= GetMaxPlayers(); i++ )
+		{
+			plr = FindPlayer( i );
+			if (plr && LevelPlayer(plr) >= 3)
+			{
+				b=b+1;
+				if( m == 0)
+				{
+					m = plr.Name;
+				}
+				else
+				{
+					m = m + ", "+ plr.Name;
+				}
+			}
+		}
+		if (b)
+		{
+			SendDiscord2("List of Admins in server, requested by: "+player.Name, m);
+		}
+		if(!b) SendDiscord2("List of Admins in server, requested by: "+player.Name, "None" );
+	}
+	
+	else return;
+	
+	}
+
+}
+
+
+
+function ucheckchars(string)
+{
+local chars = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "V", "X", "Y", "Z", "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k.", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", "0", "1",
+"2", "3", "4", "5", "6", "7", "8", "9", " ", "!", " ", "#", "$", "%", "&", " ", "(", ")", "*", "+", ",", "-", ".", "/", ":", ";", "<", "=", ">", "?",
+"@", "^", "_", "`", "{", "|", "}", "~", "\\", "[", "]"]; 
+
+local b = false, start = time();
+for(local i = 1; i<= string.len() - 1; i++)
+{
+	if(chars.find(string.slice(i - 1, i)) == null)
+	{ b = true; }
+	i++;
+}
+	if(b) return true;
+	else return false;
+
+}  
+
+
+
+// --------------------End Discord Bot --------------------------
 
 
 
@@ -2489,6 +2727,7 @@ function SendDataToClient(player, integer, string)
  Stream.WriteInt(integer);
  if (string != null) Stream.WriteString(string);
  Stream.SendStream(player);
+ MessagePlayer("data sending", player);
 }
 
 
@@ -4881,27 +5120,49 @@ local playerName = pcol(player.ID) + player.Name + white;
 	
 		
 	
-	else if(cmd == "pm" || cmd == "privatemessage")
+	
+	
+
+	else if(cmd == "dsay")
 	{
-		if(!arguments || NumTok(arguments,  " ") < 2) MessagePlayer("[#FF0000]Error:[#FFFFFF] Wrong Syntax. Use /[#008080]"+cmd+" <player> <message>", player);
+		if(uDiscordToggle == false) MessagePlayer("[#FF0000]Error: [#FFFFFF]The Discord bot is offline right now.", player);
+		if(!arguments) ClientMessage("[#FF0000]Error: [#FFFFFF]Invalid Syntax. Use [#00B2B2]/"+cmd+" <message>", player, 0,0,0);
+		else if((time() - PlayerInfo[player.ID].uDiscord) < 5) ClientMessage("[#FF0000]Error: [#FFFFFF]You can send one message every 5 seconds.", player, 0,0,0);
 		else
 		{
-			local plr = FindPlayer(GetTok(arguments, " ", 1));
-			if(!plr) MessagePlayer("[#FF0000]Error:[#FFFFFF] Unknown Player.", player);
-			// add the ignore check. If muted then MessagePlayer("[#FF0000]Error:[#FFFFFF] You are being ignored by the player.", player);
+			local FirstChar = arguments.slice(0,1);
+			if(FirstChar == "/" || FirstChar == "\\") ClientMessage("[#FF0000]Error: [#FFFFFF]Please remove special characters from start of message.", player, 0,0,0);
 			else
 			{
-				PrivMessage(plr, GetTok(arguments, " ", 2, NumTok(arguments, " ")));
+				ClientMessage("[#FFDD33]Information: [#FFFFFF]Sent Message: "+arguments, player, 0,0,0);
+				SendDiscord(channel, "**"+player.Name+":** "+arguments);
+				PlayerInfo[player.ID].uDiscord = time();
 			}
 		}
 	}
+	else if(cmd == "setdiscordtoken")
+	{
+		if(LevelPlayer(player) < 6) ClientMessage("[#FF0000]Error:[#FFFFFF]Unauthorized Access.", player, 0,0,0);
+		else if(!arguments) ClientMessage("[#FF0000]Error: [#FFFFFF]Invalid Syntax. Use [#00B2B2]/"+cmd+" <Discord Token>", player, 0,0,0);
+		else
+		{
+			ClientMessage("[#FFDD33]Information: [#FFFFFF]Discord Token Changed to: "+arguments, player, 0,0,0);
+			myDiscord.BotToken = arguments;
+			myDiscord.Connect(myDiscord.BotToken);
+		}
+	}
 
-	
-	
-	
-
-
-
+	else if(cmd == "togglediscord")
+	{
+		if(LevelPlayer(player) < 6) ClientMessage("[#FF0000]Error: [#FFFFFF]Unauthorized Access.", player, 0,0,0);
+		else if(arguments && ( GetTok2(arguments, " ", 1) == "on" || GetTok2(arguments, " ", 1) == "off"))
+		{
+			uDiscordToggle <- (arguments == "on" ? true : false);
+			ClientMessage("[#FFDD33]Information: [#FFFFFF]Discord bot has been turned "+arguments.tolower()+".", player, 0,0,0);
+			myDiscord.SetActivity((arguments == "on" ? 	"{"+myDiscord.Prefix+"} VC:MP" : "[Closed] VC:MP"));
+		}
+		else ClientMessage("[#FF0000]Error: [#FFFFFF]Invalid Syntax. Use [#00B2B2]/"+cmd+" <on/off>", player, 0,0,0);
+	}	
 	
 	
 	

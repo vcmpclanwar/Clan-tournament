@@ -27,9 +27,11 @@ function errorHandling(err)
     Console.Print(errorMsg);
 }
  
-seterrorhandler(errorHandling);
- 
-
+function Script::ScriptLoad()
+{
+	seterrorhandler(errorHandling);
+	WelcomeScreen.Create();
+}
 
 function Server::ServerData(stream)
 {
@@ -92,7 +94,8 @@ function Server::ServerData(stream)
         else RemoveCBScoreboardDisplay();  
         break;
         case 10:
-            WelcomeScreen.Create(StreamReadString);
+            WelcomeScreen.Setup(StreamReadString);
+			Console.Print("data received");
         break;
 		case 11:
 			WelcomeScreen.ErrorText.Text = "Wrong Password";
@@ -100,9 +103,7 @@ function Server::ServerData(stream)
 		case 12:
 			WelcomeScreen.ClearForm();
 		break;
-		case 13:
-			WelcomeScreen.Create();
-		break;
+		default: break;
 
     }
 }
@@ -142,17 +143,26 @@ WelcomeScreen <-
 	InfoLoc			= 0.60
 	
 
-    function Create(string)
-    {
-		
+
+	function Setup(string)
+	{
 		local params = split(string, " ");
-		player			<- params[0];
-		Registered 		<- params[1].tointeger();
-		LoggedIn 		<- params[2].tointeger();
-		pass			<- params[3];
-		InWork			<- true;
+		this.player				<- params[0];
+		this.Registered 		<- params[1].tointeger();
+		this.LoggedIn 			<- params[2].tointeger();
+		this.pass				<- params[3];
+		this.InWork				<- true;
         this.Stage <- 1;
+
+		Console.Print("data put");
 	
+	}
+    function Create()
+    {
+	
+	
+		Hud.RemoveFlags(HUD_FLAG_CASH | HUD_FLAG_CLOCK | HUD_FLAG_HEALTH | HUD_FLAG_WEAPON | HUD_FLAG_WANTED | HUD_FLAG_RADAR);
+
 		this.Default		 <- :: GUISprite("processor/wallpaper.png", VectorScreen(0,0), Colour(255,255,255,255));
 		this.Default.Size = VectorScreen(screen.X, screen.Y);
 		
@@ -239,13 +249,15 @@ WelcomeScreen <-
 			this.Outline.Size = VectorScreen(screen.X * 0.25, screen.Y * 0.12);
 			this.Information	<- ::GUILabel(VectorScreen(screen.X * 0.79, screen.Y * 0.76), Colour(255, 255, 255), "Vice City");
 			this.Information.FontName = "WRESTLEMANIA";
-			this.Information.FontSize = screen.X * 0.02;
+			this.Information.FontSize = screen.X * 0.015;
 			this.Default	<- ::GUILabel(VectorScreen(screen.X * 0.79, screen.Y * 0.79), Colour(255, 255, 255), "Clansmanship");
 			this.Default.FontName = "WRESTLEMANIA";
-			this.Default.FontSize = screen.X * 0.02;
+			this.Default.FontSize = screen.X * 0.015;
 			this.Continue	<- ::GUILabel(VectorScreen(screen.X * 0.79, screen.Y * 0.82), Colour(255, 255, 255), "League");
 			this.Continue.FontName = "WRESTLEMANIA";
-			this.Continue.FontSize = screen.X * 0.02;
+			this.Continue.FontSize = screen.X * 0.015;
+
+			Hud.AddFlags(HUD_FLAG_CASH | HUD_FLAG_CLOCK | HUD_FLAG_HEALTH | HUD_FLAG_WEAPON | HUD_FLAG_WANTED | HUD_FLAG_RADAR);
 		}
 	}
 	
@@ -263,7 +275,7 @@ WelcomeScreen <-
 			this.Information.FontName = "Candara";
 			this.Information.FontSize = screen.X * 0.06;
 
-			this.Username		<- ::GUILabel(VectorScreen(screen.X * 0.35, screen.Y * 0.29), Colour(28, 174, 190), player);
+			this.Username		<- ::GUILabel(VectorScreen(screen.X * 0.35, screen.Y * 0.29), Colour(28, 174, 190), this.player);
 			this.Username.FontFlags = GUI_FFLAG_NONE;
 			this.Username.TextAlignment = GUI_ALIGN_CENTERH;
 			this.Username.FontName = "Corbel";
@@ -315,7 +327,7 @@ WelcomeScreen <-
 			this.Information.FontName = "Candara";
 			this.Information.FontSize = screen.X * 0.06;
 
-			this.Username		<- ::GUILabel(VectorScreen(screen.X * 0.35, screen.Y * 0.29), Colour(28, 174, 190), player);
+			this.Username		<- ::GUILabel(VectorScreen(screen.X * 0.35, screen.Y * 0.29), Colour(28, 174, 190), this.player);
 			this.Username.FontFlags = GUI_FFLAG_NONE;
 			this.Username.TextAlignment = GUI_ALIGN_CENTERH;
 			this.Username.FontName = "Corbel";
@@ -359,7 +371,7 @@ WelcomeScreen <-
 	}
 	function ChangeSpinner()
 	{
-		this.Spinner.SetTexture("processor/spinner/" + WelcomeScreen.Stage + ".png");
+		this.Spinner.SetTexture("processor/spinner/" + this.Stage + ".png");
 		this.Stage <- this.Stage + 1;
 		if (this.Stage > 90)
 		{
