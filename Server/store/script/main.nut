@@ -870,9 +870,8 @@ screen <- GUI.GetScreenSize();
 			this.Continue.Size = VectorScreen(screen.X * 0.05, screen.Y * 0.07);
 			}
 		}
-	}
-
 }
+
 
 
 
