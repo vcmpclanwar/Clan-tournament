@@ -29,9 +29,10 @@ function errorHandling(err)
  
 function Script::ScriptLoad()
 {
-	seterrorhandler(errorHandling);
+//	seterrorhandler(errorHandling);
 	WelcomeScreen.Create();
 }
+
 
 function Server::ServerData(stream)
 {
@@ -499,7 +500,18 @@ function KeyBind::OnDown( key )
 			
 		}
 	}
-3}
+}
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
  
  
  

@@ -24,6 +24,7 @@ class PlayerStats
  miniscore = 0;
  minitarget = null;
  SM = true;
+ uDiscord = 0;
 }
 
 const white = "[#FFFFFF]";
@@ -71,6 +72,7 @@ function onScriptLoad()
 	myDiscord.Connect(myDiscord.BotToken);
 
 
+	Helpf <- array(GetMaxPlayers(), null);
 
 
 
@@ -237,6 +239,14 @@ function onScriptLoad()
 function onScriptUnload()
 {
 }
+
+
+class Helpfrm
+{
+Stage = 0;
+Timer = null;
+}
+
 function Update()
 {
 	for ( local i = 0; i < pCamera.len(); i++ )
@@ -250,6 +260,7 @@ function Update()
 function onPlayerJoin( player )
 {
 	status[player.ID] = PlayerStats();
+	Helpf[player.ID] = Helpfrm();
 	AccInfo(player);
     local FN = funmessages[ rand() % funmessages.len() ];
     Message( "[#FFDD33][Info][#FFFFFF] "+ FN + player.Name +"." );
@@ -257,14 +268,15 @@ function onPlayerJoin( player )
 	pCamera[ player.ID ].Player = FindPlayer( player.ID );
 	checkban(player);
 	MessagePlayer("[#FFDD33]Information:[#FFFFFF] Level: "+status[player.ID].Level+" ("+checklvl(status[player.ID].Level)+")", player);
-	SendDiscord(channel, "**"+player.Name+"** joined the server.");
-
+/*
 	local a,b,c;
 	if(status[player.ID].Registered) a = 1; else a = 0;
 	if(status[player.ID].LoggedIn == true) b = 1; else b = 0;
 	c = player.Name+" "+a+" "+b+" "+status[player.ID].pass;
-	NewTimer("SendDataToClient", 500, 1, player, 10, c);
+	NewTimer("SendDataToClient", 2000, 1, player, 10, c);
 	MessagePlayer("data sent", player);
+*/
+	SendDiscord(channel, "**"+player.Name+"** joined the server.");
 
 }
 
@@ -394,6 +406,7 @@ function onPlayerPart( player, reason )
     }
 //    if ( status[ player.ID ].LoggedIn == true ) QuerySQL( DB, "UPDATE Accounts SET Level = '"+ status[ player.ID ].Level +"', IP = '"+ status[ player.ID ].IP +"', UID = '"+ status[ player.ID ].UID +"', Kills = '"+ status[ player.ID ].kills +"', Deaths = '"+ status[ player.ID ].deaths +"' WHERE Name LIKE '"+ player.Name +"'" );
     status[ player.ID ] = null;
+    Helpf[ player.ID ] = null;
 	SendDiscord(channel, "**"+player.Name+"** left the server.");
 }
 
@@ -426,10 +439,10 @@ function onPlayerPart( player, reason )
 
 function onPlayerRequestSpawn( player )
 {
-	if(status[player.ID].welcomescreen == false) return;
+/*	if(status[player.ID].welcomescreen == false) return;
 	else
 	{
-		if(!status[player.ID].Registered)
+*/		if(!status[player.ID].Registered)
 		{
 			MessagePlayer("[#FF0000]Error:[#FFFFFF] You need to be registerd before spawning", player);
 			return 0;
@@ -465,7 +478,7 @@ function onPlayerRequestSpawn( player )
 			else return 1;
 		}
 	}
-}
+// }
 
 function onPlayerSpawn( player )
 {
@@ -2467,6 +2480,82 @@ function setteam(p)
 
 
 
+
+
+function RunHelpForm(p)
+{
+	local player = FindPlayer(p);
+	if(player)
+	{
+		Announce("~r~ Starting Helping form", player, 8);
+		Helpf[player.ID].Stage = 0.5;
+		NewTimer( "HelpFormArmy1", 30, 200, player.ID );
+		NewTimer( "StartHelpFormArmy2", 6000, 1, player.ID);
+	}
+}
+
+function HelpFormArmy1(p)
+{
+	local player = FindPlayer(p);
+	if(player)
+	{
+		local vPos = FirstCPosLocArmy[0];
+		player.SetCameraPos( Vector((vPos.x + Helpf[player.ID].Stage - (Helpf[player.ID].Stage / 2) + 7), (vPos.y + Helpf[player.ID].Stage - (Helpf[player.ID].Stage / 3) - 25), (vPos.z + 7)), Vector((-1727.75 - Helpf[player.ID].Stage), -205.736, 14.8683));
+		Helpf[player.ID].Stage += 0.25;
+	}
+}
+
+function StartHelpFormArmy2(p)
+{
+	NewTimer("HelpFormArmy2", 30, 200, p);
+}
+
+function HelpFormArmy2(p)
+{
+	local player = FindPlayer(p);
+	if(player)
+	{
+		local vPos = Vector(-1727.75 , -205.736, 14.8683);
+		player.SetCameraPos( Vector((vPos.x - Helpf[player.ID].Stage + (Helpf[player.ID].Stage / 2) + 7), (vPos.y - Helpf[player.ID].Stage + (Helpf[player.ID].Stage / 3) - 25), (vPos.z + 7)), Vector((-1721.69 + Helpf[player.ID].Stage), -267.066 ,14.8683 ));
+		Helpf[player.ID].Stage += 0.25;
+	}
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // ---------------- Discord Bot ----------------
 myDiscord <- null;
 sessions <- {};
@@ -2615,8 +2704,8 @@ function RunDiscordCommand(author, authorID, message)
 	player.IP = 0.0.0.0;
 	player.ID = 110;
 	local command, cmd, text, arguments;
-	cmd = message.slice(1, (GetTok2(message, " ", 1)).len());
-	arguments = GetTok2(message, " ", 2, NumTok(message, " "));
+	cmd = message.slice(1, (GetTok(message, " ", 1)).len());
+	arguments = GetTok(message, " ", 2, NumTok(message, " "));
 	text = arguments;
 	
 	if(message.len() > 100) SendDiscord(channel, "**Error:** "+author+", the limit of message is 100 characters.");
@@ -2625,16 +2714,16 @@ function RunDiscordCommand(author, authorID, message)
 	
 	if(cmd == "say")
 	{
-		ClientMessageToAll("[#C8C8C8][Discord][#FFFFFF] [#00B2B2]"+author+"[#FFFFFF]: "+arguments, 0,0,0);
+		if(arguments) ClientMessageToAll("[#C8C8C8][Discord][#FFFFFF] [#00B2B2]"+author+"[#FFFFFF]: "+arguments, 0,0,0);
 	}
 
 	else if(cmd == "players" || cmd == "player")
 	{
-		SendDiscord2("Total Players online", GetPlayers()+"/"+GetMaxPlayers());
+		SendDiscord2(channel, "Total Players online", GetPlayers()+"/"+GetMaxPlayers());
 	}
 	else if(cmd == "help" || cmd == "commands" || cmd == "cmds")
 	{
-		SendDiscord2("Available commands", "!say, !players, !admins");
+		SendDiscord2(channel, "Available commands", "!say, !players, !admins");
 	}
 	
 	else if(cmd == "admins" || cmd == "admin")
@@ -2645,7 +2734,7 @@ function RunDiscordCommand(author, authorID, message)
 		for( local i = 0; i <= GetMaxPlayers(); i++ )
 		{
 			plr = FindPlayer( i );
-			if (plr && LevelPlayer(plr) >= 3)
+			if (plr && status[plr.ID].Level >= 5)
 			{
 				b=b+1;
 				if( m == 0)
@@ -2660,9 +2749,9 @@ function RunDiscordCommand(author, authorID, message)
 		}
 		if (b)
 		{
-			SendDiscord2("List of Admins in server, requested by: "+player.Name, m);
+			SendDiscord2(channel, "List of Admins in server, requested by: "+player.Name, m);
 		}
-		if(!b) SendDiscord2("List of Admins in server, requested by: "+player.Name, "None" );
+		if(!b) SendDiscord2(channel, "List of Admins in server, requested by: "+player.Name, "None" );
 	}
 	
 	else return;
@@ -2671,6 +2760,96 @@ function RunDiscordCommand(author, authorID, message)
 
 }
 
+/*
+function RunDiscordAdminCommand(author, authorID, message)
+{
+	local player = DiscordPlayer();
+	player.Name = author+"(Discord)";
+	player.UID = authorID;
+	player.IP = 0.0.0.0;
+	player.ID = 110;
+	local command, cmd, text, arguments;
+	cmd = message.slice(1, (GetTok(message, " ", 1)).len());
+	arguments = GetTok(message, " ", 2, NumTok(message, " "));
+	text = arguments;
+
+  if ( cmd == "kick" )
+    {
+		
+		if(!arguments || NumTok(arguments, " ") < 2) SendDiscord(admin_channel, "*Error:** Use /"+bas+cmd+" <player> <reason>");;
+		else
+		{
+			local plr = FindPlayer(GetTok(arguments, " ", 1));
+			local reas = GetTok(arguments, " ", NumTok(arguments, " "));
+			if(!plr) SendDiscord(admin_channel, "*Error:** Invalid Player", player);
+			else if(status[player.ID].Level <= status[plr.ID].Level) SendDiscord(admin_channel, "*Error:** You cannot kick admin equal or higher than you", player);
+			else
+			{
+				Message("[#FFDD00]Administrator Command:[#FFFFFF] Admin "+playerName+" kicked player : " + pcol(plr.ID) + plr.Name + white + " Reason : "+reas+".");
+				local now = date();
+				local dat = now.day + "/" + now.month + "/" + now.year + " " + now.hour + ":" + now.min + ":" + now.sec;
+                local today = date(), dat = today.month + "/" + today.day + "/" + today.year;
+                QuerySQL( DB, "INSERT INTO AdminLog ( Admin, Level, Player, Date, Command, Reason ) VALUES ( '"+ escapeSQLString( player.Name ) +"',  '"+ status[ player.ID ].Level +"', '"+ escapeSQLString( plr.Name ) +"', '"+ dat +"', '"+ cmd +"', '"+ reas +"' ) " );
+				QuerySQL(DB, "INSERT INTO kick (name, admin, date, reason) VALUES ('"+escapeSQLString(player.Name.tolower())+"', '"+escapeSQLString(plr.Name.tolower())+"', '"+dat+"', '"+reas+"') ");
+				KickPlayer( plr );
+			}
+		}
+	}
+	
+	else if(cmd == "warn")
+	{
+		if(status[player.ID].Level < 5) MessagePlayer("[#FFDD33]Information:[#FFFFFF] Unauthorized Access", player);
+		else if(!arguments || NumTok(arguments, " ") < 2) SendDiscord(admin_channel, "*Error:** Use / " bas + cmd + " <plr> <reason> ", player);
+		else
+		{
+			local plr = FindPlayer(GetTok(arguments, " ", 1));
+			local reas = GetTok(arguments, " ", 2, NumTok(arguments, " "));
+			if(!plr) SendDiscord(admin_channel, "*Error:** Invalid Player", player);
+			else if(status[player.ID].Level <= status[plr.ID].Level) SendDiscord(admin_channel, "*Error:** You cannot warn any admin equal or higher than you", player);
+			else 
+			{
+                status[ plr.ID ].Warns++;
+				Message("[#FFDD00]Administrator Command:[#FFFFFF] Admin "+playerName+" warned player : " + pcol(plr.ID) + plr.Name + white + " Reason : " + reas + ".");
+				MessagePlayer("[#FFDD33]Information:[#FFFFFF] You have been warned by Admin:"+playerName+" Reason: "+reas+".", plr);
+				local now = date();
+				local dat = now.day + "/" + now.month + "/" + now.year + " " + now.hour + ":" + now.min + ":" + now.sec;
+				Announce("~r~ Warned ", plr, 8);
+				QuerySQL(DB, "INSERT INTO warn (name, admin, date, reason) VALUES ('"+escapeSQLString(player.Name.tolower())+"', '"+escapeSQLString(plr.Name.tolower())+"', '"+dat+"', '"+reas+"') ");
+                local today = date(), dat = today.month + "/" + today.day + "/" + today.year;
+                QuerySQL( DB, "INSERT INTO AdminLog ( Admin, Level, Player, Date, Command, Reason ) VALUES ( '"+ escapeSQLString( player.Name ) +"',  '"+ status[ player.ID ].Level +"', '"+ escapeSQLString( plr.Name ) +"', '"+ dat +"', '"+ cmd +"', '"+ reas +"' ) " );
+                if ( status[ player.ID ].Warns == 3 )
+                {
+                    Message( "[#FFDD33]Information:[#FFFFFF] "+ pcol( plr.ID ) + plr.Name + white +" has been kicked from the server due to exceeding the warning limit." );
+                    KickPlayer( plr );
+                }
+			}
+		}
+	}
+    else if( cmd == "unwarn" )
+    {
+        if( status[player.ID].Level < 5 ) MessagePlayer( "[#FFDD33]Information:[#FFFFFF] Unauthorized access.", player );
+        else if(!arguments || NumTok(arguments, " ") < 2) SendDiscord(admin_channel, "*Error:** Use / " bas + cmd + " <plr>", player );
+        else
+        {
+            local plr = FindPlayer( GetTok( arguments, " ", 1 ) );
+            if( !plr ) MessagePlayer( "[#FF0000]Error:[#FFFFFF] Unknown player.", player );
+            else if( status[player.ID].Level <= status[plr.ID].Level ) MessagePlayer( "[#FF0000]Error:[#FFFFFF] You cannot unwarn any admin with a level equal or higher than you.", player );
+            else
+            {
+                if ( status[ plr.ID ].Warns > 0 ) status[ plr.ID ].Warns = 0;
+                Message( "[#FFDD00]Administrator Command:[#FFFFFF] Admin "+ playerName +" unwarned player: "+ pcol(plr.ID) + plr.Name + white +"." );
+                local now = date();
+                local dat = now.day + "/" + now.month + "/" + now.year + " " + now.hour + ":" + now.min + ":" + now.sec;
+                local today = date(), dat = today.month + "/" + today.day + "/" + today.year;
+                QuerySQL( DB, "INSERT INTO AdminLog ( Admin, Level, Player, Date, Command, Reason ) VALUES ( '"+ escapeSQLString( player.Name ) +"',  '"+ status[ player.ID ].Level +"', '"+ escapeSQLString( plr.Name ) +"', '"+ dat +"', '"+ cmd +"', '"+ reas +"' ) " );
+            }
+        }
+    }
+	
+
+}
+
+*/
 
 
 function ucheckchars(string)
@@ -2727,7 +2906,6 @@ function SendDataToClient(player, integer, string)
  Stream.WriteInt(integer);
  if (string != null) Stream.WriteString(string);
  Stream.SendStream(player);
- MessagePlayer("data sending", player);
 }
 
 
@@ -5127,7 +5305,7 @@ local playerName = pcol(player.ID) + player.Name + white;
 	{
 		if(uDiscordToggle == false) MessagePlayer("[#FF0000]Error: [#FFFFFF]The Discord bot is offline right now.", player);
 		if(!arguments) ClientMessage("[#FF0000]Error: [#FFFFFF]Invalid Syntax. Use [#00B2B2]/"+cmd+" <message>", player, 0,0,0);
-		else if((time() - PlayerInfo[player.ID].uDiscord) < 5) ClientMessage("[#FF0000]Error: [#FFFFFF]You can send one message every 5 seconds.", player, 0,0,0);
+		else if((time() - status[player.ID].uDiscord) < 5 && player.Level < 6) ClientMessage("[#FF0000]Error: [#FFFFFF]You can send one message every 5 seconds.", player, 0,0,0);
 		else
 		{
 			local FirstChar = arguments.slice(0,1);
@@ -5135,8 +5313,9 @@ local playerName = pcol(player.ID) + player.Name + white;
 			else
 			{
 				ClientMessage("[#FFDD33]Information: [#FFFFFF]Sent Message: "+arguments, player, 0,0,0);
+				Message(""+pcol( player.ID ) + player.Name + white+": "+arguments);
 				SendDiscord(channel, "**"+player.Name+":** "+arguments);
-				PlayerInfo[player.ID].uDiscord = time();
+				status[player.ID].uDiscord = time();
 			}
 		}
 	}
@@ -5155,7 +5334,7 @@ local playerName = pcol(player.ID) + player.Name + white;
 	else if(cmd == "togglediscord")
 	{
 		if(LevelPlayer(player) < 6) ClientMessage("[#FF0000]Error: [#FFFFFF]Unauthorized Access.", player, 0,0,0);
-		else if(arguments && ( GetTok2(arguments, " ", 1) == "on" || GetTok2(arguments, " ", 1) == "off"))
+		else if(arguments && ( GetTok(arguments, " ", 1) == "on" || GetTok(arguments, " ", 1) == "off"))
 		{
 			uDiscordToggle <- (arguments == "on" ? true : false);
 			ClientMessage("[#FFDD33]Information: [#FFFFFF]Discord bot has been turned "+arguments.tolower()+".", player, 0,0,0);
@@ -5171,7 +5350,10 @@ local playerName = pcol(player.ID) + player.Name + white;
 	
 	
 	
-	
+	else if(cmd == "helpform")
+	{
+		RunHelpForm(player.ID);
+	}
 	
 	
 	
