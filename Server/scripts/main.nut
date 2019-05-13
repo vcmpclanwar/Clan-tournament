@@ -5078,7 +5078,7 @@ local playerName = pcol(player.ID) + player.Name + white;
 		}
 	}
 
-	else if( cmd == "gungame" )
+/*	else if( cmd == "gungame" )
 	{
 		if( !player.IsSpawned ) MessagePlayer("[#FF0000]Error:[#FFFFFF] You need to be spawned to use this command.", player);
 		else if( _GG.state == "STARTED" ) MessagePlayer( "[#FF0000]Error:[#FFFFFF] The Minigame is already running.", player );
@@ -5102,7 +5102,7 @@ local playerName = pcol(player.ID) + player.Name + white;
 			SendDataToClient(player, 1, "Frenzy");
 		}
 	}
-	else if(cmd == "start")
+*/	else if(cmd == "start")
 	{
 		if(status[player.ID].minigame == null) MessagePlayer("[#FF0000]Error:[#FFFFFF] Unknown Command. Use /"+bas+"cmds"+white+" for a list of Commands", player);
 		else

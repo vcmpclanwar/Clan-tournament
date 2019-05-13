@@ -123,7 +123,7 @@ WelcomeScreen <-
 	ContinueSprite	= null
 	InWork			= false
 	
-    Stage			= null
+    Stage			= 1
 	Default			= null
     Wallpaper		= null
     Spinner			= null
@@ -146,12 +146,11 @@ WelcomeScreen <-
 
 	function Setup(string)
 	{
-/*		local params = split(string, " ");
+		local params = split(string, " ");
 		this.player				<- params[0];
 		this.Registered 		<- params[1].tointeger();
 		this.LoggedIn 			<- params[2].tointeger();
-        this.Stage <- 1;
-*/
+
 		Console.Print("data put");
 	
 	}
@@ -258,6 +257,15 @@ WelcomeScreen <-
 
 			this.ContinueSprite <- ::GUISprite("wallpaper.png", VectorScreen(screen.X * 0.70, screen.Y * 0.75), Colour(255,255,255,255));
 			this.ContinueSprite.Size = VectorScreen(screen.X * 0.15, screen.Y * 0.12);
+			 if( !_Gui_FPS ) {
+			::FPSLimit = 255 / ::FPSLimit;
+			::_Gui_FPS = GUILabel( VectorScreen( ( screen.X * 0.95 ) - ( FPS_Scale ), screen.Y * 0.95 ), Colour( 255, 255, 255, 255 ), "FPS: 0" );
+			::_Gui_FPS.FontSize = ::FPS_Scale;
+			::_Gui_FPS.FontName = ::FPS_Font;
+			::FPSCalc = 0;
+			::FPSTime = Script.GetTicks() + 1000;
+ }
+
 			Hud.AddFlags(HUD_FLAG_CASH | HUD_FLAG_CLOCK | HUD_FLAG_HEALTH | HUD_FLAG_WEAPON | HUD_FLAG_WANTED | HUD_FLAG_RADAR);
 		}
 	}
@@ -517,16 +525,30 @@ function KeyBind::OnDown( key )
  
 function Script::ScriptProcess()
 {
+
+
+ if( ::_Gui_FPS ) {
+  if ( Script.GetTicks() < ::FPSTime ) {
+   ::FPSCalc = FPSCalc + 1
+  }
+  else {
+   if ( ::FPSCalc > ::FPSMax ) {
+    ::FPSLimit = 255 / ::FPSCalc;
+    ::FPSMax = FPSCalc;
+   }
+   
+   ::_Gui_FPS.Text = "FPS: " + ::FPSCalc;
+   ::_Gui_FPS.FontSize = ::FPS_Scale;
+   ::_Gui_FPS.Alpha = ::FPS_Alpha;
+   ::_Gui_FPS.TextColor = ::FPS_TextColor;
+   ::FPSCalc = 0
+   ::FPSTime = Script.GetTicks() + 1000
+  }
+ }
+
 	Timer.Process();
 }
-/* function Script::ScriptLoad()
-{
- local hash = Timer.Create(this, function(text, int) {
-  Console.Print(text + int);
- }, 1000, 0, "Timer Text ", 12345);
- Console.Print(hash);
-}
-*/
+
 Timer <- {
  Timers = {}
 
@@ -792,7 +814,7 @@ function FRtarget(strread)
 	FRtt.min.FontSize = screen.X * 0.015;
 	FRtt.col.FontSize = screen.X * 0.013;
 	FRtt.sec.FontSize = screen.X * 0.013;
-	FRtimetimer <- ::Timer.Create(this, FRupdatetime, 1000, 1000);
+//	FRtimetimer <- ::Timer.Create(this, FRupdatetime, 1000, 1000);
 	
 }
 function FRsettime(strread)
@@ -814,8 +836,8 @@ function FRsettime(strread)
 
 function FRupdatetime()
 {
-	local Min = FRtt.min.Text.tofloat();
-	local Sec = FRtt.sec.Text.tofloat();
+	local Min = FRtt.min.Text.integer();
+	local Sec = FRtt.sec.Text.integer();
 	
 	Sec = Sec - 1;
 	if(Sec <= 0)
@@ -1059,6 +1081,18 @@ function SendDataToServer(str, int)
 
 
 
+
+
+FPSLimit <- 37;
+FPSMax <- 1;
+FPSCalc <- 0;
+FPSTime <- 0;
+_Gui_FPS <- null;
+
+FPS_Scale <- screen.Y / 51;
+FPS_Alpha <- 255;
+FPS_Font <- "Tahoma"; /* Tohama, Lucida Console, Verdana */
+FPS_TextColor <- Colour( 255, 255, 255 );
 
 
 
