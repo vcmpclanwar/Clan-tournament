@@ -114,7 +114,6 @@ WelcomeScreen <-
 	player			= null
 	Registered		= null
 	LoggedIn		= null
-	pass			= null
     Username		= null
     Outline			= null
     Password		= null
@@ -147,14 +146,12 @@ WelcomeScreen <-
 
 	function Setup(string)
 	{
-		local params = split(string, " ");
+/*		local params = split(string, " ");
 		this.player				<- params[0];
 		this.Registered 		<- params[1].tointeger();
 		this.LoggedIn 			<- params[2].tointeger();
-		this.pass				<- params[3];
-		this.InWork				<- true;
         this.Stage <- 1;
-
+*/
 		Console.Print("data put");
 	
 	}
@@ -170,6 +167,7 @@ WelcomeScreen <-
 		this.Wallpaper       <- ::GUISprite("wallpaper.png", VectorScreen(0, 0), Colour(255, 255, 255, 255));
 		this.Wallpaper.Size = VectorScreen(screen.X, screen.Y);
 		timer <-	Timer.Create(this, SetWallAlpha, 30, 100);
+		this.InWork				<- true;
     }
 	
 
@@ -248,16 +246,18 @@ WelcomeScreen <-
 			InWork <- "sidebar";
 			this.Outline		<- ::GUISprite("processor/overlay.png", VectorScreen(screen.X * 0.72, screen.Y * 0.75), Colour(255, 255, 255, 150));
 			this.Outline.Size = VectorScreen(screen.X * 0.25, screen.Y * 0.12);
-			this.Information	<- ::GUILabel(VectorScreen(screen.X * 0.79, screen.Y * 0.76), Colour(255, 255, 255), "Vice City");
+			this.Information	<- ::GUILabel(VectorScreen(screen.X * 0.82, screen.Y * 0.76), Colour(255, 255, 255), "Vice City");
 			this.Information.FontName = "WRESTLEMANIA";
 			this.Information.FontSize = screen.X * 0.015;
-			this.Default	<- ::GUILabel(VectorScreen(screen.X * 0.79, screen.Y * 0.79), Colour(255, 255, 255), "Clansmanship");
+			this.Default	<- ::GUILabel(VectorScreen(screen.X * 0.82, screen.Y * 0.79), Colour(255, 255, 255), "Clansmanship");
 			this.Default.FontName = "WRESTLEMANIA";
 			this.Default.FontSize = screen.X * 0.015;
-			this.Continue	<- ::GUILabel(VectorScreen(screen.X * 0.79, screen.Y * 0.82), Colour(255, 255, 255), "League");
+			this.Continue	<- ::GUILabel(VectorScreen(screen.X * 0.82, screen.Y * 0.82), Colour(255, 255, 255), "League");
 			this.Continue.FontName = "WRESTLEMANIA";
 			this.Continue.FontSize = screen.X * 0.015;
 
+			this.ContinueSprite <- ::GUISprite("wallpaper.png", VectorScreen(screen.X * 0.70, screen.Y * 0.75), Colour(255,255,255,255));
+			this.ContinueSprite.Size = VectorScreen(screen.X * 0.15, screen.Y * 0.12);
 			Hud.AddFlags(HUD_FLAG_CASH | HUD_FLAG_CLOCK | HUD_FLAG_HEALTH | HUD_FLAG_WEAPON | HUD_FLAG_WANTED | HUD_FLAG_RADAR);
 		}
 	}
@@ -775,24 +775,24 @@ FRtimetimer <- null;
 
 function FRtarget(strread)
 {
-	FRtt.target = GUILabel(VectorScreen((screen.X * 0.80), (screen.Y * 0.85)), Colour(235, 0, 0), "Target:");
+	FRtt.target = GUILabel(VectorScreen((screen.X * 0.20), (screen.Y * 0.65)), Colour(235, 0, 0), "Target:");
 	FRtt.target.FontSize = screen.X * 0.015;
 	FRtt.target.FontFlags = GUI_FFLAG_BOLD;
-	FRtt.name = GUILabel(VectorScreen((screen.X * 0.86), (screen.Y * 0.85)), Colour(255, 255, 255), strread);
+	FRtt.name = GUILabel(VectorScreen((screen.X * 0.26), (screen.Y * 0.65)), Colour(255, 255, 255), strread);
 	FRtt.name.FontSize = screen.X * 0.015;
 	FRtt.name.FontFlags = GUI_FFLAG_BOLD;
 	
-	FRtt.tname = GUILabel(VectorScreen((screen.X * 0.80), (screen.Y * 0.88)), Colour(235, 0, 0), "Time Left:");
+	FRtt.tname = GUILabel(VectorScreen((screen.X * 0.20), (screen.Y * 0.68)), Colour(235, 0, 0), "Time Left:");
 	FRtt.tname.FontFlags = GUI_FFLAG_BOLD;
 	FRtt.tname.FontSize = screen.X * 0.015;
 	
-	FRtt.min = GUILabel(VectorScreen((screen.X * 0.865), (screen.Y * 0.883)), Colour(255, 255, 255), "02");
-	FRtt.col = GUILabel(VectorScreen((screen.X * 0.875), (screen.Y * 0.883)), Colour(255, 255, 255), ":");
-	FRtt.sec = GUILabel(VectorScreen((screen.X * 0.885), (screen.Y * 0.883)), Colour(255, 255, 255), "00");
+	FRtt.min = GUILabel(VectorScreen((screen.X * 0.265), (screen.Y * 0.683)), Colour(255, 255, 255), "02");
+	FRtt.col = GUILabel(VectorScreen((screen.X * 0.275), (screen.Y * 0.683)), Colour(255, 255, 255), ":");
+	FRtt.sec = GUILabel(VectorScreen((screen.X * 0.285), (screen.Y * 0.683)), Colour(255, 255, 255), "00");
 	FRtt.min.FontSize = screen.X * 0.015;
 	FRtt.col.FontSize = screen.X * 0.013;
 	FRtt.sec.FontSize = screen.X * 0.013;
-	Timer.Create(this, FRupdatetime, 1000, 1000);
+	FRtimetimer <- ::Timer.Create(this, FRupdatetime, 1000, 1000);
 	
 }
 function FRsettime(strread)

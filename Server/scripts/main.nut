@@ -91,7 +91,41 @@ function onScriptLoad()
 	KEY_SPACEBAR <- BindKey( true, 0x20, 0, 0 );
 	KEY_Y <- BindKey( true, 0x59, 0, 0 );
 	KEY_N <- BindKey( true, 0x4E, 0, 0 );
-	SetPassword( "Makingvcmpgreat2018" );
+	
+	
+	SetServerName("VCMP Clan Tournament 2019 (In Progress)");
+	SetPassword( "Makingvcmpgreat2019" );
+	SetFriendlyFire(true);
+	SetWeather(4);
+	SetHour(12);
+	SetMinute(00);
+	SetTimeRate(1000);
+	SetGravity(0.008);
+	SetGamespeed(1);
+	SetWaterLevel(6);
+	SetSyncFrameLimiter(false);
+	SetFrameLimiter(false);
+	SetDriveOnWater(false);
+	SetFastSwitch(false);
+	SetShootInAir(false);
+	SetJoinMessages(false);
+	SetShowNametags(true);
+	SetStuntBike(true);
+	SetDeathMessages(false);	
+	SetJumpSwitch(true);
+
+
+
+	SetSpawnPlayerPos(-232.0314, -442.6181, 32.7944);
+	SetSpawnCameraPos( -231.4, -440.0, 32.1);
+	SetSpawnCameraLook( -232.0314, -442.6181, 33.1);
+	SetWorldBounds(5000.0, -5000.0, 5000.0, -5000.0);
+
+
+	
+	
+	
+	
 	CreateObject( 314, 2, Vector( -1010.59, 199.92, 11.2893 ), 0) .RotateToEuler( Vector( 0, 0, 1.45 ), 1 );
 	CreateObject( 314, 2, Vector( 138.682, -1369.6, 13.1827 ), 0 );
 	CreateObject( 314, 2, Vector( -791.667, 410.613, 12.6254 ), 0 ).RotateToEuler( Vector( 0, 0, 1.55 ), 1 );
@@ -272,9 +306,8 @@ function onPlayerJoin( player )
 	local a,b,c;
 	if(status[player.ID].Registered) a = 1; else a = 0;
 	if(status[player.ID].LoggedIn == true) b = 1; else b = 0;
-	c = player.Name+" "+a+" "+b+" "+status[player.ID].pass;
-	NewTimer("SendDataToClient", 2000, 1, player, 10, c);
-	MessagePlayer("data sent", player);
+	c = player.Name+" "+a+" "+b;
+	NewTimer("SendDataToClient", 5000, 1, player, 10, c);
 */
 	SendDiscord(channel, "**"+player.Name+"** joined the server.");
 
