@@ -302,13 +302,6 @@ function onPlayerJoin( player )
 	pCamera[ player.ID ].Player = FindPlayer( player.ID );
 	checkban(player);
 	MessagePlayer("[#FFDD33]Information:[#FFFFFF] Level: "+status[player.ID].Level+" ("+checklvl(status[player.ID].Level)+")", player);
-/*
-	local a,b,c;
-	if(status[player.ID].Registered) a = 1; else a = 0;
-	if(status[player.ID].LoggedIn == true) b = 1; else b = 0;
-	c = player.Name+" "+a+" "+b;
-	NewTimer("SendDataToClient", 5000, 1, player, 10, c);
-*/
 	SendDiscord(channel, "**"+player.Name+"** joined the server.");
 
 }
@@ -472,10 +465,10 @@ function onPlayerPart( player, reason )
 
 function onPlayerRequestSpawn( player )
 {
-/*	if(status[player.ID].welcomescreen == false) return;
+	if(status[player.ID].welcomescreen == false) return;
 	else
 	{
-*/		if(!status[player.ID].Registered)
+		if(!status[player.ID].Registered)
 		{
 			MessagePlayer("[#FF0000]Error:[#FFFFFF] You need to be registerd before spawning", player);
 			return 0;
@@ -511,7 +504,7 @@ function onPlayerRequestSpawn( player )
 			else return 1;
 		}
 	}
-// }
+ }
 
 function onPlayerSpawn( player )
 {
@@ -2522,8 +2515,8 @@ function RunHelpForm(p)
 	{
 		Announce("~r~ Starting Helping form", player, 8);
 		Helpf[player.ID].Stage = 0.5;
-		NewTimer( "HelpFormArmy1", 30, 200, player.ID );
-		NewTimer( "StartHelpFormArmy2", 6000, 1, player.ID);
+		NewTimer( "HelpFormArmy1", 10, 1000, player.ID );
+		NewTimer( "StartHelpFormArmy2", 10000, 1, player.ID);
 	}
 }
 
@@ -2534,13 +2527,13 @@ function HelpFormArmy1(p)
 	{
 		local vPos = FirstCPosLocArmy[0];
 		player.SetCameraPos( Vector((vPos.x + Helpf[player.ID].Stage - (Helpf[player.ID].Stage / 2) + 7), (vPos.y + Helpf[player.ID].Stage - (Helpf[player.ID].Stage / 3) - 25), (vPos.z + 7)), Vector((-1727.75 - Helpf[player.ID].Stage), -205.736, 14.8683));
-		Helpf[player.ID].Stage += 0.25;
+		Helpf[player.ID].Stage += 0.06;
 	}
 }
 
 function StartHelpFormArmy2(p)
 {
-	NewTimer("HelpFormArmy2", 30, 200, p);
+	NewTimer("HelpFormArmy2", 10, 1000, p);
 }
 
 function HelpFormArmy2(p)
@@ -2550,7 +2543,7 @@ function HelpFormArmy2(p)
 	{
 		local vPos = Vector(-1727.75 , -205.736, 14.8683);
 		player.SetCameraPos( Vector((vPos.x - Helpf[player.ID].Stage + (Helpf[player.ID].Stage / 2) + 7), (vPos.y - Helpf[player.ID].Stage + (Helpf[player.ID].Stage / 3) - 25), (vPos.z + 7)), Vector((-1721.69 + Helpf[player.ID].Stage), -267.066 ,14.8683 ));
-		Helpf[player.ID].Stage += 0.25;
+		Helpf[player.ID].Stage += 0.06;
 	}
 
 }
@@ -2967,6 +2960,17 @@ function onClientScriptData(player)
 		case 4:
 			status[player.ID].welcomescreen = true;
 		break;
+		case 5:
+			player.PlaySound(50000);
+			local a,b,c;
+			if(status[player.ID].Registered) a = 1; else a = 0;
+			if(status[player.ID].LoggedIn == true) b = 1; else b = 0;
+			c = player.Name+" "+a+" "+b;
+			SendDataToClient(player, 10, c);
+			
+		break;
+		default: break;
+
 	}
 
 }
@@ -3540,39 +3544,34 @@ local playerName = pcol(player.ID) + player.Name + white;
 	if(cmd == "register")
 	{
 		if(status[player.ID].Registered || status[player.ID].LoggedIn || status[player.ID].Level > 0) MessagePlayer("[#FF0000]Error:[#FFFFFF] Nick already Registered.", player);
-		else if(!arguments) MessagePlayer("[#FF0000]Error:[#FFFFFF] Use /"+bas+cmd+" <password>", player);
-		else if(arguments.len() < 4) MessagePlayer("[#FF0000]Error:[#FFFFFF] Password should contain atleast 4 characters.", player);
 		else
 		{
-			RegisterPlayer(player.ID, arguments);
-			MessagePlayer("[#FFDD33]Information:[#FFFFFF] You are now registered on the Server.", player);
-			MessagePlayer("[#FFDD33]Information:[#FFFFFF] AutoLogin is set to Yes by default. To turn it off use /"+bas+"autologin"+white+" (toggles Automatically) to turn it off", player);
+			local a,b,c;
+			if(status[player.ID].Registered) a = 1; else a = 0;
+			if(status[player.ID].LoggedIn == true) b = 1; else b = 0;
+			c = player.Name+" "+a+" "+b;
+			SendDataToClient(player, 10, c);
+			SendDataToClient(player, 13, "");
 		}
 	}
 
 	else if(cmd == "login")
 	{
-		if(!status[player.ID].Registered) MessagePlayer("[#FF0000]Error:[#FFFFFF] You are not registered.", player);
+		if(!status[player.ID].Registered) MessagePlayer("[#FF0000]Error:[#FFFFFF] You are not registered. Use /"+bas+"register", player);
 		else if(status[player.ID].LoggedIn) MessagePlayer("[#FF0000]Error:[#FFFFFF] Already Logged in.", player);
-		else if(!arguments) MessagePlayer("[#FF0000]Error:[#FFFFFF] Use /"+bas+cmd+" <password>", player);
 		else
 		{
-			local q = QuerySQL(DB, "SELECT * FROM Accounts WHERE LowerName = '"+escapeSQLString(player.Name.tolower())+"'");
-			if(!q) MessagePlayer("[#FF0000]Error:[#FFFFFF] There is a problem with your account. Please Contact a developer of the server.", player)
-			else
-			{
-				if(SHA256(arguments) != status[player.ID].pass) MessagePlayer("[#FF0000]Error:[#FFFFFF] Wrong Password.", player);
-				else
-				{
-					status[player.ID].LoggedIn = true;
-					MessagePlayer("[#FFDD33]Information:[#FFFFFF] You are Logged in.", player);
-				}
-			}
+			local a,b,c;
+			if(status[player.ID].Registered) a = 1; else a = 0;
+			if(status[player.ID].LoggedIn == true) b = 1; else b = 0;
+			c = player.Name+" "+a+" "+b;
+			SendDataToClient(player, 10, c);
+			SendDataToClient(player, 13, "");
 		}
 	}
 	else if(cmd == "credits")
 	{
-		MessagePlayer("[#FFDD33]Information:[#FFFFFF] This Server is created by umar4911 and Tdz.Kurumi.", player);
+		MessagePlayer("[#FFDD33]Information:[#FFFFFF] This Server is created by =EK=UmaR^ and =KF=DarkR4ZoR^.", player);
 	}
 
 	else if(!status[player.ID].Registered)

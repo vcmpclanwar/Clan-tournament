@@ -29,8 +29,9 @@ function errorHandling(err)
  
 function Script::ScriptLoad()
 {
-//	seterrorhandler(errorHandling);
+	seterrorhandler(errorHandling);
 	WelcomeScreen.Create();
+	SendDataToServer("", 5);
 }
 
 
@@ -103,6 +104,9 @@ function Server::ServerData(stream)
 		break;
 		case 12:
 			WelcomeScreen.ClearForm();
+		break;
+		case 13:
+			WelcomeScreen.Create();
 		break;
 		default: break;
 
@@ -241,7 +245,6 @@ WelcomeScreen <-
 			Timer.Delete(this.timer);
 			this.timer	<-	null;
 			this.Default <- null;
-			SendDataToServer("", 4);
 			InWork <- "sidebar";
 			this.Outline		<- ::GUISprite("processor/overlay.png", VectorScreen(screen.X * 0.72, screen.Y * 0.75), Colour(255, 255, 255, 150));
 			this.Outline.Size = VectorScreen(screen.X * 0.25, screen.Y * 0.12);
@@ -264,9 +267,10 @@ WelcomeScreen <-
 			::_Gui_FPS.FontName = ::FPS_Font;
 			::FPSCalc = 0;
 			::FPSTime = Script.GetTicks() + 1000;
- }
+			}
 
 			Hud.AddFlags(HUD_FLAG_CASH | HUD_FLAG_CLOCK | HUD_FLAG_HEALTH | HUD_FLAG_WEAPON | HUD_FLAG_WANTED | HUD_FLAG_RADAR);
+			SendDataToServer("", 4);
 		}
 	}
 	
@@ -914,8 +918,8 @@ screen <- GUI.GetScreenSize();
 
 			this.Continue.Position =VectorScreen(screen.X * 0.60, screen.Y * 0.42);
 			this.Continue.Size = VectorScreen(screen.X * 0.05, screen.Y * 0.07);
-			}
 		}
+	}
 }
 
 
@@ -1069,20 +1073,6 @@ function RemoveCBScoreboardDisplay()
 
 
 
-
-function SendDataToServer(str, int)
-{
- local message = Stream();
- message.WriteInt(int.tointeger());
- message.WriteString(str);
- Server.SendData(message);
-}
-
-
-
-
-
-
 FPSLimit <- 37;
 FPSMax <- 1;
 FPSCalc <- 0;
@@ -1106,12 +1096,10 @@ FPS_TextColor <- Colour( 255, 255, 255 );
 
 
 
-
-
-
-
-
-
-
-
-
+function SendDataToServer(str, int)
+{
+ local message = Stream();
+ message.WriteInt(int.tointeger());
+ message.WriteString(str);
+ Server.SendData(message);
+}
