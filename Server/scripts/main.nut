@@ -1191,6 +1191,7 @@ function FindRandPlayer()
 CBattle <- {
 	Timer1 = null,
 	Timer2 = null,
+	MaxParticipants = 8,
 	FC_Alive = 0, // First clan players remaining alive.
 	SC_Alive = 0, // Second clan players remaining alive.
 	Round = 1, // Above, you can compare the rounds to the required one.
@@ -5257,7 +5258,7 @@ local playerName = pcol(player.ID) + player.Name + white;
 							CBattle.iData[ plr.ID ] = plr.Pos;
 						}
 					}
-					if( a < 8 || b < 8 ) MessagePlayer( "[#FF0000]Error:[#FFFFFF] You need at least 8 clan members (including the clan leader) online in order to challenge the other clan.", player );	
+					if( a < CBattle.MaxParticipants || b < CBattle.MaxParticipants ) MessagePlayer( "[#FF0000]Error:[#FFFFFF] You need at least "+CBattle.MaxParticipants+" clan members (including the clan leader) online in order to challenge the other clan.", player );	
 					else 
 					{
 						CBattle.SearchRefereeOnline( player );
